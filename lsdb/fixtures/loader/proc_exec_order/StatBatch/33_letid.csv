@@ -1,0 +1,24 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+LeTID 486,33,1,Pre Stress,BKL,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,2,LeTID 162 #1,,LeTID 162,13,FALSE,
+,,3,Post LeTID 162 #1,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,4,LeTID 162 #2,,LeTID 162,13,FALSE,
+,,5,Post LeTID 162 #2,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,6,LeTID 162 #3,,LeTID 162,13,FALSE,
+,,7,Post LeTID 162 #3,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,

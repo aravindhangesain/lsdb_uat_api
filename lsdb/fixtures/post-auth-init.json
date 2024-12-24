@@ -1,0 +1,3736 @@
+[
+{
+    "model": "lsdb.fileformat",
+    "pk": 1,
+    "fields": {
+        "name": "html",
+        "description": "HTML Source Code"
+    }
+},
+{
+    "model": "lsdb.fileformat",
+    "pk": 2,
+    "fields": {
+        "name": "txt",
+        "description": "plain text file"
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 1,
+    "fields": {
+        "name": "Sequences",
+        "notes": "Group For Adding Sequences",
+        "organization": 1,
+        "group_type": 2,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 2,
+    "fields": {
+        "name": "Project Managers",
+        "notes": "Project Managers",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            6,
+            51,
+            64,
+            65,
+            92,
+            103,
+            116,
+            104,
+            111,
+            126,
+            80,
+            93,
+            60
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 3,
+    "fields": {
+        "name": "Engineers",
+        "notes": "Engineers",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            13,
+            112,
+            120,
+            121,
+            127,
+            80,
+            57
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 4,
+    "fields": {
+        "name": "Administrators",
+        "notes": "Administrators",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            5,
+            60,
+            57
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 5,
+    "fields": {
+        "name": "Report Writers",
+        "notes": "Report Writers",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            129,
+            80,
+            82
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 6,
+    "fields": {
+        "name": "Technicians",
+        "notes": "Technicians",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            87,
+            69,
+            73,
+            71,
+            84,
+            68,
+            86,
+            88,
+            90,
+            14,
+            95,
+            94,
+            81,
+            97,
+            98,
+            77,
+            61,
+            76,
+            100,
+            101,
+            105,
+            108,
+            109,
+            112,
+            114,
+            115,
+            118,
+            119,
+            117,
+            121,
+            120,
+            91,
+            82,
+            122,
+            57,
+            80,
+            127,
+            93,
+            60,
+            130
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 7,
+    "fields": {
+        "name": "Viewers",
+        "notes": "Viewers",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            93,
+            94,
+            82,
+            103,
+            51,
+            58,
+            64,
+            92,
+            107,
+            110,
+            111,
+            113,
+            123,
+            124,
+            125,
+            128,
+            129
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 8,
+    "fields": {
+        "name": "Super Users",
+        "notes": "Super Users",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            2,
+            4,
+            3,
+            1,
+            80
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 9,
+    "fields": {
+        "name": "Plans",
+        "notes": "Group For Adding Plans",
+        "organization": 1,
+        "group_type": 4,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 10,
+    "fields": {
+        "name": "Projects",
+        "notes": "Group For Adding Projects",
+        "organization": 1,
+        "group_type": 1,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 11,
+    "fields": {
+        "name": "Reviewers",
+        "notes": "User group for managing results.",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            94,
+            97,
+            26,
+            14,
+            108,
+            95,
+            100,
+            88,
+            73,
+            61,
+            98,
+            13,
+            120,
+            82,
+            112,
+            57,
+            80,
+            60
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 44,
+    "fields": {
+        "name": "Kiosk",
+        "notes": "Kiosk users",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            123,
+            124,
+            106,
+            125
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 45,
+    "fields": {
+        "name": "Stressors",
+        "notes": "Group for gathering stress type procedures",
+        "organization": 1,
+        "group_type": 5,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 46,
+    "fields": {
+        "name": "Characterizations",
+        "notes": "Group for gathering characterization type procedures",
+        "organization": 1,
+        "group_type": 5,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 47,
+    "fields": {
+        "name": "Control",
+        "notes": "Group for collecting control test sequences",
+        "organization": 1,
+        "group_type": 2,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 48,
+    "fields": {
+        "name": "Calibration",
+        "notes": "Group for collecting calibration test sequences",
+        "organization": 1,
+        "group_type": 2,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 49,
+    "fields": {
+        "name": "Simple Notes",
+        "notes": "Note Types that utilize a minimal information set.",
+        "organization": 1,
+        "group_type": 6,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 50,
+    "fields": {
+        "name": "Threaded Notes",
+        "notes": "Note Types that utilize a full data set and are interactive.",
+        "organization": 1,
+        "group_type": 6,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 51,
+    "fields": {
+        "name": "System Notes",
+        "notes": "Note Types that are utilized by the system only",
+        "organization": 1,
+        "group_type": 6,
+        "unit_type": [],
+        "users": []
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 52,
+    "fields": {
+        "name": "Data Entry",
+        "notes": "Allowed to update unit types",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            128,
+            57
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 53,
+    "fields": {
+        "name": "TSD Builder",
+        "notes": "Permission group for users requiring edit access on Test Sequence Definitions",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            14
+        ]
+    }
+},
+{
+    "model": "lsdb.group",
+    "pk": 54,
+    "fields": {
+        "name": "Plugin Users",
+        "notes": "Can execute but not create plugins",
+        "organization": 1,
+        "group_type": 3,
+        "unit_type": [],
+        "users": [
+            60,
+            14,
+            57,
+            120
+        ]
+    }
+},
+{
+    "model": "lsdb.grouptype",
+    "pk": 1,
+    "fields": {
+        "name": "Projects",
+        "description": "Projects"
+    }
+},
+{
+    "model": "lsdb.grouptype",
+    "pk": 2,
+    "fields": {
+        "name": "Sequences",
+        "description": "Sequences"
+    }
+},
+{
+    "model": "lsdb.grouptype",
+    "pk": 3,
+    "fields": {
+        "name": "Users",
+        "description": "Users Group"
+    }
+},
+{
+    "model": "lsdb.grouptype",
+    "pk": 4,
+    "fields": {
+        "name": "Plans",
+        "description": "Plans"
+    }
+},
+{
+    "model": "lsdb.grouptype",
+    "pk": 5,
+    "fields": {
+        "name": "Procedures",
+        "description": "Group for gathering procedures into groups of stress or characterization"
+    }
+},
+{
+    "model": "lsdb.grouptype",
+    "pk": 6,
+    "fields": {
+        "name": "Notes",
+        "description": "Groups by Note Type"
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 1,
+    "fields": {
+        "name": "Note",
+        "visible_name": "Note",
+        "description": "Basic Note type",
+        "groups": [
+            50
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 2,
+    "fields": {
+        "name": "Intake Directive",
+        "visible_name": "Intake Directive",
+        "description": "Note for SRI to view during intake for this project",
+        "groups": [
+            49
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 3,
+    "fields": {
+        "name": "Flag",
+        "visible_name": "Flag",
+        "description": "Flag for engineering action.",
+        "groups": [
+            50
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 4,
+    "fields": {
+        "name": "Alert",
+        "visible_name": "Alert",
+        "description": "High priority alert for action",
+        "groups": [
+            51
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 5,
+    "fields": {
+        "name": "Test Directive",
+        "visible_name": "Test Directive",
+        "description": "Testing instructions that must be acknowledged.",
+        "groups": [
+            49
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 6,
+    "fields": {
+        "name": "SystemLog",
+        "visible_name": "SystemLog",
+        "description": "Note created by the system for logging activity.",
+        "groups": [
+            51
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 7,
+    "fields": {
+        "name": "Support Ticket",
+        "visible_name": "Support Ticket",
+        "description": "Request for help with LSDB data.",
+        "groups": [
+            50
+        ]
+    }
+},
+{
+    "model": "lsdb.notetype",
+    "pk": 8,
+    "fields": {
+        "name": "Task",
+        "visible_name": "Task",
+        "description": "Tasks.",
+        "groups": [
+            50
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 1,
+    "fields": {
+        "name": "Test Permission",
+        "description": null,
+        "group": 4,
+        "permission_types": [
+            2,
+            6,
+            7,
+            4,
+            3
+        ],
+        "permitted_views": [
+            1
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 2,
+    "fields": {
+        "name": "Technician Read Access",
+        "description": null,
+        "group": 6,
+        "permission_types": [
+            2,
+            6,
+            7
+        ],
+        "permitted_views": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            8,
+            9,
+            10,
+            12,
+            11,
+            13,
+            15,
+            14,
+            83,
+            18,
+            17,
+            16,
+            19,
+            20,
+            22,
+            21,
+            23,
+            7,
+            24,
+            84,
+            81,
+            82,
+            25,
+            27,
+            26,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            43,
+            42,
+            38,
+            39,
+            40,
+            41,
+            45,
+            44,
+            46,
+            47
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 3,
+    "fields": {
+        "name": "Technician Write Access",
+        "description": null,
+        "group": 6,
+        "permission_types": [
+            4,
+            1
+        ],
+        "permitted_views": [
+            6,
+            9,
+            10,
+            13,
+            19,
+            22,
+            7,
+            24,
+            81,
+            30,
+            31,
+            35,
+            87,
+            43,
+            42,
+            45,
+            44,
+            46,
+            47
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 4,
+    "fields": {
+        "name": "Viewers",
+        "description": null,
+        "group": 7,
+        "permission_types": [
+            2,
+            6,
+            7
+        ],
+        "permitted_views": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            8,
+            9,
+            10,
+            12,
+            11,
+            13,
+            15,
+            14,
+            83,
+            18,
+            17,
+            16,
+            19,
+            20,
+            22,
+            21,
+            23,
+            7,
+            24,
+            84,
+            81,
+            82,
+            25,
+            27,
+            26,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            87,
+            37,
+            43,
+            42,
+            38,
+            39,
+            40,
+            41,
+            45,
+            44,
+            46,
+            47
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 5,
+    "fields": {
+        "name": "Reviewer Write Access",
+        "description": null,
+        "group": 11,
+        "permission_types": [
+            2,
+            6,
+            7,
+            1,
+            3
+        ],
+        "permitted_views": [
+            48,
+            87,
+            42
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 38,
+    "fields": {
+        "name": "Kiosk View access",
+        "description": null,
+        "group": 44,
+        "permission_types": [
+            2,
+            6,
+            7
+        ],
+        "permitted_views": [
+            84,
+            30
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 39,
+    "fields": {
+        "name": "Project Manager View Permissions",
+        "description": null,
+        "group": 2,
+        "permission_types": [
+            2,
+            6,
+            7
+        ],
+        "permitted_views": [
+            86,
+            85,
+            1,
+            3,
+            4,
+            5,
+            6,
+            8,
+            9,
+            10,
+            12,
+            11,
+            13,
+            15,
+            14,
+            83,
+            19,
+            20,
+            22,
+            21,
+            23,
+            7,
+            24,
+            84,
+            81,
+            82,
+            25,
+            29,
+            30,
+            31,
+            33,
+            34,
+            35,
+            36,
+            37,
+            43,
+            42,
+            38,
+            39,
+            40,
+            45,
+            44,
+            46,
+            47
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 40,
+    "fields": {
+        "name": "Project Manager Edit Permissions",
+        "description": null,
+        "group": 2,
+        "permission_types": [
+            4,
+            1,
+            3
+        ],
+        "permitted_views": [
+            85,
+            6,
+            10,
+            13,
+            81,
+            31,
+            43,
+            42,
+            47
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 41,
+    "fields": {
+        "name": "Data Entry Write Permission",
+        "description": null,
+        "group": 52,
+        "permission_types": [
+            7,
+            4,
+            1,
+            3
+        ],
+        "permitted_views": [
+            6,
+            87,
+            43,
+            42
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 42,
+    "fields": {
+        "name": "TSD Builder Write Permission",
+        "description": null,
+        "group": 53,
+        "permission_types": [
+            6,
+            7,
+            4,
+            1,
+            3
+        ],
+        "permitted_views": [
+            37
+        ]
+    }
+},
+{
+    "model": "lsdb.permission",
+    "pk": 43,
+    "fields": {
+        "name": "Plugin User",
+        "description": null,
+        "group": 54,
+        "permission_types": [
+            2,
+            6,
+            7,
+            1
+        ],
+        "permitted_views": [
+            88
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": "",
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 2,
+    "fields": {
+        "user": 2,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": "",
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 3,
+    "fields": {
+        "user": 3,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": "",
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 4,
+    "fields": {
+        "user": 4,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": "",
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 5,
+    "fields": {
+        "user": 5,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": "",
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 6,
+    "fields": {
+        "user": 6,
+        "notes": "User attached to system activities",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": "",
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 7,
+    "fields": {
+        "user": 7,
+        "notes": "56e3c055492ee1f2578b1d41",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 8,
+    "fields": {
+        "user": 8,
+        "notes": "56e6f0bd492ee1f2578b1f26",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 9,
+    "fields": {
+        "user": 9,
+        "notes": "56e734cc492ee1f2578b1f27",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 10,
+    "fields": {
+        "user": 10,
+        "notes": "56ec7bfea5ad5ad60581fc62",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 11,
+    "fields": {
+        "user": 11,
+        "notes": "572110b2ae54ab3c27bd76d5",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 12,
+    "fields": {
+        "user": 12,
+        "notes": "5727e219ae54ab3c27bd76da",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 13,
+    "fields": {
+        "user": 13,
+        "notes": "572904b2ae54ab3c27bd76db",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 14,
+    "fields": {
+        "user": 14,
+        "notes": "57291ad9ae54ab3c27bd76dc",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 15,
+    "fields": {
+        "user": 15,
+        "notes": "575b740953e36f493d365f6d",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 16,
+    "fields": {
+        "user": 16,
+        "notes": "575f2c4053e36f493d365f72",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 17,
+    "fields": {
+        "user": 17,
+        "notes": "577192970f879c42305b10d6",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 18,
+    "fields": {
+        "user": 18,
+        "notes": "5771bb690f879c42305b10f1",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 19,
+    "fields": {
+        "user": 19,
+        "notes": "5771bd680f879c42305b10f2",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 20,
+    "fields": {
+        "user": 20,
+        "notes": "5772a0980f879c42305b10f3",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 21,
+    "fields": {
+        "user": 21,
+        "notes": "5772a3c40f879c42305b10f4",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 22,
+    "fields": {
+        "user": 22,
+        "notes": "57755f4516ec81fc485da25e",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 23,
+    "fields": {
+        "user": 23,
+        "notes": "5775610e16ec81fc485da25f",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 24,
+    "fields": {
+        "user": 24,
+        "notes": "57758fbb16ec81fc485da438",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 25,
+    "fields": {
+        "user": 25,
+        "notes": "578ebb23bff5ebac063d1d2a",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 26,
+    "fields": {
+        "user": 26,
+        "notes": "57bf45b5785025762b4bc0ee",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 27,
+    "fields": {
+        "user": 27,
+        "notes": "5845a705a5b41f8306a9968e",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 28,
+    "fields": {
+        "user": 28,
+        "notes": "58878c6d575d4ee039e58323",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 29,
+    "fields": {
+        "user": 29,
+        "notes": "58a32258575d4ee039e59f94",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 30,
+    "fields": {
+        "user": 30,
+        "notes": "58a32338575d4ee039e59f95",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 31,
+    "fields": {
+        "user": 31,
+        "notes": "58fe1cd1575d4ee039e5d8b0",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 32,
+    "fields": {
+        "user": 32,
+        "notes": "59400198575d4ee039e5fede",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 33,
+    "fields": {
+        "user": 33,
+        "notes": "5953f5b0575d4ee039e6070b",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 34,
+    "fields": {
+        "user": 34,
+        "notes": "59650627575d4ee039e6105f",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 35,
+    "fields": {
+        "user": 35,
+        "notes": "599367a3575d4ee039e62aa3",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 36,
+    "fields": {
+        "user": 36,
+        "notes": "599f1cb6575d4ee039e62e61",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 37,
+    "fields": {
+        "user": 37,
+        "notes": "59a04034575d4ee039e62f0b",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 38,
+    "fields": {
+        "user": 38,
+        "notes": "59a040ad575d4ee039e62f0c",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 39,
+    "fields": {
+        "user": 39,
+        "notes": "59a040f8575d4ee039e62f0d",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 40,
+    "fields": {
+        "user": 40,
+        "notes": "59a0410f575d4ee039e62f0e",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 41,
+    "fields": {
+        "user": 41,
+        "notes": "59a04eecad605e805ef9a39a",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 42,
+    "fields": {
+        "user": 42,
+        "notes": "59a49b1cad605e805ef9a564",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 43,
+    "fields": {
+        "user": 43,
+        "notes": "5a691255ad605e805efa0b9f",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 44,
+    "fields": {
+        "user": 44,
+        "notes": "5a8cb4b8ad605e805efa1fd7",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 45,
+    "fields": {
+        "user": 45,
+        "notes": "5ad5167aad605e805efa35b2",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 46,
+    "fields": {
+        "user": 46,
+        "notes": "5b0591a3c2d49f5406b8cc60",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 47,
+    "fields": {
+        "user": 47,
+        "notes": "5b6df775c2d49f5406b8efef",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 48,
+    "fields": {
+        "user": 48,
+        "notes": "5b85c03fc2d49f5406b8fa2c",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 49,
+    "fields": {
+        "user": 49,
+        "notes": "5c36152e9a413e841b0eed43",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 50,
+    "fields": {
+        "user": 50,
+        "notes": "5c3616b59a413e841b0eed48",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 51,
+    "fields": {
+        "user": 51,
+        "notes": "5c48f5949a413e841b0efd2a",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 52,
+    "fields": {
+        "user": 52,
+        "notes": "5c4f1cd19a413e841b0eff45",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 53,
+    "fields": {
+        "user": 53,
+        "notes": "5c58c6a19a413e841b0f078c",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 54,
+    "fields": {
+        "user": 54,
+        "notes": "5c5c57c99a413e841b0f094e",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 55,
+    "fields": {
+        "user": 55,
+        "notes": "5c61a4759a413e841b0f0c2a",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 56,
+    "fields": {
+        "user": 56,
+        "notes": "5c62dd1e9a413e841b0f0dab",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 57,
+    "fields": {
+        "user": 57,
+        "notes": "5c7d8dca9a413e841b0f1aa8",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 58,
+    "fields": {
+        "user": 58,
+        "notes": "5c8959e79a413e841b0f219f",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 59,
+    "fields": {
+        "user": 59,
+        "notes": "5c8bf3f19a413e841b0f2412",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 60,
+    "fields": {
+        "user": 60,
+        "notes": "5c9024969a413e841b0f24c6",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 61,
+    "fields": {
+        "user": 61,
+        "notes": "5c992ca5ad333c7048ab10ea",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 62,
+    "fields": {
+        "user": 62,
+        "notes": "5cfadaf4ad333c7048ab379d",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 63,
+    "fields": {
+        "user": 63,
+        "notes": "5d08e702ad333c7048ab3cdf",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 64,
+    "fields": {
+        "user": 64,
+        "notes": "5d154c08ad333c7048ab4191",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 65,
+    "fields": {
+        "user": 65,
+        "notes": "5d16813aad333c7048ab423b",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 66,
+    "fields": {
+        "user": 66,
+        "notes": "5d249980ad333c7048ab461e",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 67,
+    "fields": {
+        "user": 67,
+        "notes": "5d2c8266ad333c7048ab4748",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 68,
+    "fields": {
+        "user": 68,
+        "notes": "5d2c8292ad333c7048ab4749",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 69,
+    "fields": {
+        "user": 69,
+        "notes": "5d2e49f1ad333c7048ab4903",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 70,
+    "fields": {
+        "user": 70,
+        "notes": "5d4078a6ad333c7048ab5250",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 71,
+    "fields": {
+        "user": 71,
+        "notes": "5d5b350ee4a467a006712ad9",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 72,
+    "fields": {
+        "user": 72,
+        "notes": "5d9b8558a3088edf06765fdc",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 73,
+    "fields": {
+        "user": 73,
+        "notes": "5d9deceba3088edf06766261",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 74,
+    "fields": {
+        "user": 74,
+        "notes": "5db1e819a3088edf06766eec",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 75,
+    "fields": {
+        "user": 75,
+        "notes": "5dba1ceea3088edf067671a2",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 76,
+    "fields": {
+        "user": 76,
+        "notes": "5df8254da3088edf06768af5",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 77,
+    "fields": {
+        "user": 77,
+        "notes": "5e270899acef7f1b072978a7",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 78,
+    "fields": {
+        "user": 78,
+        "notes": "5e4c13e5acef7f1b07298b13",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 79,
+    "fields": {
+        "user": 79,
+        "notes": "5e4c3ba5acef7f1b07298b76",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 80,
+    "fields": {
+        "user": 80,
+        "notes": "5e50890dacef7f1b07298deb",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 81,
+    "fields": {
+        "user": 81,
+        "notes": "5e7e3bf864f82d994e7a0499",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 82,
+    "fields": {
+        "user": 82,
+        "notes": "5e94b4f0ae8f6708074e9d9d",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 3,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 83,
+    "fields": {
+        "user": 83,
+        "notes": "5ed7af3dae8f6708074ec8cf",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 84,
+    "fields": {
+        "user": 84,
+        "notes": "5edea38aae8f6708074ecc63",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 85,
+    "fields": {
+        "user": 85,
+        "notes": "5eed3286ae8f6708074ed246",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 86,
+    "fields": {
+        "user": 86,
+        "notes": "5f80a1079e3aea4813f1c5c3",
+        "registration_comment": null,
+        "administration_comment": null,
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 87,
+    "fields": {
+        "user": 87,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 88,
+    "fields": {
+        "user": 88,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 89,
+    "fields": {
+        "user": 89,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 90,
+    "fields": {
+        "user": 90,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 91,
+    "fields": {
+        "user": 91,
+        "notes": "Security test account",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 92,
+    "fields": {
+        "user": 92,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 93,
+    "fields": {
+        "user": 93,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 94,
+    "fields": {
+        "user": 94,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 95,
+    "fields": {
+        "user": 95,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 96,
+    "fields": {
+        "user": 96,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 97,
+    "fields": {
+        "user": 97,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 98,
+    "fields": {
+        "user": 98,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 99,
+    "fields": {
+        "user": 99,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 100,
+    "fields": {
+        "user": 100,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 101,
+    "fields": {
+        "user": 101,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 102,
+    "fields": {
+        "user": 102,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 103,
+    "fields": {
+        "user": 103,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 104,
+    "fields": {
+        "user": 104,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 105,
+    "fields": {
+        "user": 105,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 106,
+    "fields": {
+        "user": 106,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 107,
+    "fields": {
+        "user": 107,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 108,
+    "fields": {
+        "user": 108,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 109,
+    "fields": {
+        "user": 109,
+        "notes": "",
+        "registration_comment": "requested via Teams",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 110,
+    "fields": {
+        "user": 110,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 111,
+    "fields": {
+        "user": 111,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 112,
+    "fields": {
+        "user": 112,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 113,
+    "fields": {
+        "user": 113,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 114,
+    "fields": {
+        "user": 114,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 115,
+    "fields": {
+        "user": 115,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 116,
+    "fields": {
+        "user": 116,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 117,
+    "fields": {
+        "user": 117,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 118,
+    "fields": {
+        "user": 118,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 119,
+    "fields": {
+        "user": 119,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 120,
+    "fields": {
+        "user": 120,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 121,
+    "fields": {
+        "user": 121,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 122,
+    "fields": {
+        "user": 122,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 123,
+    "fields": {
+        "user": 123,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 124,
+    "fields": {
+        "user": 124,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 125,
+    "fields": {
+        "user": 125,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 126,
+    "fields": {
+        "user": 126,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 2,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 127,
+    "fields": {
+        "user": 127,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 128,
+    "fields": {
+        "user": 128,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 129,
+    "fields": {
+        "user": 129,
+        "notes": "Roake India team member",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userprofile",
+    "pk": 130,
+    "fields": {
+        "user": 130,
+        "notes": "",
+        "registration_comment": "",
+        "administration_comment": "",
+        "user_registration_status": 1,
+        "birth_date": null,
+        "box_user": null,
+        "allowed_templates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.template",
+    "pk": 1,
+    "fields": {
+        "author": 1,
+        "name": "account_create",
+        "description": "Email sent to new user on account creation",
+        "disposition": 16,
+        "group": 4,
+        "body_source": "<h4>Dear {{ first_name }},</h4>\r\n\r\n<p>Your account registration is confirmed with the user name {{ user_name }}.\r\n    Follow the link below to access LSDB. </p>\r\n\r\n\r\n<p><a href=\"{{ magic_link }}\">Click here</a> to log in. LSDB is\r\n    supported on Google Chrome, Microsoft Edge, and Mozilla Firefox. Other\r\n    browsers may not work as expected.</p>\r\n\r\nBest regards,<br>\r\n<br>\r\nLSDB Dev Team<br>\r\n<br>\r\nQuestions? Reply to this email for support.<br>",
+        "subject_source": "Welcome to LSDB!",
+        "format": 1
+    }
+},
+{
+    "model": "lsdb.template",
+    "pk": 2,
+    "fields": {
+        "author": 1,
+        "name": "assigned_owner",
+        "description": "Email sent to new owner of a ticket/flag/task",
+        "disposition": 16,
+        "group": 4,
+        "body_source": "<h4>Dear {{ first_name }},</h4>\r\n\r\n<p>You have been assigned as owner to a ticket in LSDB.\r\n    <a href=\"{{ ticket_link }}\">Click here</a> to view the ticket.</p>\r\n    {% if  ticket_subject %}\r\n    <p>Ticket subject: {{ ticket_subject }}</p>\r\n    {% endif %}\r\n    {% if ticket_body %}\r\n    <p>Ticket Body: {{ ticket_body }}</p>\r\n    {% endif %}\r\n    {% if ticket_activity %}\r\n    <p>Ticket Activity:\r\n        <ul>\r\n    {% for activity in ticket_activity %}\r\n            <li>{{ activity }}</li>\r\n    {% endfor %}\r\n        </ul>\r\n    </p>\r\n    {% endif %}\r\n<br>\r\nBest regards,<br>\r\n<br>\r\nThe LSDB Dev Team<br>\r\n<br>\r\nQuestions? Reply to this email for support.<br>",
+        "subject_source": "You have been assigned a ticket in LSDB",
+        "format": 1
+    }
+},
+{
+    "model": "lsdb.template",
+    "pk": 3,
+    "fields": {
+        "author": 1,
+        "name": "requested_file",
+        "description": "Notification of a long running process completion",
+        "disposition": 16,
+        "group": 4,
+        "body_source": "<h4>Dear {{ first_name }},</h4>\r\n\r\n<p>The file you requested is available at the following link:\r\n    <a href=\"{{ticket_link}}\">Click here</a> to download the file.</p>\r\n\r\n<p>This file took {{ file_duration }} for the system to generate.</p>\r\n\r\n<br>\r\nBest regards,<br>\r\n<br>\r\nThe LSDB Dev Team<br>\r\n<br>\r\nQuestions? Reply to this email for support.<br>",
+        "subject_source": "The file you requested is available",
+        "format": 1
+    }
+},
+{
+    "model": "lsdb.template",
+    "pk": 4,
+    "fields": {
+        "author": 1,
+        "name": "reset_password",
+        "description": "Email with magic link to change password",
+        "disposition": 16,
+        "group": 4,
+        "body_source": "<h4>Dear {{ first_name }},</h4>\r\n\r\n<p>We recently received a request to update your password in LSDB.\r\n    <a href=\"{{magic_link}}\">Click here</a> to log in and reset your password.</p>\r\n\r\n<p>If you’re receiving this email by mistake, simply ignore it.</p>\r\n<br>\r\nBest regards,<br>\r\n<br>\r\nThe LSDB Dev Team<br>\r\n<br>\r\nQuestions? Reply to this email for support.<br>",
+        "subject_source": "LSDB password change requested",
+        "format": 1
+    }
+},
+{
+    "model": "lsdb.template",
+    "pk": 5,
+    "fields": {
+        "author": 1,
+        "name": "tagged_user",
+        "description": "Email sent when a user is newly added as a tagged user on a flag/task/ticket",
+        "disposition": 16,
+        "group": 4,
+        "body_source": "<h4>Dear {{ first_name }},</h4>\r\n\r\n<p>You have been added as a \"tagged user\" to a ticket in LSDB.\r\n    <a href=\"{{ticket_link}}\">Click here</a> to view the ticket.</p>\r\n    {% if  ticket_subject %}\r\n    <p>Ticket subject: {{ ticket_subject }}</p>\r\n    {% endif %}\r\n    {% if ticket_body %}\r\n    <p>Ticket Comment Body: {{ ticket_body }}</p>\r\n    {% endif %}\r\n    {% if ticket_activity %}\r\n    <p>Ticket Activity:\r\n        <ul>\r\n    {% for activity in ticket_activity %}\r\n            <li>{{ activity }}</li>\r\n    {% endfor %}\r\n        </ul>\r\n    </p>\r\n    {% endif %}\r\n<br>\r\nBest regards,<br>\r\n<br>\r\nThe LSDB Dev Team<br>\r\n<br>\r\nQuestions? Reply to this email for support.<br>",
+        "subject_source": "You have been tagged on a ticket in LSDB",
+        "format": 1
+    }
+},
+{
+    "model": "lsdb.template",
+    "pk": 6,
+    "fields": {
+        "author": 1,
+        "name": "ticket_activity",
+        "description": "Email sent when activity occurs on a flag/task/ticket. Sent to Owner and all tagged_users",
+        "disposition": 16,
+        "group": 4,
+        "body_source": "<h4>Dear {{ first_name }},</h4>\r\n\r\n<p>There has been new activity on a ticket that you are watching in LSDB.\r\n    <a href=\"{{ticket_link}}\">Click here</a> to view the ticket.</p>\r\n    {% if  ticket_subject %}\r\n    <p>Ticket subject: {{ ticket_subject }}</p>\r\n    {% endif %}\r\n    {% if ticket_body %}\r\n    <p>Ticket Comment Body: {{ ticket_body }}</p>\r\n    {% endif %}\r\n    {% if ticket_activity %}\r\n    <p>Ticket Activity:\r\n        <ul>\r\n    {% for activity in ticket_activity %}\r\n            <li>{{ activity }}</li>\r\n    {% endfor %}\r\n        </ul>\r\n    </p>\r\n    {% endif %}\r\n<br>\r\nBest regards,<br>\r\n<br>\r\nThe LSDB Dev Team<br>\r\n<br>\r\nQuestions? Reply to this email for support.<br>",
+        "subject_source": "New activity on an LSDB ticket",
+        "format": 1
+    }
+}
+]

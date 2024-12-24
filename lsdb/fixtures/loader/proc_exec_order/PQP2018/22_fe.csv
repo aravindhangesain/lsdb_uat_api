@@ -1,0 +1,39 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+Field Exposure,22,1,Pre Light Soak,BKL,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,2,Light Soak >40 kWh/m�,,Light Soak >40 kWh/m�,17,FALSE,
+,,3,Post Light Soak,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,Low-Light I-V Curve,38,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,,,,IR Image,41,TRUE,Retired
+,,4,FE 90 #1,,Field Exposure 90,40,FALSE,
+,,5,Post FE 90 #1,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,,,,IR Image,41,TRUE,Retired
+,,6,FE 90 #2,,Field Exposure 90,40,FALSE,
+,,7,Post FE 90 #2,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,,,,IR Image,41,TRUE,Retired
+,,8,FE 90 #3,,Field Exposure 90,40,FALSE,
+,,9,Post FE 90 #3,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,,,,IR Image,41,TRUE,Retired
+,,10,FE 90 #4,,Field Exposure 90,40,FALSE,
+,,11,Post FE 90 #4,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,Low-Light I-V Curve,38,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,,,,Diode Test,1,FALSE,
+,,,,,IR Image,41,TRUE,Retired

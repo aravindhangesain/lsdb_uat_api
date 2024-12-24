@@ -1,0 +1,31 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+DH 1000 + BO,45,1,Pre Light Soak,DAV,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,2,Light Soak >40 kWh/m²,,Light Soak >40 kWh/m²,17,FALSE,
+,,3,Post Light Soak,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,4,Pre Stress,BKL,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,5,DH 1000 #1,,DH 1000,7,FALSE,
+,,6,Post DH 1000 #1,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,9,B-O Stabilization,,B-O Stabilization,34,FALSE,
+,,10,Post B-O Stabilization,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,

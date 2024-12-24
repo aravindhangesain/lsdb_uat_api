@@ -1,0 +1,25 @@
+<h4>Dear {{ first_name }},</h4>
+
+<p>You have been assigned as owner to a ticket in LSDB.
+    <a href="{{ ticket_link }}">Click here</a> to view the ticket.</p>
+    {% if  ticket_subject %}
+    <p>Ticket subject: {{ ticket_subject }}</p>
+    {% endif %}
+    {% if ticket_body %}
+    <p>Ticket Body: {{ ticket_body }}</p>
+    {% endif %}
+    {% if ticket_activity %}
+    <p>Ticket Activity:
+        <ul>
+    {% for activity in ticket_activity %}
+            <li>{{ activity }}</li>
+    {% endfor %}
+        </ul>
+    </p>
+    {% endif %}
+<br>
+Best regards,<br>
+<br>
+The LSDB Dev Team<br>
+<br>
+Questions? Reply to this email for support.<br>

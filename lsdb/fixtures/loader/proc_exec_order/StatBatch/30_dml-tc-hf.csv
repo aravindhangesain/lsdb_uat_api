@@ -1,0 +1,30 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+DML-TC-HF,30,1,Pre Light Soak,DAV,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,2,Light Soak >40 kWh/m²,,Light Soak >40 kWh/m²,17,FALSE,
+,,3,Post Light Soak,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,4,DML 1000,,DML 1000,8,FALSE,
+,,5,Post DML 1000,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,6,TC 50,,TC 50,23,FALSE,
+,,7,Post TC 50,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,8,HF 10,,HF 10,9,FALSE,
+,,9,Post HF 10,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,

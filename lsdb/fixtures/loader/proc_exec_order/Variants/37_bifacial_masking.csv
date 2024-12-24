@@ -1,0 +1,6 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+Bifacial Masking,37,1,Pre-Masking,BKL,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,FALSE,
+,,,,,IEC 60904-1-2 Measurement,35,FALSE,
+,,2,Post-Masking,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,FALSE,

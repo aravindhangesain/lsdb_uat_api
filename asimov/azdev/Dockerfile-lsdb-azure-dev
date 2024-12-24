@@ -1,0 +1,62 @@
+# pull official base image
+# FROM python:3.8.0-alpine
+
+# consider slim due to: https://github.com/docker-library/python/issues/381
+FROM python:3.8-slim
+
+# set work directory
+WORKDIR /usr/src/HaveBlue
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+#ENV DBNAME HaveBlueDevDB
+#ENV DBHOST HaveBlueDevDB.postgres.database.azure.com
+#ENV DBUSER HaveBlueDBAdmin@HaveBlueDevDB
+#ENV DBPASS HaveBlueP4ss!
+
+ENV DBNAME HaveBlueDevDB
+ENV DBHOST haveblueprod.postgres.database.azure.com
+ENV DBUSER HaveBlueDBAdmin@haveblueprod
+ENV DBPASS HaveBlueP4ss!
+
+ENV REACT_APP_LSDB_BUILD DEVELOPMENT
+
+# install psycopg2 dependencies for Alpine:
+# RUN apk update \
+#    && apk add --no-cache \
+#        postgresql-dev \
+#        gcc \
+#        python3-dev \
+#        libressl-dev \
+#        musl-dev \
+#        libffi-dev
+
+# install psycopg2 dependencies for Slim:
+RUN apt-get update \
+    && apt-get install -y gcc libpq-dev python-dev netcat dos2unix git
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./asimov/azdev/requirements.txt /usr/src/HaveBlue/requirements.txt
+RUN pip install -r requirements.txt
+
+# copy entrypoint.sh
+COPY ./asimov/azdev/entrypoint.sh /usr/src/HaveBlue/entrypoint.sh
+
+# Clean /r/n
+# RUN dos2unix /entrypoint.sh && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt/lists/*
+
+# Leaving stuff behind for dev:
+RUN dos2unix /usr/src/HaveBlue/entrypoint.sh
+
+# copy project
+COPY . /usr/src/HaveBlue
+
+# Nuke fixtures:
+RUN rm -rf /usr/src/HaveBlue/lsdb/fixtures
+
+# run entrypoint.sh
+RUN chmod u+x /usr/src/HaveBlue/entrypoint.sh
+ENTRYPOINT ["/usr/src/HaveBlue/entrypoint.sh"]

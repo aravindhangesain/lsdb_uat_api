@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  haveblue-node:
+    container_name: haveblue-node-azdev
+    build:
+      context: ../../
+      dockerfile: ./asimov/azdev/Dockerfile-node-azure-dev
+    ports:
+      - '80:80'
+
+  haveblue-django:
+    container_name: haveblue-django-azdev
+    build:
+        context: ../../
+        dockerfile: ./asimov/azdev/Dockerfile-lsdb-azure-dev
+    security_opt:
+      - seccomp:unconfined
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ../../backend/:/usr/src/HaveBlue/backend
+      - ../../lsdb/:/usr/src/HaveBlue/lsdb
+    ports:
+      - 8000:8000

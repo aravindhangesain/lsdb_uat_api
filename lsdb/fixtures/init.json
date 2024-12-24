@@ -1,0 +1,4090 @@
+[
+{
+    "model": "lsdb.asset",
+    "pk": 1,
+    "fields": {
+        "name": "BKL DiodeTestFixture",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2020-08-18T22:56:40.641Z",
+        "disposition": 14,
+        "asset_types": [
+            11
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 2,
+    "fields": {
+        "name": "BKL EL",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2020-08-18T22:57:07.880Z",
+        "disposition": 14,
+        "asset_types": [
+            8
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 3,
+    "fields": {
+        "name": "BKL Wet Leakage Station",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2020-08-18T22:57:45.882Z",
+        "disposition": 14,
+        "asset_types": [
+            2
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 4,
+    "fields": {
+        "name": "BKL Visual Inspection Station",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2020-08-18T22:58:06.875Z",
+        "disposition": 14,
+        "asset_types": [
+            5
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 5,
+    "fields": {
+        "name": "BKL Pasan Gen1",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2020-08-18T22:58:23.639Z",
+        "disposition": 14,
+        "asset_types": [
+            3
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 6,
+    "fields": {
+        "name": "BKL Pasan Gen2",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2021-01-04T20:45:15.078Z",
+        "disposition": 14,
+        "asset_types": [
+            3
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 7,
+    "fields": {
+        "name": "SSF Visual Inspection Station",
+        "description": "",
+        "location": 2,
+        "last_action_datetime": "2021-02-18T20:44:20.470Z",
+        "disposition": 16,
+        "asset_types": [
+            5
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 8,
+    "fields": {
+        "name": "SSF Wet Leakage Station",
+        "description": "",
+        "location": 2,
+        "last_action_datetime": "2021-02-18T20:45:17.711Z",
+        "disposition": 16,
+        "asset_types": [
+            2
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 9,
+    "fields": {
+        "name": "DCL EL",
+        "description": "Electroluminescence station in the Davis Characterization Lab",
+        "location": 4,
+        "last_action_datetime": "2021-03-29T16:49:58.264Z",
+        "disposition": 16,
+        "asset_types": [
+            8
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 10,
+    "fields": {
+        "name": "DCL Sinton",
+        "description": "Sinton FMT-500 flash tester in the Davis Characterization Lab",
+        "location": 4,
+        "last_action_datetime": "2021-03-30T16:58:31.167Z",
+        "disposition": 16,
+        "asset_types": [
+            3
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 11,
+    "fields": {
+        "name": "BKL PVEL001",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.191Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 12,
+    "fields": {
+        "name": "BKL PVEL002",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.449Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 13,
+    "fields": {
+        "name": "BKL PVEL003",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.455Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 14,
+    "fields": {
+        "name": "BKL PVEL004",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.460Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 15,
+    "fields": {
+        "name": "BKL PVEL005",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.465Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 16,
+    "fields": {
+        "name": "BKL PVEL006",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.471Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 17,
+    "fields": {
+        "name": "BKL PVEL007",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.477Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 18,
+    "fields": {
+        "name": "BKL PVEL008",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.482Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 19,
+    "fields": {
+        "name": "BKL PVEL009",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.486Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 20,
+    "fields": {
+        "name": "BKL PVEL059",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.493Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 21,
+    "fields": {
+        "name": "BKL PVEL060",
+        "description": null,
+        "location": 1,
+        "last_action_datetime": "2021-04-18T22:52:36.498Z",
+        "disposition": 14,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 22,
+    "fields": {
+        "name": "SSF PVEL145",
+        "description": null,
+        "location": 2,
+        "last_action_datetime": "2021-04-18T22:52:36.504Z",
+        "disposition": 16,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 23,
+    "fields": {
+        "name": "SSF PVEL146",
+        "description": null,
+        "location": 2,
+        "last_action_datetime": "2021-04-18T22:52:36.509Z",
+        "disposition": 16,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 24,
+    "fields": {
+        "name": "SSF PVEL147",
+        "description": null,
+        "location": 2,
+        "last_action_datetime": "2021-04-18T22:52:36.515Z",
+        "disposition": 16,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 25,
+    "fields": {
+        "name": "SSF PVEL148",
+        "description": null,
+        "location": 2,
+        "last_action_datetime": "2021-04-18T22:52:36.521Z",
+        "disposition": 16,
+        "asset_types": [
+            1
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 26,
+    "fields": {
+        "name": "DAV GM1",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.534Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 27,
+    "fields": {
+        "name": "DAV GM2",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.540Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 28,
+    "fields": {
+        "name": "DAV GM3",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.546Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 29,
+    "fields": {
+        "name": "DAV GM4",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.551Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 30,
+    "fields": {
+        "name": "DAV GM5",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.557Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 31,
+    "fields": {
+        "name": "DAV GM6",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.562Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 32,
+    "fields": {
+        "name": "DAV GM7",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.567Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 33,
+    "fields": {
+        "name": "DAV GM8",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.573Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 34,
+    "fields": {
+        "name": "DAV GM9",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.579Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 35,
+    "fields": {
+        "name": "DAV RT1",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.584Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 36,
+    "fields": {
+        "name": "DAV RT2",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.589Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 37,
+    "fields": {
+        "name": "DAV RT3",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.595Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 38,
+    "fields": {
+        "name": "DAV RT4",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.600Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 39,
+    "fields": {
+        "name": "DAV RT5",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.605Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 40,
+    "fields": {
+        "name": "DAV RT6",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.610Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 41,
+    "fields": {
+        "name": "DAV RT7",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.616Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 42,
+    "fields": {
+        "name": "DAV RT8",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.622Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 43,
+    "fields": {
+        "name": "DAV PLID East",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.627Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 44,
+    "fields": {
+        "name": "DAV CRT1",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.633Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 45,
+    "fields": {
+        "name": "DAV CRT2",
+        "description": null,
+        "location": 3,
+        "last_action_datetime": "2021-04-18T22:52:36.638Z",
+        "disposition": 16,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 46,
+    "fields": {
+        "name": "Eurotech Mechanical Load Tester",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2021-04-20T20:59:34.757Z",
+        "disposition": 16,
+        "asset_types": [
+            10
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 47,
+    "fields": {
+        "name": "BKL PLID Array",
+        "description": "Berkeley LID Rack",
+        "location": 1,
+        "last_action_datetime": "2021-04-30T22:10:01.790Z",
+        "disposition": 14,
+        "asset_types": [
+            7
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 48,
+    "fields": {
+        "name": "BKL Steady State Sim",
+        "description": "Solar Sim",
+        "location": 1,
+        "last_action_datetime": "2021-04-30T22:10:45.075Z",
+        "disposition": 14,
+        "asset_types": [
+            6
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 49,
+    "fields": {
+        "name": "DCL Visual Inspection Station",
+        "description": "",
+        "location": 4,
+        "last_action_datetime": "2021-05-07T19:31:29.869Z",
+        "disposition": 16,
+        "asset_types": [
+            5
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 50,
+    "fields": {
+        "name": "BKL Colorimeter",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2021-06-06T22:23:17.197Z",
+        "disposition": 14,
+        "asset_types": [
+            12
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 51,
+    "fields": {
+        "name": "Hail Tester",
+        "description": "",
+        "location": 3,
+        "last_action_datetime": "2021-07-21T20:01:06.708Z",
+        "disposition": 16,
+        "asset_types": [
+            10
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 52,
+    "fields": {
+        "name": "BKL Manual Mechanical Tester",
+        "description": "",
+        "location": 1,
+        "last_action_datetime": "2021-08-06T17:43:37.218Z",
+        "disposition": 14,
+        "asset_types": [
+            17
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 53,
+    "fields": {
+        "name": "SSF Indoor IAM",
+        "description": "Indoor IAM apparatus",
+        "location": 2,
+        "last_action_datetime": "2021-09-13T18:29:07.442Z",
+        "disposition": 16,
+        "asset_types": [
+            14
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 54,
+    "fields": {
+        "name": "DAV Outdoor IAM",
+        "description": "Outdoor IAM apparatus",
+        "location": 3,
+        "last_action_datetime": "2021-09-13T18:29:29.402Z",
+        "disposition": 16,
+        "asset_types": [
+            14
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 55,
+    "fields": {
+        "name": "Napa Pasan B",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-03-01T20:39:54.187Z",
+        "disposition": 16,
+        "asset_types": [
+            3
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 56,
+    "fields": {
+        "name": "Napa Pasan A",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-03-01T20:42:17.183Z",
+        "disposition": 16,
+        "asset_types": [
+            3
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 57,
+    "fields": {
+        "name": "Napa Wet Leakage Station",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-03-01T20:50:03.331Z",
+        "disposition": 16,
+        "asset_types": [
+            2
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 58,
+    "fields": {
+        "name": "Napa EL B",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-03-01T20:50:58.349Z",
+        "disposition": 16,
+        "asset_types": [
+            8
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 59,
+    "fields": {
+        "name": "Napa Colorimeter",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-03-01T20:51:35.948Z",
+        "disposition": 16,
+        "asset_types": [
+            12
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 60,
+    "fields": {
+        "name": "Napa Visual Inspection Station",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-03-01T20:52:14.574Z",
+        "disposition": 16,
+        "asset_types": [
+            5
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 61,
+    "fields": {
+        "name": "Napa Quick Visual Inspection",
+        "description": "For post-transit visual inspections that may not use the standard apparatus or process",
+        "location": 5,
+        "last_action_datetime": "2022-03-09T00:23:55.140Z",
+        "disposition": 16,
+        "asset_types": [
+            5
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.asset",
+    "pk": 62,
+    "fields": {
+        "name": "Napa Dry Insulation Test Station",
+        "description": "",
+        "location": 5,
+        "last_action_datetime": "2022-04-06T15:41:15.374Z",
+        "disposition": 16,
+        "asset_types": [
+            18
+        ],
+        "notes": []
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 1,
+    "fields": {
+        "name": "Environmental Chamber",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 2,
+    "fields": {
+        "name": "Wet Leakage",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 3,
+    "fields": {
+        "name": "Flash Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 4,
+    "fields": {
+        "name": "Flash Tester - Gen 2 Pasan",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 5,
+    "fields": {
+        "name": "Visual Inspection",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 6,
+    "fields": {
+        "name": "Solar Simulator",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 7,
+    "fields": {
+        "name": "Outdoor Light Exposure",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 8,
+    "fields": {
+        "name": "Electroluminescence Test Station",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 9,
+    "fields": {
+        "name": "Ultraviolet Chamber",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 10,
+    "fields": {
+        "name": "Mechanical Load Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 11,
+    "fields": {
+        "name": "Diode Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 12,
+    "fields": {
+        "name": "Colorimeter",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 13,
+    "fields": {
+        "name": "Connector Resistance Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 14,
+    "fields": {
+        "name": "IAM Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 15,
+    "fields": {
+        "name": "EL Camera",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 16,
+    "fields": {
+        "name": "Hail Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 17,
+    "fields": {
+        "name": "Manual Load Tester",
+        "description": "Limited capability Mechanical Load Tester"
+    }
+},
+{
+    "model": "lsdb.assettype",
+    "pk": 18,
+    "fields": {
+        "name": "Insulation Tester",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 1,
+    "fields": {
+        "category": "none",
+        "short_name": "none",
+        "description": "no defects observed"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 2,
+    "fields": {
+        "category": "Major",
+        "short_name": "Corrosion",
+        "description": "Corrosion or voids of the bussbar or other active layers of the cell or circuitry"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 3,
+    "fields": {
+        "category": "Major",
+        "short_name": "Bent or misaligned external surfaces",
+        "description": "Bent or misaligned external surfaces, including superstrates, substrates, frames and junction boxes to the extent that the installation and/or operation of the module would be impaired"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 4,
+    "fields": {
+        "category": "Major",
+        "short_name": "Cell crack removing more than 10% of cell from circuit",
+        "description": "Cracked or broken cells which can remove more than 10% of the cell from the electrical circuit"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 5,
+    "fields": {
+        "category": "Major",
+        "short_name": "Delamination from cell circuit to module edge",
+        "description": "Bubbles or delaminations forming a continuous path between any part of the electrical circuit (cell) and the edge of the module"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 6,
+    "fields": {
+        "category": "Major",
+        "short_name": "Loss of mechanical integrity",
+        "description": "Loss of mechanical integrity, to the extent that the installation and/or operation of the module would be impaired"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 7,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Broken cells (nonmajor)",
+        "description": "Cracked or broken cells (any amount) which remove less than 10% of the cell from the circuit"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 8,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Scratches",
+        "description": "Scratches; add \"Comments\" on the location and cause if known"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 9,
+    "fields": {
+        "category": "Major",
+        "short_name": "Faulty interconnections or joint",
+        "description": "Broken or faulty interconnections, joints, or terminals"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 10,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Cells touching each other",
+        "description": "Cells touching one another"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 11,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Failure of Adhesive Bonds",
+        "description": "Failure of Adhesive Bonds"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 12,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Delamination (no access to live parts)",
+        "description": "Bubbles or delaminations not extending from cells to frame"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 13,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Tacky surfaces of plastic materials",
+        "description": "Tacky surfaces of plastic materials"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 14,
+    "fields": {
+        "category": "Major",
+        "short_name": "Exposed or short-circuited live parts",
+        "description": "Faulty terminations, exposed live electrical parts"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 15,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Other (non-major)",
+        "description": "Other - Any non-major visual defect not listed"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 16,
+    "fields": {
+        "category": "Major",
+        "short_name": "Broken",
+        "description": "Broken module"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 17,
+    "fields": {
+        "category": "Major",
+        "short_name": "Broken, cracked, or torn external surfaces",
+        "description": "Broken, cracked, or torn surfaces including glass, substrate, frames, junction boxes, etc"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 18,
+    "fields": {
+        "category": "Major",
+        "short_name": "Delamination greater than 1% module area",
+        "description": "Delamination greater than 1% of module area, if mechanical integrity depends on lamination or other means of adhesion"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 19,
+    "fields": {
+        "category": "Major",
+        "short_name": "Molten or burned areas or components",
+        "description": "Evidence of any molten or burned encapsulant, backsheet, frontsheet, diode, or active PV component"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 20,
+    "fields": {
+        "category": "Major",
+        "short_name": "Missing or illegible manufacturer labels",
+        "description": "Missing or illegible manufacturer labels or nameplate"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 21,
+    "fields": {
+        "category": "Major",
+        "short_name": "Loose junction box cover",
+        "description": "Loose / easily removable junction box cover"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 22,
+    "fields": {
+        "category": "Major",
+        "short_name": "Backsheet cracks",
+        "description": "Cracks in the backsheet (not scratches)"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 23,
+    "fields": {
+        "category": "Major",
+        "short_name": "Other (major)",
+        "description": "Other (major) - Any other major defect which may affect performance, safety, or function"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 24,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Busbar or interconnect misalignment",
+        "description": "Busbar or interconnect misalignment"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 25,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Yellowing of polymeric material",
+        "description": "Yellowing of backsheet, encapsulants, junction box sealant, frame sealant"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 26,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Cell discoloration",
+        "description": "Cell discoloration"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 27,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Presence of foreign materials",
+        "description": "Presence of foreign materials"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 28,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Bussbar discoloration",
+        "description": "Bussbar discoloration that is not corrosion"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 29,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Nameplate bubbles",
+        "description": "Nameplate bubbles - partial delamination of manufacturer label"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 30,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Frame scratches",
+        "description": "Frame scratches deep enough to feel"
+    }
+},
+{
+    "model": "lsdb.availabledefect",
+    "pk": 31,
+    "fields": {
+        "category": "Nonmajor",
+        "short_name": "Frame discoloration",
+        "description": "Frame discoloration that is not corrosion"
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 1,
+    "fields": {
+        "name": "Not Tested",
+        "description": "",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 2,
+    "fields": {
+        "name": "Pass",
+        "description": "",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 3,
+    "fields": {
+        "name": "Fail",
+        "description": "",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 4,
+    "fields": {
+        "name": "Performed - Record Only",
+        "description": "",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 5,
+    "fields": {
+        "name": "Incomplete",
+        "description": "",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 6,
+    "fields": {
+        "name": "Running Async",
+        "description": "",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 7,
+    "fields": {
+        "name": "In Progress",
+        "description": "",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 8,
+    "fields": {
+        "name": "Retest Required",
+        "description": "",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 9,
+    "fields": {
+        "name": "Ok to Continue",
+        "description": "",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 10,
+    "fields": {
+        "name": "Skip",
+        "description": "",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 11,
+    "fields": {
+        "name": "Placeholder disposition",
+        "description": "placeholder until a better disposition can be assigned",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 12,
+    "fields": {
+        "name": "Released",
+        "description": "Released",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 13,
+    "fields": {
+        "name": "Requires Review",
+        "description": "Requires Review",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 14,
+    "fields": {
+        "name": "Revoked",
+        "description": "Revoked, should not be used any longer",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 15,
+    "fields": {
+        "name": "Unavailable - Not Scheduled",
+        "description": "Unavailable - not scheduled unavailability",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 16,
+    "fields": {
+        "name": "Available",
+        "description": "Available",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 17,
+    "fields": {
+        "name": "Unavailable - Scheduled",
+        "description": "Unavailable - scheduled unavailability",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 18,
+    "fields": {
+        "name": "In Use",
+        "description": "In Use",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 19,
+    "fields": {
+        "name": "Fail - Stop Testing",
+        "description": "Fail and stop testing",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 20,
+    "fields": {
+        "name": "Completed",
+        "description": "Completed",
+        "complete": true
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 21,
+    "fields": {
+        "name": "Return to customer",
+        "description": "Tested Modules should Return to customer",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 22,
+    "fields": {
+        "name": "Contact customer",
+        "description": "PM should contact customer to determine module disposition at end of work order",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 23,
+    "fields": {
+        "name": "Recycle after 30 days",
+        "description": "Tested modules should be recycled 30 days after work order completion",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 24,
+    "fields": {
+        "name": "Recycle after 60 days",
+        "description": "Tested modules should be recycled 60 days after work order completion",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.disposition",
+    "pk": 25,
+    "fields": {
+        "name": "TIB",
+        "description": "Units were Transported In Bond and require TIB handling",
+        "complete": false
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 1,
+    "fields": {
+        "name": "crates",
+        "dispositions": [
+            16,
+            20
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 2,
+    "fields": {
+        "name": "measurement_results",
+        "dispositions": [
+            20,
+            3,
+            19,
+            2,
+            4,
+            13,
+            10
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 3,
+    "fields": {
+        "name": "plan_definitions",
+        "dispositions": [
+            16,
+            12,
+            13,
+            14
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 4,
+    "fields": {
+        "name": "sequence_results",
+        "dispositions": [
+            3,
+            19,
+            1,
+            9,
+            2,
+            13,
+            8,
+            10
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 5,
+    "fields": {
+        "name": "step_results",
+        "dispositions": [
+            3,
+            19,
+            1,
+            9,
+            2,
+            4,
+            13,
+            8,
+            10
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 6,
+    "fields": {
+        "name": "work_orders",
+        "dispositions": [
+            16,
+            20,
+            7,
+            14
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 7,
+    "fields": {
+        "name": "units",
+        "dispositions": [
+            16,
+            20,
+            3,
+            19,
+            7
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 8,
+    "fields": {
+        "name": "work_order_units",
+        "dispositions": [
+            22,
+            23,
+            24,
+            21,
+            25
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 9,
+    "fields": {
+        "name": "unit_dispositions",
+        "dispositions": [
+            16,
+            20,
+            22,
+            3,
+            19,
+            7,
+            18
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 10,
+    "fields": {
+        "name": "notes",
+        "dispositions": [
+            16,
+            20,
+            7,
+            9,
+            14
+        ]
+    }
+},
+{
+    "model": "lsdb.dispositioncode",
+    "pk": 11,
+    "fields": {
+        "name": "test_sequence_definitions",
+        "dispositions": [
+            16,
+            14
+        ]
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 1,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 1,
+        "precision": 3,
+        "units": "Ampere",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 2,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 1,
+        "precision": 3,
+        "units": "seconds",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 3,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "Ampere",
+        "scientific_format": false,
+        "si_prefix": 15,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 4,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "Degree Celsius",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 5,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "Volt",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 6,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "Ohm",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 7,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "W/m^2",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 8,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 4,
+        "units": "Watt",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 9,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 1,
+        "precision": 4,
+        "units": "Volt",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 10,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 1,
+        "precision": 4,
+        "units": "Ampere",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 11,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 1,
+        "precision": 4,
+        "units": "Ohm",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 12,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 4,
+        "units": "Ohm",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 13,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 4,
+        "units": "Volt",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 14,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 4,
+        "units": "Ampere",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 15,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 2,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 1,
+        "precision": 4,
+        "units": "W/m^2",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 16,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "Wh/m^2",
+        "scientific_format": false,
+        "si_prefix": 8,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 17,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 4,
+        "units": "Record Only",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 18,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 3,
+        "units": "W/m^2",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 19,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 0,
+        "units": "Record Only",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limit",
+    "pk": 20,
+    "fields": {
+        "value_boolean": false,
+        "value_string": "",
+        "limit_one": 0.0,
+        "limit_two": 0.0,
+        "limit_comparison_one": 6,
+        "limit_comparison_two": 6,
+        "limit_comparison_mode": 4,
+        "precision": 7,
+        "units": "Record Only",
+        "scientific_format": false,
+        "si_prefix": 11,
+        "choice_of_list": "",
+        "case_sensitive_compare_string": false
+    }
+},
+{
+    "model": "lsdb.limitcomparison",
+    "pk": 1,
+    "fields": {
+        "name": "<",
+        "description": "less than"
+    }
+},
+{
+    "model": "lsdb.limitcomparison",
+    "pk": 2,
+    "fields": {
+        "name": "<=",
+        "description": "less than equal to"
+    }
+},
+{
+    "model": "lsdb.limitcomparison",
+    "pk": 3,
+    "fields": {
+        "name": "=",
+        "description": "equal"
+    }
+},
+{
+    "model": "lsdb.limitcomparison",
+    "pk": 4,
+    "fields": {
+        "name": ">=",
+        "description": "greater than equal to"
+    }
+},
+{
+    "model": "lsdb.limitcomparison",
+    "pk": 5,
+    "fields": {
+        "name": ">",
+        "description": "greater than"
+    }
+},
+{
+    "model": "lsdb.limitcomparison",
+    "pk": 6,
+    "fields": {
+        "name": "none",
+        "description": "none"
+    }
+},
+{
+    "model": "lsdb.limitcomparisonmode",
+    "pk": 1,
+    "fields": {
+        "name": "Limit 1 Only",
+        "description": "Limit 1 Only"
+    }
+},
+{
+    "model": "lsdb.limitcomparisonmode",
+    "pk": 2,
+    "fields": {
+        "name": "Limit 2 Only",
+        "description": "Limit 2 Only"
+    }
+},
+{
+    "model": "lsdb.limitcomparisonmode",
+    "pk": 3,
+    "fields": {
+        "name": "Limit 1 AND Limit 2",
+        "description": "Limit 1 AND Limit 2"
+    }
+},
+{
+    "model": "lsdb.limitcomparisonmode",
+    "pk": 4,
+    "fields": {
+        "name": "None",
+        "description": "None"
+    }
+},
+{
+    "model": "lsdb.location",
+    "pk": 1,
+    "fields": {
+        "name": "BKL",
+        "description": "Berkeley Lab",
+        "parent_location": null
+    }
+},
+{
+    "model": "lsdb.location",
+    "pk": 2,
+    "fields": {
+        "name": "SSF",
+        "description": "South San Francisco Lab",
+        "parent_location": null
+    }
+},
+{
+    "model": "lsdb.location",
+    "pk": 3,
+    "fields": {
+        "name": "DAV",
+        "description": "Davis Test Site (PVUSA)",
+        "parent_location": null
+    }
+},
+{
+    "model": "lsdb.location",
+    "pk": 4,
+    "fields": {
+        "name": "DCL",
+        "description": "Davis Characterization Lab",
+        "parent_location": 3
+    }
+},
+{
+    "model": "lsdb.location",
+    "pk": 5,
+    "fields": {
+        "name": "NAPA",
+        "description": "PVEL Napa Test Facility",
+        "parent_location": null
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 1,
+    "fields": {
+        "name": "Multi-Si",
+        "description": "Multi-Si",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 2,
+    "fields": {
+        "name": "Mono-Si",
+        "description": "Mono-Si",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 3,
+    "fields": {
+        "name": "Multi-PERC",
+        "description": "Multi-PERC",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 4,
+    "fields": {
+        "name": "Mono-PERC",
+        "description": "Mono-PERC",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 5,
+    "fields": {
+        "name": "N-type Mono",
+        "description": "N-type Mono",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 6,
+    "fields": {
+        "name": "CdTe",
+        "description": "CdTe",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 7,
+    "fields": {
+        "name": "CIGs",
+        "description": "CIGs",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 8,
+    "fields": {
+        "name": "a-Si",
+        "description": "a-Si",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 9,
+    "fields": {
+        "name": "c-Si",
+        "description": null,
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 10,
+    "fields": {
+        "name": "p-Si",
+        "description": null,
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 11,
+    "fields": {
+        "name": "poly-Si",
+        "description": null,
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 12,
+    "fields": {
+        "name": "CIGS",
+        "description": null,
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 13,
+    "fields": {
+        "name": "CIS",
+        "description": null,
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 20,
+    "fields": {
+        "name": "HJT",
+        "description": "Heterojunction",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.moduletechnology",
+    "pk": 21,
+    "fields": {
+        "name": "Unknown",
+        "description": "The cell technology is not known",
+        "diode_ideality_factor": 0.0
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 1,
+    "fields": {
+        "name": "Injection Current",
+        "description": "Current injected into the DUT",
+        "order_by": 0,
+        "limit": 1,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 2,
+    "fields": {
+        "name": "Camera Exposure Time",
+        "description": "Amount of time the camera sensor was exposed to its target",
+        "order_by": 0,
+        "limit": 2,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 3,
+    "fields": {
+        "name": "EL Photograph - Raw Image",
+        "description": "EL",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 4
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 4,
+    "fields": {
+        "name": "Camera Target Temperature",
+        "description": "EL",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 5,
+    "fields": {
+        "name": "Camera Measured Temperature",
+        "description": "EL",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 6,
+    "fields": {
+        "name": "Water Temperature",
+        "description": "Temperature of the water bath",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 7,
+    "fields": {
+        "name": "Leakage Current",
+        "description": "Current measured between the DUT's active circuit and ground",
+        "order_by": 0,
+        "limit": 3,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 8,
+    "fields": {
+        "name": "Current Trip Setpoint",
+        "description": "Current threshold above which the power supply will disable output",
+        "order_by": 0,
+        "limit": 3,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 9,
+    "fields": {
+        "name": "Voltage to Ground",
+        "description": "Voltage applied between the DUT's active circuit and ground",
+        "order_by": 0,
+        "limit": 5,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 10,
+    "fields": {
+        "name": "Insulation Resistance",
+        "description": "Insulation resistance",
+        "order_by": 0,
+        "limit": 6,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 11,
+    "fields": {
+        "name": "Test Pass/Fail",
+        "description": "Did this test pass or fail its criteria?",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 2
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 12,
+    "fields": {
+        "name": "Forward Diode Voltage",
+        "description": "Voltage measured across a diode when forward-biased",
+        "order_by": 0,
+        "limit": 5,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 13,
+    "fields": {
+        "name": "Reverse Diode Voltage",
+        "description": "Voltage measured across a diode when reverse-biased",
+        "order_by": 0,
+        "limit": 5,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 14,
+    "fields": {
+        "name": "Irradiance",
+        "description": "Amount of light, in units of power per area",
+        "order_by": 0,
+        "limit": 18,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 15,
+    "fields": {
+        "name": "Flash Measurement Mode",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 3
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 16,
+    "fields": {
+        "name": "Pmp",
+        "description": "Maximum power on a PV I-V curve",
+        "order_by": 0,
+        "limit": 8,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 17,
+    "fields": {
+        "name": "Voc",
+        "description": "Voltage at open-circuit on a PV I-V curve",
+        "order_by": 0,
+        "limit": 9,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 18,
+    "fields": {
+        "name": "Vmp",
+        "description": "Voltage at maximum power on a PV I-V curve",
+        "order_by": 0,
+        "limit": 9,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 19,
+    "fields": {
+        "name": "Isc",
+        "description": "Current at short-circuit on a PV I-V curve",
+        "order_by": 0,
+        "limit": 10,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 20,
+    "fields": {
+        "name": "Imp",
+        "description": "Current at maximum power",
+        "order_by": 0,
+        "limit": 10,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 21,
+    "fields": {
+        "name": "Rshunt",
+        "description": "Shunt resistance in a PV device",
+        "order_by": 0,
+        "limit": 11,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 22,
+    "fields": {
+        "name": "Rseries",
+        "description": "Series resistance in a PV device",
+        "order_by": 0,
+        "limit": 12,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 23,
+    "fields": {
+        "name": "Vx",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 13,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 24,
+    "fields": {
+        "name": "Ix",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 14,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 25,
+    "fields": {
+        "name": "Vxx",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 9,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 26,
+    "fields": {
+        "name": "Ixx",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 14,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 27,
+    "fields": {
+        "name": "Calibration Device",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 3
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 28,
+    "fields": {
+        "name": "Mon. Cell Sensitivity",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 17,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 29,
+    "fields": {
+        "name": "Calibration Factor - Current",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 17,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 30,
+    "fields": {
+        "name": "Calibration Factor - Voltage",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 17,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 31,
+    "fields": {
+        "name": "Calibration Factor - Power",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 17,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 32,
+    "fields": {
+        "name": "alpha Isc",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 20,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 33,
+    "fields": {
+        "name": "beta Voc",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 20,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 34,
+    "fields": {
+        "name": "kappa Mpp",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 20,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 35,
+    "fields": {
+        "name": "Correction Applied",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 2
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 36,
+    "fields": {
+        "name": "Flash Delay",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 2,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 37,
+    "fields": {
+        "name": "Measurement Delay",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 2,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 38,
+    "fields": {
+        "name": "Capacitor Load",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 2,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 39,
+    "fields": {
+        "name": "Irradiance Adjustment",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 40,
+    "fields": {
+        "name": "DUT Temperature",
+        "description": "Measured temperature of the device under test (DUT)",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 41,
+    "fields": {
+        "name": "Ambient Temperature",
+        "description": "Measured temperature of the ambient air",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 42,
+    "fields": {
+        "name": "Insolation",
+        "description": "Amount of irradiance received over a given time interval",
+        "order_by": 0,
+        "limit": 16,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 43,
+    "fields": {
+        "name": "Visual Inspection Defect",
+        "description": "Visual Inspection",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 3
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 44,
+    "fields": {
+        "name": "Visual Inspection Observation",
+        "description": "Additional notes regarding a visual inspection defect",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 3
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 45,
+    "fields": {
+        "name": "Photograph/Image",
+        "description": "A photograph or image",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 4
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 46,
+    "fields": {
+        "name": "EL Image (grayscale)",
+        "description": "Electroluminescence image represented in grayscale",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 4
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 47,
+    "fields": {
+        "name": "EL Photograph - ColorizedImage",
+        "description": "EL",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 4
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 48,
+    "fields": {
+        "name": "PVEL LIV Measurement File",
+        "description": "Flash test data in PVEL LIV file format",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 4
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 49,
+    "fields": {
+        "name": "Flash Temperature 2",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 50,
+    "fields": {
+        "name": "Flash Temperature 3",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 51,
+    "fields": {
+        "name": "Flash Temperature 4",
+        "description": "Flash Test",
+        "order_by": 0,
+        "limit": 4,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 52,
+    "fields": {
+        "name": "Defects Observed?",
+        "description": "Were any visual defects observed during inspection?",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 2
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 53,
+    "fields": {
+        "name": "Andor Neo Image Data",
+        "description": "Raw image data from Andor Neo camera",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 4
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 54,
+    "fields": {
+        "name": "L*",
+        "description": "Lightness in CIELAB color space",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 55,
+    "fields": {
+        "name": "a*",
+        "description": "a* axis in CIELAB color space",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 56,
+    "fields": {
+        "name": "b*",
+        "description": "b* axis in CIELAB color space",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 57,
+    "fields": {
+        "name": "Cable Segment Resistance",
+        "description": "Resistance of a length of electrical cable",
+        "order_by": 0,
+        "limit": 12,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 58,
+    "fields": {
+        "name": "Cable Resistance per Inch",
+        "description": "Resistance per inch of electrical cable",
+        "order_by": 0,
+        "limit": 12,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 59,
+    "fields": {
+        "name": "Cable Length",
+        "description": "Length of electrical cable in inches",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 60,
+    "fields": {
+        "name": "Connector + Cable Resistance",
+        "description": "Resistance of an electrical connector, including cable resistance",
+        "order_by": 0,
+        "limit": 12,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 61,
+    "fields": {
+        "name": "Connector Resistance",
+        "description": "Resistance of an electrical connector, without cable resistance",
+        "order_by": 0,
+        "limit": 12,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 62,
+    "fields": {
+        "name": "Incidence Angle Modifier",
+        "description": "Adjustment factor due to angular effects other than cosine loss",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 63,
+    "fields": {
+        "name": "Timestamp",
+        "description": "Date and time at which some event occurred",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 5
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 64,
+    "fields": {
+        "name": "ISO",
+        "description": "Sensitivity of camera sensor",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 65,
+    "fields": {
+        "name": "Aperture",
+        "description": "f-stop of camera aperture",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 66,
+    "fields": {
+        "name": "Exposure Count",
+        "description": "Number of camera exposures",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 1
+    }
+},
+{
+    "model": "lsdb.measurementtype",
+    "pk": 67,
+    "fields": {
+        "name": "PVEL Colorimeter Data (JSON)",
+        "description": "JSON format text field containing 10 CIELAB data points",
+        "order_by": 0,
+        "limit": 19,
+        "parent_measurement_type": null,
+        "measurement_result_type": 3
+    }
+},
+{
+    "model": "lsdb.measurementresulttype",
+    "pk": 1,
+    "fields": {
+        "name": "result_double",
+        "description": "Numeric Results"
+    }
+},
+{
+    "model": "lsdb.measurementresulttype",
+    "pk": 2,
+    "fields": {
+        "name": "result_boolean",
+        "description": "Boolean (True/False)"
+    }
+},
+{
+    "model": "lsdb.measurementresulttype",
+    "pk": 3,
+    "fields": {
+        "name": "result_string",
+        "description": "String (alphanumeric) Data"
+    }
+},
+{
+    "model": "lsdb.measurementresulttype",
+    "pk": 4,
+    "fields": {
+        "name": "result_files",
+        "description": "File"
+    }
+},
+{
+    "model": "lsdb.measurementresulttype",
+    "pk": 5,
+    "fields": {
+        "name": "result_datetime",
+        "description": "Date + Time"
+    }
+},
+{
+    "model": "lsdb.measurementresulttype",
+    "pk": 6,
+    "fields": {
+        "name": "result_defect",
+        "description": "linked to available_defects"
+    }
+},
+{
+    "model": "lsdb.organization",
+    "pk": 1,
+    "fields": {
+        "name": "PVEL"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 1,
+    "fields": {
+        "name": "Pull Request",
+        "description": "Request for modules to be pulled in or out of active testing.",
+        "hex_color": "#9B462F"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 2,
+    "fields": {
+        "name": "Unit Disposal",
+        "description": "Request for units to be removed from PVEL inventory.",
+        "hex_color": "#4524E7"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 3,
+    "fields": {
+        "name": "Scorecard Failure",
+        "description": "Flag for a failure in testing that should appear on scorecard",
+        "hex_color": "#F147AD"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 4,
+    "fields": {
+        "name": "Retest Request",
+        "description": "For when a measurement needs to be performed again",
+        "hex_color": "#f5a623"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 5,
+    "fields": {
+        "name": "Missing Data",
+        "description": "For report writing where legacy or collected data is missing",
+        "hex_color": "#f8e71c"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 6,
+    "fields": {
+        "name": "Quality Issue",
+        "description": "Non-conformance or quality concern directly related to a customer sample; tied to an osTicket \"Quality Event\".",
+        "hex_color": "#b40013"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 7,
+    "fields": {
+        "name": "LSDB Support",
+        "description": "Any task for LSDB file creation or troubleshooting",
+        "hex_color": "#447907"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 8,
+    "fields": {
+        "name": "Development",
+        "description": "Label for any Development associated effort; not associated with any client-related project.",
+        "hex_color": "#247ae1"
+    }
+},
+{
+    "model": "lsdb.label",
+    "pk": 9,
+    "fields": {
+        "name": "388 TI & Relocation",
+        "description": "Tasks associated with the new facility at 388 Devlin",
+        "hex_color": "#bd10e0"
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 1,
+    "fields": {
+        "name": "yotta [Y] 10^24",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 2,
+    "fields": {
+        "name": "zetta [Z] 10^21",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 3,
+    "fields": {
+        "name": "exa [E] 10^18",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 4,
+    "fields": {
+        "name": "peta [P] 10^15",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 5,
+    "fields": {
+        "name": "tera [T] 10^12",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 6,
+    "fields": {
+        "name": "giga [G] 10^9",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 7,
+    "fields": {
+        "name": "mega [M] 10^6",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 8,
+    "fields": {
+        "name": "kilo [K] 10^3",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 9,
+    "fields": {
+        "name": "hecto [h] 10^2",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 10,
+    "fields": {
+        "name": "deca [da] 10^1",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 11,
+    "fields": {
+        "name": "unity [1]",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 12,
+    "fields": {
+        "name": "deci [d] 10^-1",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 13,
+    "fields": {
+        "name": "centi [c] 10^-2",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 14,
+    "fields": {
+        "name": "milli [m] 10^-3",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 15,
+    "fields": {
+        "name": "micro [u] 10^-6",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 16,
+    "fields": {
+        "name": "nano [n] 10^-9",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 17,
+    "fields": {
+        "name": "pico [p] 10^-12",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 18,
+    "fields": {
+        "name": "femto [f] 10^-15",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 19,
+    "fields": {
+        "name": "atto [a] 10^-18",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 20,
+    "fields": {
+        "name": "zepto [z] 10^-21",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.siprefix",
+    "pk": 21,
+    "fields": {
+        "name": "yocto [y] 10^-24",
+        "description": ""
+    }
+},
+{
+    "model": "lsdb.steptype",
+    "pk": 1,
+    "fields": {
+        "name": "Single Step",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 1,
+    "fields": {
+        "name": "POST",
+        "description": "Permission to create new objects at this endpoint"
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 2,
+    "fields": {
+        "name": "GET",
+        "description": "Permission to read objects from this endpoint"
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 3,
+    "fields": {
+        "name": "PUT",
+        "description": "Permission to replace objects at this endpoint"
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 4,
+    "fields": {
+        "name": "PATCH",
+        "description": "Permission to update objects at this endpoint"
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 5,
+    "fields": {
+        "name": "DELETE",
+        "description": "Permission to delete objects at this endpoint"
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 6,
+    "fields": {
+        "name": "HEAD",
+        "description": "HEAD"
+    }
+},
+{
+    "model": "lsdb.permissiontype",
+    "pk": 7,
+    "fields": {
+        "name": "OPTIONS",
+        "description": "OPTIONS"
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 1,
+    "fields": {
+        "name": "asset",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 2,
+    "fields": {
+        "name": "api_log",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 3,
+    "fields": {
+        "name": "assetcapacity",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 4,
+    "fields": {
+        "name": "assettype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 5,
+    "fields": {
+        "name": "availabledefect",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 6,
+    "fields": {
+        "name": "azurefile",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 7,
+    "fields": {
+        "name": "moduleproperty",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 8,
+    "fields": {
+        "name": "conditiondefinition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 9,
+    "fields": {
+        "name": "crate",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 10,
+    "fields": {
+        "name": "customer",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 11,
+    "fields": {
+        "name": "dispositioncode",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 12,
+    "fields": {
+        "name": "disposition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 13,
+    "fields": {
+        "name": "expectedunittype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 14,
+    "fields": {
+        "name": "grouptype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 15,
+    "fields": {
+        "name": "group",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 16,
+    "fields": {
+        "name": "limitcomparisonmode",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 17,
+    "fields": {
+        "name": "limitcomparison",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 18,
+    "fields": {
+        "name": "limit",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 19,
+    "fields": {
+        "name": "location",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 20,
+    "fields": {
+        "name": "measurementdefinition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 21,
+    "fields": {
+        "name": "measurementresulttype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 22,
+    "fields": {
+        "name": "measurementresult",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 23,
+    "fields": {
+        "name": "measurementtype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 24,
+    "fields": {
+        "name": "moduletechnology",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 25,
+    "fields": {
+        "name": "organization",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 26,
+    "fields": {
+        "name": "permissiontype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 27,
+    "fields": {
+        "name": "permission",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 28,
+    "fields": {
+        "name": "permittedview",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 29,
+    "fields": {
+        "name": "proceduredefinition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 30,
+    "fields": {
+        "name": "procedureresult",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 31,
+    "fields": {
+        "name": "project",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 32,
+    "fields": {
+        "name": "property",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 33,
+    "fields": {
+        "name": "siprefix",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 34,
+    "fields": {
+        "name": "stepdefinition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 35,
+    "fields": {
+        "name": "stepresult",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 36,
+    "fields": {
+        "name": "steptype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 37,
+    "fields": {
+        "name": "testsequencedefinition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 38,
+    "fields": {
+        "name": "unittypefamily",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 39,
+    "fields": {
+        "name": "unittypepropertydatatype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 40,
+    "fields": {
+        "name": "unittypepropertyresult",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 41,
+    "fields": {
+        "name": "unittypepropertytype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 42,
+    "fields": {
+        "name": "unittype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 43,
+    "fields": {
+        "name": "unit",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 44,
+    "fields": {
+        "name": "userprofile",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 45,
+    "fields": {
+        "name": "user",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 46,
+    "fields": {
+        "name": "userregistrationstatus",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 47,
+    "fields": {
+        "name": "workorder",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 48,
+    "fields": {
+        "name": "manageresults",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 81,
+    "fields": {
+        "name": "note",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 82,
+    "fields": {
+        "name": "notetype",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 83,
+    "fields": {
+        "name": "label",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 84,
+    "fields": {
+        "name": "noop",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 85,
+    "fields": {
+        "name": "actionresult",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 86,
+    "fields": {
+        "name": "actiondefinition",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 87,
+    "fields": {
+        "name": "template",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.permittedview",
+    "pk": 88,
+    "fields": {
+        "name": "plugin",
+        "description": null
+    }
+},
+{
+    "model": "lsdb.unittypefamily",
+    "pk": 1,
+    "fields": {
+        "name": "Solar Module",
+        "description": "Solar Module",
+        "measurement_types": [
+            32,
+            41,
+            33,
+            27,
+            29,
+            31,
+            30,
+            2,
+            5,
+            4,
+            38,
+            35,
+            8,
+            40,
+            46,
+            47,
+            3,
+            36,
+            15,
+            49,
+            50,
+            51,
+            12,
+            20,
+            1,
+            42,
+            10,
+            14,
+            39,
+            19,
+            24,
+            26,
+            34,
+            7,
+            37,
+            28,
+            45,
+            16,
+            48,
+            13,
+            22,
+            21,
+            11,
+            43,
+            44,
+            18,
+            17,
+            9,
+            23,
+            25,
+            6
+        ]
+    }
+},
+{
+    "model": "lsdb.userregistrationstatus",
+    "pk": 1,
+    "fields": {
+        "status": "Approved",
+        "description": "Approved User"
+    }
+},
+{
+    "model": "lsdb.userregistrationstatus",
+    "pk": 2,
+    "fields": {
+        "status": "New User",
+        "description": "New User Registration Status"
+    }
+},
+{
+    "model": "lsdb.userregistrationstatus",
+    "pk": 3,
+    "fields": {
+        "status": "Revoked Due To Inactivity",
+        "description": "Revoked Due to User Inactivity"
+    }
+},
+{
+    "model": "lsdb.userregistrationstatus",
+    "pk": 4,
+    "fields": {
+        "status": "Revoked",
+        "description": "Account access revoked"
+    }
+}
+]

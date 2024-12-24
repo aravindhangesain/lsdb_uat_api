@@ -1,0 +1,3 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+Control,68,1,Pre Light Soak,BKL,I-V Curve at STC (FS S6B),49,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,

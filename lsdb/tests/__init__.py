@@ -1,0 +1,2 @@
+from .test_asset import AssetTestCase as AssetTestCase
+from .test_workorder_create import WorkOrderCreateTestCase as WorkOrderCreateTestCase

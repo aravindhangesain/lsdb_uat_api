@@ -1,0 +1,14 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+PAN file,70,1,Pre Light Soak,DAV,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,2,Light Soak >40 kWh/m²,,Light Soak >40 kWh/m²,17,FALSE,
+,,3,Post Light Soak,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,4,Pre PAN,BKL,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,TRUE,Captured for convenience
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,5,PAN File Measurement,,IEC 61853-1 Measurement,11,FALSE,
+,,,,,IEC 60904-1-2 Measurement,35,TRUE,Bifacial only

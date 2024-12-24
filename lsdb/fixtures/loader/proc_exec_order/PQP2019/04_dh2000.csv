@@ -1,0 +1,38 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+Damp Heat 2000,4,1,Pre Light Soak,DAV,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,2,Light Soak >40 kWh/m²,,Light Soak >40 kWh/m²,17,FALSE,
+,,3,Post Light Soak,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,4,Pre Stress,BKL,Connector Test,6,TRUE,Retiring
+,,5,Pre Stress,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,6,DH 1000 #1,,DH 1000,7,FALSE,
+,,7,Post DH 1000 #1,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,8,DH 1000 #2,,DH 1000,7,FALSE,
+,,9,Post DH 1000 #2,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,10,Post DH 1000 #2,,Connector Test,6,TRUE,Retiring
+,,11,B-O Stabilization,,B-O Stabilization,34,FALSE,
+,,12,Post B-O Stabilization,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,

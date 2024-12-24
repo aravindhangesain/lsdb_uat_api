@@ -1,0 +1,12 @@
+services:
+  lsdb:
+    container_name: haveblue-django-v1
+    build:
+        context: ../../
+        dockerfile: ./asimov/sample/Dockerfile-lsdb-azure-dev
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000 
+
+
+ 

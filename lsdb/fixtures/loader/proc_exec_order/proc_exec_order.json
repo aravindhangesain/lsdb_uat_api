@@ -1,0 +1,165 @@
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 700,
+    "fields": {
+        "execution_group_name": "Pre Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 21,
+        "execution_group_number": 1,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 701,
+    "fields": {
+        "execution_group_name": "Pre Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 33,
+        "execution_group_number": 1,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 702,
+    "fields": {
+        "execution_group_name": "Pre Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 12,
+        "execution_group_number": 1,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 703,
+    "fields": {
+        "execution_group_name": "Pre Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 2,
+        "execution_group_number": 1,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 704,
+    "fields": {
+        "execution_group_name": "Pre Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 3,
+        "execution_group_number": 1,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 705,
+    "fields": {
+        "execution_group_name": "Light Soak >40 kWh/m\u00b2",
+        "test_sequence": 34,
+        "procedure_definition": 17,
+        "execution_group_number": 2,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 706,
+    "fields": {
+        "execution_group_name": "Post Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 21,
+        "execution_group_number": 3,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 707,
+    "fields": {
+        "execution_group_name": "Post Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 33,
+        "execution_group_number": 3,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 708,
+    "fields": {
+        "execution_group_name": "Post Light Soak",
+        "test_sequence": 34,
+        "procedure_definition": 12,
+        "execution_group_number": 3,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 709,
+    "fields": {
+        "execution_group_name": "CEY Installation",
+        "test_sequence": 34,
+        "procedure_definition": 44,
+        "execution_group_number": 4,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 710,
+    "fields": {
+        "execution_group_name": "Post CEY Installation",
+        "test_sequence": 34,
+        "procedure_definition": 21,
+        "execution_group_number": 5,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 711,
+    "fields": {
+        "execution_group_name": "Post CEY Installation",
+        "test_sequence": 34,
+        "procedure_definition": 33,
+        "execution_group_number": 5,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 712,
+    "fields": {
+        "execution_group_name": "Post CEY Installation",
+        "test_sequence": 34,
+        "procedure_definition": 12,
+        "execution_group_number": 5,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 713,
+    "fields": {
+        "execution_group_name": "Post CEY Installation",
+        "test_sequence": 34,
+        "procedure_definition": 2,
+        "execution_group_number": 5,
+        "allow_skip": false
+    }
+},
+{
+    "model": "lsdb.procedureexecutionorder",
+    "pk": 714,
+    "fields": {
+        "execution_group_name": "Post CEY Installation",
+        "test_sequence": 34,
+        "procedure_definition": 3,
+        "execution_group_number": 5,
+        "allow_skip": false
+    }
+},

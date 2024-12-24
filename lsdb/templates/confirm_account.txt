@@ -1,0 +1,10 @@
+Hello {{ username }} -
+
+This message is intended to be read on an HTML capable email client. If you are
+not seeing this message rendered properly, please contact support@pvel.com.
+
+Best regards,
+
+The LSDB Dev Team
+
+Questions? Reply to this email for support.

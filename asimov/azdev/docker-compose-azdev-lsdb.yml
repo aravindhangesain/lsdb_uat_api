@@ -1,0 +1,17 @@
+# This is the version that is launched from Azure service box
+version: '3.7'
+services:
+  haveblue-django:
+    container_name: haveblue-django-azdev
+    build:
+        context: ../../
+        dockerfile: ./asimov/azdev/Dockerfile-lsdb-azure-dev
+    security_opt:
+        - seccomp:unconfined
+
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ../../backend/:/usr/src/HaveBlue/backend
+      - ../../lsdb/:/usr/src/HaveBlue/lsdb
+    ports:
+      - 8000:8000

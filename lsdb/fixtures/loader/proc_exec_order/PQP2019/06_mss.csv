@@ -1,0 +1,43 @@
+Test Sequence Name,test_sequence,execution_group_number,execution_group_name,Site,Procedure Name,procedure_definition,allow_skip,Reason for Skip
+Mechanical Stress Sequence,6,1,Pre Light Soak,DAV,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,2,Light Soak >30 kWh/m²,,Light Soak >30 kWh/m²,16,FALSE,
+,,3,Post Light Soak >30 kWh/m²,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,4,Light Soak >10 kWh/m² #1,,Light Soak >10 kWh/m²,15,FALSE,
+,,5,Post Light Soak >10 kWh/m² #1,,I-V Curve at STC (Front),21,FALSE,
+,,,,,Isc EL Image,12,FALSE,
+,,6,Post Light Soak,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,7,Pre Stress,BKL,Connector Test,6,TRUE,Retiring
+,,8,Pre Stress,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,EL Image at 0.1x Isc,18,TRUE,Captured for convenience
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,9,SML 3,,SML 3,20,FALSE,
+,,10,Post SML 3,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,11,DML 1000,,DML 1000,8,FALSE,
+,,12,Post DML 1000,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,13,TC 50,,TC 50,23,FALSE,
+,,14,Post TC 50,,I-V Curve at STC (Front),21,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,15,HF 10,,HF 10,9,FALSE,
+,,16,Post HF 10,,I-V Curve at STC (Front),21,FALSE,
+,,,,,I-V Curve at STC (Rear),33,TRUE,Bifacial only
+,,,,,I-V Curve at LIC,14,FALSE,
+,,,,,EL Image at 1x Isc,12,FALSE,
+,,,,,Visual Inspection,2,FALSE,
+,,,,,Wet Leakage Current Test,3,FALSE,
+,,,,,Diode Test,1,FALSE,
+,,17,Post HF 10,,Connector Test,6,TRUE,Retiring

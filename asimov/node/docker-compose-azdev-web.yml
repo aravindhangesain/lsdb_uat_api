@@ -1,0 +1,9 @@
+services:
+  haveblue-node:
+    container_name: haveblue-node-azdev
+    build:
+      context: ../../
+      dockerfile: ./asimov/node/Dockerfile-node-azure-dev
+    ports:
+      - '80:80'
+

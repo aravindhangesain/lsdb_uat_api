@@ -1,0 +1,1632 @@
+[
+{
+    "model": "lsdb.note",
+    "pk": 313,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "1 Crate , Wooden , Well Packaged",
+        "datetime": "2020-12-17T04:29:32.752Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 314,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate, Well Packaged",
+        "datetime": "2020-12-17T04:29:32.802Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 315,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "4 modules on pallet, plastic wrapped",
+        "datetime": "2020-12-17T04:29:32.853Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 316,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate, good condition",
+        "datetime": "2020-12-17T04:29:32.903Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 317,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One cardboard crate on pallet",
+        "datetime": "2020-12-17T04:29:32.952Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 318,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden crate, well packaged",
+        "datetime": "2020-12-17T04:29:33.003Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 319,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Arrived in 3 crates, well packed, no visible damage",
+        "datetime": "2020-12-17T04:29:33.052Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 320,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Crate in good condition",
+        "datetime": "2020-12-17T04:29:33.103Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 321,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "cardboard box on pallet, good condition",
+        "datetime": "2020-12-17T04:29:33.153Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 322,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Scuffs on exterior, damage to backsheet and frame of top module in pallet",
+        "datetime": "2020-12-17T04:29:33.203Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 323,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Scuffs on exterior, damage to backsheet and frame of top module in pallet",
+        "datetime": "2020-12-17T04:29:33.252Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 324,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Scuffs to exterior frames, damage to backsheet and frame of top module in the pallet",
+        "datetime": "2020-12-17T04:29:33.303Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 325,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One pallet, some tears in cardboard, 5 modules loose on top of box.",
+        "datetime": "2020-12-17T04:29:33.352Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 326,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Performed by SolarCity",
+        "datetime": "2020-12-17T04:29:33.401Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 327,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "wooden crate, no damage",
+        "datetime": "2020-12-17T04:29:33.452Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 328,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 Modules on a pallet, no visible damage",
+        "datetime": "2020-12-17T04:29:33.502Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 329,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "wooden crate, no damage",
+        "datetime": "2020-12-17T04:29:33.552Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 330,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One crate, no damage",
+        "datetime": "2020-12-17T04:29:33.603Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 331,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "one pallet, no visible damage, modules show dirt and use",
+        "datetime": "2020-12-17T04:29:33.653Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 332,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "one pallet, 8 modules, no visible damage",
+        "datetime": "2020-12-17T04:29:33.701Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 333,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Cardboard box, wooden pallet, no damage",
+        "datetime": "2020-12-17T04:29:33.752Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 334,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One pallet, 20 stacked modules, no visible damage",
+        "datetime": "2020-12-17T04:29:33.803Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 335,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One pallet, 20 stacked modules, no visible damage",
+        "datetime": "2020-12-17T04:29:33.853Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 336,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One pallet, 20 stacked modules, no visible damage",
+        "datetime": "2020-12-17T04:29:33.902Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 337,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "1 pallet, 4 stacked modules, shifting occurred during transit, weathering evident upon arrival",
+        "datetime": "2020-12-17T04:29:33.953Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 338,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "one pallet, 3 modules, no visible damage",
+        "datetime": "2020-12-17T04:29:34.003Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 339,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Loose modules, uncrated, show wear",
+        "datetime": "2020-12-17T04:29:34.052Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 340,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Good condition, no visible damage",
+        "datetime": "2020-12-17T04:29:34.102Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 341,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One crate, good condition, no visible damage",
+        "datetime": "2020-12-17T04:29:34.152Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 342,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "damage to cardboard boxes and pallets, no visible damage to modules",
+        "datetime": "2020-12-17T04:29:34.203Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 343,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 crates, no visible damage",
+        "datetime": "2020-12-17T04:29:34.254Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 344,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Bottom module dented in top of frame. No other visible damage",
+        "datetime": "2020-12-17T04:29:34.303Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 345,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "one pallet, 5 modules, no visible damage, no nameplates on modules",
+        "datetime": "2020-12-17T04:29:34.353Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 346,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Weathering and wear to cardboard box, no visible damage to modules",
+        "datetime": "2020-12-17T04:29:34.402Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 347,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Weathering to cardboard boxes, no visible damage to modules",
+        "datetime": "2020-12-17T04:29:34.453Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 348,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "minor damage to cardboard, no visible damage to modules",
+        "datetime": "2020-12-17T04:29:34.503Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 349,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Good condition, no visible damage",
+        "datetime": "2020-12-17T04:29:34.553Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 350,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Good condition, no visible damage",
+        "datetime": "2020-12-17T04:29:34.604Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 351,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 pallets, Candian Solar, REC, Trina. Inspected by Albert of SolarCity",
+        "datetime": "2020-12-17T04:29:34.654Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 352,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Damage to box exterior from forklift",
+        "datetime": "2020-12-17T04:29:34.704Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 353,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Minor scuffs to packaging exterior",
+        "datetime": "2020-12-17T04:29:34.754Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 354,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Minor scuff damage",
+        "datetime": "2020-12-17T04:29:34.802Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 355,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Minor exterior damage",
+        "datetime": "2020-12-17T04:29:34.853Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 356,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "no visible damage",
+        "datetime": "2020-12-17T04:29:34.902Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 357,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "no visible external damage",
+        "datetime": "2020-12-17T04:29:34.954Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 358,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "no visible external damage",
+        "datetime": "2020-12-17T04:29:35.003Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 359,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Some damage to box exterior, wear to module frame edges",
+        "datetime": "2020-12-17T04:29:35.054Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 360,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "4 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.104Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 361,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "4 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.153Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 362,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "4 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.204Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 363,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "4 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.254Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 364,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Some Damage, Crate not properly loaded onto van. Had to take apart to get of van.",
+        "datetime": "2020-12-17T04:29:35.304Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 365,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 Large and1 Small wooden crates",
+        "datetime": "2020-12-17T04:29:35.379Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 366,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.428Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 367,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.478Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 368,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.528Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 369,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.578Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 370,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "5 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.629Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 371,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "5 Wooden Crates",
+        "datetime": "2020-12-17T04:29:35.678Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 372,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 crates received. Damage to the top of both crates. Wood and plastic debris at damage site.",
+        "datetime": "2020-12-17T04:29:35.729Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 373,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 crates received. Damage to the top of both crates. Wood and plastic debris at damage site.",
+        "datetime": "2020-12-17T04:29:35.778Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 374,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 Wooden crates, no visible damage",
+        "datetime": "2020-12-17T04:29:35.829Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 375,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Good Condition",
+        "datetime": "2020-12-17T04:29:35.878Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 376,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Pretty f-ed up",
+        "datetime": "2020-12-17T04:29:35.928Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 377,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "stacked modes, no visible damage",
+        "datetime": "2020-12-17T04:29:35.979Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 378,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate, plastic wrapped\t",
+        "datetime": "2020-12-17T04:29:36.029Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 379,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate, good condition",
+        "datetime": "2020-12-17T04:29:36.078Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 380,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "low wooden crate, good condition",
+        "datetime": "2020-12-17T04:29:36.128Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 381,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "crate might have been openned .",
+        "datetime": "2020-12-17T04:29:36.178Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 382,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "On pallet, plastic wrapped",
+        "datetime": "2020-12-17T04:29:36.229Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 383,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Modules on pallet, plastic wrapped. \nPICS\n0379-0382",
+        "datetime": "2020-12-17T04:29:36.278Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 384,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Two narrow cardboard boxes on pallet",
+        "datetime": "2020-12-17T04:29:36.330Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 385,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Cardboard on pallet",
+        "datetime": "2020-12-17T04:29:36.379Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 386,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Cardboard on pallet",
+        "datetime": "2020-12-17T04:29:36.429Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 387,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "No crate delivered by hand",
+        "datetime": "2020-12-17T04:29:36.478Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 388,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate well packaged ",
+        "datetime": "2020-12-17T04:29:36.546Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 389,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One wooden Yingli crate.  Good Condition",
+        "datetime": "2020-12-17T04:29:36.596Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 390,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One wooden crate, well packaged",
+        "datetime": "2020-12-17T04:29:36.647Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 391,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One wooden crate, good condition\n\tPics\n\t-0209\n\t-0210\n\t-0211\n\t-0212",
+        "datetime": "2020-12-17T04:29:36.696Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 392,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "crate arrived lopsided\nphotos\n-0222-0231",
+        "datetime": "2020-12-17T04:29:36.746Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 393,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 Pallets inspected by customer",
+        "datetime": "2020-12-17T04:29:37.329Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 394,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Looking good",
+        "datetime": "2020-12-17T04:29:37.563Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 395,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Looking good",
+        "datetime": "2020-12-17T04:29:37.805Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 396,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 Pallet plastic wrapped good condition ",
+        "datetime": "2020-12-17T04:29:37.996Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 397,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "2 wooden crates, well packaged",
+        "datetime": "2020-12-17T04:29:38.213Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 398,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wood Pallet, good condition",
+        "datetime": "2020-12-17T04:29:38.429Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 399,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Two low wooden crates\nPics\n\n\n",
+        "datetime": "2020-12-17T04:29:38.571Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 400,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "3 Pallets, cardboard",
+        "datetime": "2020-12-17T04:29:38.664Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 401,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "10 Modules on pallet, plastic wrapped",
+        "datetime": "2020-12-17T04:29:38.815Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 402,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "On big ass wooden crate",
+        "datetime": "2020-12-17T04:29:38.864Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 403,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "One big ass wooden crate",
+        "datetime": "2020-12-17T04:29:38.914Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 404,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "BYD Pallet, Plastic Wrapped, Good Condition",
+        "datetime": "2020-12-17T04:29:38.980Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 405,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Cardboard on wood pallet, with modules on top\nPics:\n0388-0391",
+        "datetime": "2020-12-17T04:29:39.030Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 406,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Two cardboard pallets, good condition",
+        "datetime": "2020-12-17T04:29:39.098Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 407,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Horizontal on pallet, plastic wrapped, good condition",
+        "datetime": "2020-12-17T04:29:39.146Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 408,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Horizontal on pallet, plastic wrapped, good condition",
+        "datetime": "2020-12-17T04:29:39.223Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 409,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate good condition",
+        "datetime": "2020-12-17T04:29:39.273Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 410,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Pallet 1 = Damaged Pallet 2= Tear \n",
+        "datetime": "2020-12-17T04:29:39.323Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 411,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Well packaged wooden crate",
+        "datetime": "2020-12-17T04:29:39.372Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 412,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Well packaged wooden crate",
+        "datetime": "2020-12-17T04:29:39.423Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 413,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Well packaged wooden crate",
+        "datetime": "2020-12-17T04:29:39.473Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 414,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "Wooden Crate, well packaged.",
+        "datetime": "2020-12-17T04:29:39.522Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 415,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Off loading from truck",
+        "datetime": "2020-12-17T04:29:39.573Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 416,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Visual photo 1",
+        "datetime": "2020-12-17T04:29:39.607Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 417,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "test1",
+        "datetime": "2020-12-17T04:29:39.674Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 418,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "test2",
+        "datetime": "2020-12-17T04:29:39.707Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 419,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "test3",
+        "datetime": "2020-12-17T04:29:39.740Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 420,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "test4",
+        "datetime": "2020-12-17T04:29:39.772Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 421,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "test1",
+        "datetime": "2020-12-17T04:29:39.823Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 422,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "test2",
+        "datetime": "2020-12-17T04:29:39.857Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 423,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Small crate on top",
+        "datetime": "2020-12-17T04:29:39.923Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 424,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Small crate on top",
+        "datetime": "2020-12-17T04:29:39.957Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 425,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Small crate on top",
+        "datetime": "2020-12-17T04:29:39.990Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 426,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Missing Nameplates",
+        "datetime": "2020-12-17T04:29:40.040Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 427,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Missing Nameplates",
+        "datetime": "2020-12-17T04:29:40.073Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 428,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Missing Nameplates",
+        "datetime": "2020-12-17T04:29:40.107Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 429,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Missing Nameplates",
+        "datetime": "2020-12-17T04:29:40.141Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 430,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Missing Nameplates",
+        "datetime": "2020-12-17T04:29:40.172Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 431,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Missing Nameplates",
+        "datetime": "2020-12-17T04:29:40.205Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 432,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "1 Wooden Crate off loading from truck",
+        "datetime": "2020-12-17T04:29:40.290Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 433,
+    "fields": {
+        "user": 7,
+        "subject": "Observation Comment",
+        "text": "1 Shrink wrapped & banded pallet in good condition",
+        "datetime": "2020-12-17T04:29:40.356Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 434,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are shifted off of pallet prior to offloading",
+        "datetime": "2020-12-17T04:29:40.432Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 435,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are shifted off of pallet prior to offloading",
+        "datetime": "2020-12-17T04:29:40.516Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 436,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are shifted off of pallet prior to offloading",
+        "datetime": "2020-12-17T04:29:40.549Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 437,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are shifted off of pallet prior to offloading",
+        "datetime": "2020-12-17T04:29:40.665Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 438,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are shifted off of pallet prior to offloading",
+        "datetime": "2020-12-17T04:29:40.699Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 439,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are shifted off of pallet prior to offloading",
+        "datetime": "2020-12-17T04:29:40.732Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 440,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are delivered and recieved shifted off of pallet",
+        "datetime": "2020-12-17T04:29:40.765Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 441,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are delivered and recieved shifted off of pallet",
+        "datetime": "2020-12-17T04:29:40.798Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 442,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are delivered and recieved shifted off of pallet",
+        "datetime": "2020-12-17T04:29:40.832Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 443,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Panels are delivered and recieved shifted off of pallet",
+        "datetime": "2020-12-17T04:29:40.866Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 444,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:40.932Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 445,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:40.966Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 446,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:40.999Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 447,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.033Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 448,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.066Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 449,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.099Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 450,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.132Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 451,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.165Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 452,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.199Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 453,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.233Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 454,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.266Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 455,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.297Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 456,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.331Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 457,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.365Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 458,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.398Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 459,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.433Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 460,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.466Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 461,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.499Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 462,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.531Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 463,
+    "fields": {
+        "user": 17,
+        "subject": "Observation Comment",
+        "text": "Received One (1) Damaged Panel of Three (3)",
+        "datetime": "2020-12-17T04:29:41.566Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 464,
+    "fields": {
+        "user": 9,
+        "subject": "Observation Comment",
+        "text": "All other photos are on the shipping and receiving computer.\n\nC:\\Users\\SandR\\Desktop\\Shipping and Receiving Photos\\SolarCity\\Batch 21 and 22",
+        "datetime": "2020-12-17T04:29:41.699Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 465,
+    "fields": {
+        "user": 9,
+        "subject": "Observation Comment",
+        "text": "See 2016-08-23 - SolarCity - Batch 22 for all photos",
+        "datetime": "2020-12-17T04:29:41.749Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 466,
+    "fields": {
+        "user": 9,
+        "subject": "Observation Comment",
+        "text": "For all photos, see:\n\nC:\\Users\\SandR\\Desktop\\Shipping and Receiving Photos\\SolarCity\\Batch 21 and 22",
+        "datetime": "2020-12-17T04:29:41.799Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 467,
+    "fields": {
+        "user": 9,
+        "subject": "Observation Comment",
+        "text": "for all photos see:\n\nC:\\Users\\SandR\\Desktop\\Shipping and Receiving Photos\\SolarCity\\Batch 21 and 22",
+        "datetime": "2020-12-17T04:29:41.866Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 468,
+    "fields": {
+        "user": 9,
+        "subject": "Observation Comment",
+        "text": "for all photos, see:\n\nC:\\Users\\SandR\\Desktop\\Shipping and Receiving Photos\\SolarCity\\Batch 21 and 22",
+        "datetime": "2020-12-17T04:29:41.915Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 469,
+    "fields": {
+        "user": 9,
+        "subject": "Observation Comment",
+        "text": "Additional photos emailed to Alisan Varney",
+        "datetime": "2020-12-17T04:29:42.541Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 470,
+    "fields": {
+        "user": 22,
+        "subject": "Observation Comment",
+        "text": "Broken module found during unloading 1/3",
+        "datetime": "2020-12-17T04:29:47.137Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 471,
+    "fields": {
+        "user": 22,
+        "subject": "Observation Comment",
+        "text": "Broken module found during unloading 2/3",
+        "datetime": "2020-12-17T04:29:47.169Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 472,
+    "fields": {
+        "user": 22,
+        "subject": "Observation Comment",
+        "text": "Broken module found during unloading 3/3",
+        "datetime": "2020-12-17T04:29:47.203Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 473,
+    "fields": {
+        "user": 22,
+        "subject": "Observation Comment",
+        "text": "Bent frame on module 3/3",
+        "datetime": "2020-12-17T04:29:47.236Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 474,
+    "fields": {
+        "user": 32,
+        "subject": "Observation Comment",
+        "text": "Test photo #1: not lookin' so good...",
+        "datetime": "2020-12-17T04:29:53.860Z"
+    }
+},
+{
+    "model": "lsdb.note",
+    "pk": 475,
+    "fields": {
+        "user": 32,
+        "subject": "Observation Comment",
+        "text": "Test photo #2: much better!",
+        "datetime": "2020-12-17T04:29:53.892Z"
+    }
+}
+]
