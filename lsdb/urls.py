@@ -131,6 +131,8 @@ from lsdb.views import MeasurementResultType_pichinaViewSet
 from lsdb.views import ProcedureResult_pichinaViewSet
 from lsdb.views import StepDefinition_pichinaViewSet
 from lsdb.views import ProcedureDefinition_pichinaViewSet
+from lsdb.views import AzureFile_pichinaViewSet
+from lsdb.views import AvailableDefect_pichinaViewSet
 # from lsdb.views import ProcedureUpdateViewSet
 # from lsdb.views import IAMMetaDataViewSet
 
@@ -263,6 +265,8 @@ router.register(r'measurementresulttype_pichina',MeasurementResultType_pichinaVi
 router.register(r'procedureresult_pichina',ProcedureResult_pichinaViewSet,basename = 'procedureresult_pichina')
 router.register(r'stepdefinition_pichina',StepDefinition_pichinaViewSet,basename = 'stepdefinition_pichina')
 router.register(r'proceduredefinition_pichina',ProcedureDefinition_pichinaViewSet, basename = 'proceduredefinition_pichina')
+router.register(r'azurefile_pichina',AzureFile_pichinaViewSet,basename = 'azurefile_pichina')
+router.register(r'availabledefect_pichina',AvailableDefect_pichinaViewSet,basename = 'availabledefect_pichina')
 # router.register(r'procupdate',ProcedureUpdateViewSet, basename = 'procupdate')
 # router.register(r'IAMMetaData',IAMMetaDataViewSet, basename = 'IAMMetaData')
 

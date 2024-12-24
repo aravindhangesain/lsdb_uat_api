@@ -14,8 +14,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny
 
-from lsdb.models import AzureFile
-from lsdb.serializers import AzureFileSerializer
+from lsdb.models import AzureFile_pichina
+from lsdb.serializers import AzureFile_pichinaSerializer
 from lsdb.permissions import ConfiguredPermission
 from lsdb.utils.Crypto import encrypt, decrypt
 
@@ -24,14 +24,14 @@ class AzureFileFilter(filters.FilterSet):
     # uploaded_max_datetime = filters.DateFromToRangeFilter(field_name='uploaded_datetime',lookup_expr='lte')
     uploaded_datetime = filters.DateFromToRangeFilter()
     class Meta:
-        model = AzureFile
+        model = AzureFile_pichina
         # fields = {
         #     'name':['exact','icontains'],
         #     'uploaded_datetime',
         #     }
         fields = ['name','uploaded_datetime',]
 
-class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
+class AzureFile_pichinaViewSet(LoggingMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows AzureFile to be viewed or edited.
     Filters:
@@ -40,8 +40,8 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
     Usage: `/api/1.0/azure_files/?uploaded_datetime_after=2021-03-01&uploaded_datetime_before=2021-03-20`
     """
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
-    queryset = AzureFile.objects.all()
-    serializer_class = AzureFileSerializer
+    queryset = AzureFile_pichina.objects.all()
+    serializer_class = AzureFile_pichinaSerializer
     parser_class = (FileUploadParser,)
     permission_classes = [ConfiguredPermission]
     filter_backends = (filters.DjangoFilterBackend,)
@@ -54,14 +54,14 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
         if isinstance(data, bytes):
             # data = data.decode(errors='ignore')
             data = 'CLEANED FILE DATA'
-        return super(AzureFileViewSet, self)._clean_data(data)
+        return super(AzureFile_pichinaViewSet, self)._clean_data(data)
 
     @action(detail=True, methods=['get'],
         # renderer_classes=(BinaryFileRenderer,),
         permission_classes=(ConfiguredPermission,),
         )
     def download(self, request, pk=None):
-        queryset = AzureFile.objects.get(id=pk)
+        queryset = AzureFile_pichina.objects.get(id=pk)
         file = queryset.file
         file_handle = file.open()
         content_type = magic.from_buffer(file_handle.read(2048), mime=True)
@@ -77,7 +77,7 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
     def get_magic_link(self, request, pk=None):
         # The user has permission to get here, so I will send a link
         self.context = {'request':request}
-        azurefile = AzureFile.objects.get(pk=pk)
+        azurefile = AzureFile_pichina.objects.get(pk=pk)
         token = Token.objects.get(user = request.user)
         encrypted = encrypt(token.key)
         # print(encrypted, azurefile.url)
