@@ -57,6 +57,17 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
             el_sheet.append(
                 ["Serial Number", "TSD", "LEG", "final_result","Aperture", "ISO", "Exposure Count", "Injection Current",
                  "Exposure Time"])
+            
+            excel_file_wl = ExcelFile()
+            wl_sheet = excel_file_wl.workbook.active
+            wl_sheet.title = "Wet Leakage"
+            wl_sheet.append(["Serial Number", "TSD", "LEG", "final_result","Insulation Resistance", "Passed?", "Test Voltage",
+                             "Leakage Current", "Current Trip Setpoint", "Water Temperature"])
+            
+            excel_file_dt = ExcelFile()
+            dt_sheet = excel_file_dt.workbook.active
+            dt_sheet.title = "Diode Test"
+            dt_sheet.append(["Serial Number", "TSD", "LEG","final_result", "Forward Voltage", "Reverse Voltage", "Pass?"])
 
             excel_file_flash = ExcelFile()
             flash_sheet = excel_file_flash.workbook.active
@@ -307,82 +318,93 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
                                     if measurement.result_files.all().count():
                                         has_result = step_result.measurementresult_pichina_set.filter(
                                             result_files__name__icontains="Results"
-                                        ).exists()
+                                        )
+
                                         for azurefile in measurement.result_files.all():
-                                            try:
-                                                if has_result and "Results" in azurefile.file.name:
-                                                    path = "Flash Data/"
-                                                    if "200" in step_result.name:
-                                                        path += "200W/"
-                                                    elif "Rear" in test.procedure_definition.name:
-                                                        path += "Rear/"
-                                                    path += "FLASH/{}/{}".format(
-                                                        test.test_sequence_definition.name,
-                                                        test.name
-                                                    )
-                                                    blob_name = azurefile.file.name
-                                                    blob_data = azurefile.file.file.read()
-                                                    zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/{path}/{blob_name}',
-                                                        blob_data
-                                                    )
-                                                elif not has_result:
-                                                    path = "Flash Data/"
-                                                    if "200" in step_result.name:
-                                                        path += "200W/"
-                                                    elif "Rear" in test.procedure_definition.name:
-                                                        path += "Rear/"
-                                                    path += "FLASH/{}/{}".format(
-                                                        test.test_sequence_definition.name,
-                                                        test.name
-                                                    )
-                                                    blob_name = azurefile.file.name
-                                                    blob_data = azurefile.file.file.read()
-                                                    zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/{path}/{blob_name}',
-                                                        blob_data
-                                                    )
-                                                else:
-                                                    continue
-                                            except Exception as e:
-                                                print(f"Error processing blob {azurefile.file.name}: {e}")
+                                            if has_result and "Results" in azurefile.file.name:
+                                                path = "Flash Data/"
+                                                if "200" in step_result.name:
+                                                    path += "200W/"
+                                                elif "Rear" in test.procedure_definition.name:
+                                                    path += "Rear/"
+                                                path += "FLASH/{}/{}".format(
+                                                    test.test_sequence_definition.name,
+                                                    test.name
+                                                )
+                                                bytes = azurefile.file.file.read()
+                                                zf.writestr('{}/{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "Flash Data",
+                                                    path,
+                                                    azurefile.file.name,
+                                                ),
+                                                    bytes)
+                                            elif not has_result:
+                                                path = "Flash Data/"
+                                                if "200" in step_result.name:
+                                                    path += "200W/"
+                                                elif "Rear" in test.procedure_definition.name:
+                                                    path += "Rear/"
+                                                path += "FLASH/{}/{}".format(
+                                                    test.test_sequence_definition.name,
+                                                    test.name
+                                                )
+                                                bytes = azurefile.file.file.read()
+                                                zf.writestr('{}/{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "Flash Data",
+                                                    path,
+                                                    azurefile.file.name,
+                                                ),
+                                                    bytes)
+                                            else:
+                                                continue
                                 elif measurement.measurement_result_type.name == 'result_datetime':
                                     continue
                                 else:
                                     data.append(getattr(measurement, measurement.measurement_result_type.name))
                             flash_sheet.append(data)
+                    elif "Wet Leakage" in test.procedure_definition.name:
+                        for step_result in test.stepresult_pichina_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name,final_result_value]
+                            for measurement in step_result.measurementresult_pichina_set.all().order_by('report_order'):
+                                data.append(getattr(measurement, measurement.measurement_result_type.name))
+                            wl_sheet.append(data)
                     elif "Visual Inspection" in test.procedure_definition.name:
                         skip = False
                         for step_result in test.stepresult_pichina_set.all().exclude(archived=True):
                             data = [unit.serial_number, test.test_sequence_definition.name, test.name, final_result_value]
                             for measurement in step_result.measurementresult_pichina_set.all().order_by('report_order'):
-                                try:
-                                    if step_result.name == "Inspect Module":
-                                        if getattr(measurement, measurement.measurement_result_type.name):
-                                            skip = True
-                                            data.append("No Defects Observed")
-                                            vi_sheet.append(data)
-                                    elif skip:
-                                        break
+                                if step_result.name == "Inspect Module":
+                                    if getattr(measurement, measurement.measurement_result_type.name):
+                                        skip = True
+                                        data.append("No Defects Observed")
+                                        vi_sheet.append(data)
+                                elif skip:
+                                    break
+                                else:
+                                    if measurement.measurement_result_type.name == 'result_files':
+                                        if measurement.result_files.all().count():
+                                            for azurefile in measurement.result_files.all():
+                                                bytes = azurefile.file.file.read()
+                                                zf.writestr('{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "VI Images",
+                                                    azurefile.file.name,
+                                                ),
+                                                    bytes)
+                                                data.append(azurefile.file.name)
                                     else:
-                                        if measurement.measurement_result_type.name == 'result_files':
-                                            if measurement.result_files.all().count():
-                                                for azurefile in measurement.result_files.all():
-                                                    blob_name = azurefile.file.name
-                                                    blob_data = azurefile.file.file.read()
-                                                    zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/VI Images/{blob_name}',
-                                                        blob_data
-                                                    )
-                                                    data.append(blob_name)
+                                        if measurement.result_defect and measurement.measurement_result_type.name == "result_defect":
+                                            print(test, step_result, measurement)
+                                            print(measurement.result_defect)
+                                            data.append(measurement.result_defect.short_name)
+                                            data.append(measurement.result_defect.category)
                                         else:
-                                            if measurement.result_defect and measurement.measurement_result_type.name == "result_defect":
-                                                data.append(measurement.result_defect.short_name)
-                                                data.append(measurement.result_defect.category)
-                                            else:
-                                                data.append(getattr(measurement, measurement.measurement_result_type.name))
-                                except Exception as e:
-                                    print(f"Error processing measurement {measurement.id}: {e}")
+                                            data.append(getattr(measurement, measurement.measurement_result_type.name))
                             if skip:
                                 break
                             vi_sheet.append(data)
@@ -390,50 +412,122 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
                         for step_result in test.stepresult_pichina_set.all().exclude(archived=True):
                             data = [unit.serial_number, test.test_sequence_definition.name, test.name, final_result_value]
                             for measurement in step_result.measurementresult_pichina_set.all().order_by('report_order'):
-                                try:
-                                    if measurement.measurement_result_type.name == 'result_files':
-                                        if measurement.result_files.all().count():
-                                            for azurefile in measurement.result_files.all():
-                                                if "RAW" in azurefile.file.name:
-                                                    continue
-                                                blob_name = azurefile.file.name
-                                                print(blob_name)
-                                                blob_data = azurefile.file.file.read()
-                                                filetype = 'ImageFiles' if not blob_name.lower().endswith(('xls', 'xlsx', 'txt', 'csv')) else 'DataFiles'
-                                                if filetype == 'ImageFiles':
-                                                    temp = blob_name.split(".")
-                                                    name = f"{temp[0]}-{test.test_sequence_definition.name}-{test.name}.{temp[-1]}"
-                                                    bytes_data = BytesIO(blob_data)
-                                                    temp_image = Image.open(bytes_data)
-                                                    if adjust_images:
-                                                        temp_image = temp_image.rotate(-90, expand=True)
-                                                        temp_image = temp_image.resize(temp_image.size[::-1])
-                                                        temp_image = ImageOps.grayscale(temp_image)
-                                                        temp_image = ImageOps.autocontrast(temp_image)
-                                                    image_bytes = BytesIO()
-                                                    temp_image.save(image_bytes, format='jpeg', quality=75)
-                                                    zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/EL Images/{name}',
-                                                        image_bytes.getvalue()
-                                                    )
-                                                else:
-                                                    zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/EL Data/{blob_name}',
-                                                        blob_data
-                                                    )
+                                if measurement.measurement_result_type.name == 'result_files':
+                                    if measurement.result_files.all().count():
+                                        for azurefile in measurement.result_files.all():
+                                            filetype = ''
+                                            if "RAW" in azurefile.file.name:
+                                                continue
+
+                                            if azurefile.file.name.lower().endswith(
+                                                    ('xls', 'xlsx', 'txt', 'csv')):
+                                                filetype = 'DataFiles'
+                                            else:
+                                                filetype = 'ImageFiles'
+
+                                            if filetype == 'ImageFiles':
+                                                temp = azurefile.file.name.split(".")
+                                                name = temp[0]
+                                                for sbstr in range(1, len(temp) - 1):
+                                                    name = name + "." + temp[sbstr]
+
+                                                name = "{}-{}-{}.{}".format(name,
+                                                                            test.test_sequence_definition.name,
+                                                                            test.name, temp[len(temp) - 1])
+
+                                            bytes = BytesIO(azurefile.file.file.read())
+                                            bytes.seek(0)
+
+                                            tempImage = Image.open(bytes)
+                                            try:
+                                                if adjust_images == True:
+                                                    width, height = tempImage.size
+                                                    tempImage = tempImage.rotate(-90, expand=True)
+                                                    tempImage = tempImage.resize((height, width))
+                                                    tempImage = ImageOps.grayscale(tempImage)
+                                                    tempImage = ImageOps.autocontrast(tempImage)
+                                                image_bytes = BytesIO()
+                                                tempImage.save(image_bytes, format='jpeg', quality=75)
+                                                tempImage.close()
+                                                content = image_bytes.getvalue()
+                                                image_bytes.close()
+                                            except:
+                                                bytes.seek(0)
+                                                content = bytes.getvalue()
+                                            bytes.close()
+
+                                            zf.writestr('{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "EL Images",
+                                                    name,
+                                                ),
+                                                content)
                                     else:
                                         data.append(getattr(measurement, measurement.measurement_result_type.name))
-                                except Exception as e:
-                                    print(f"Error processing EL Image {measurement.id}: {e}")
                             el_sheet.append(data)
+
+                    elif "Colorimeter" in test.procedure_definition.name:
+                        if "{}".format(unit.serial_number) not in color_book.sheetnames:
+                            color_sheet = color_book.create_sheet(title="{}".format(unit.serial_number))
+                        for step_result in test.stepresult_pichina_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name,final_result_value]
+                            for measurement in step_result.measurementresult_pichina_set.all().order_by('report_order'):
+                                if step_result.name == "Measure Color" and measurement.measurement_result_type.name == "result_string":
+                                    if measurement.result_string == None:
+                                        pass
+                                        # csv[result.name][result.procedure_definition.name]['body'].append('N/A')
+                                    else:
+                                        # Convert meassurement string to data values
+                                        data = json.loads(measurement.result_string)
+                                        data = data["values"]
+
+                                        # Header Rows
+                                        color_sheet.append([
+                                            "Position",
+                                            "L*",
+                                            "A*",
+                                            "B*"
+                                        ])
+
+                                        # Append values to sheet, create columns as we go
+                                        l_val, a_val, b_val = [], [], []
+
+                                        color_sheet.append(["Serial Number:", unit.serial_number, "TSD:",
+                                                            test.test_sequence_definition.name, "LEG:",
+                                                            test.name])
+                                        for value in data:
+                                            row = [value["position"], value["l_value"], value["a_value"],
+                                                   value["b_value"]]
+                                            l_val.append(value["l_value"])
+                                            a_val.append(value["a_value"])
+                                            b_val.append(value["b_value"])
+                                            color_sheet.append(row)
+
+                                        color_sheet.append(["Average", np.average(l_val), np.average(a_val),
+                                                            np.average(b_val)])
+
+                                        color_sheet.append(["STD", np.std(l_val), np.std(a_val), np.std(b_val)])
+                                        color_sheet.append(["", "", "", ""])
+                            # color_sheet.append(data)
+                    elif "Diode Test" in test.procedure_definition.name:
+                        for step_result in test.stepresult_pichina_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name,final_result_value]
+                            for measurement in step_result.measurementresult_pichina_set.all().order_by('report_order'):
+                                data.append(getattr(measurement, measurement.measurement_result_type.name))
+                            dt_sheet.append(data)
                 
            
                             
+            # Save the Excel files for each sheet to the zip file
             for title, excel_file in [
                 ("Units", excel_file_units),
                 ("Visual Inspection", excel_file_vi),
                 ("EL Image", excel_file_el),
+                ("Wet Leakage", excel_file_wl),
+                ("Diode Test", excel_file_dt),
                 ("Flash", excel_file_flash),
+                ("Colorimeter",excel_file_color)
             ]:
                 file_stream = BytesIO()
                 excel_file.workbook.save(file_stream)
