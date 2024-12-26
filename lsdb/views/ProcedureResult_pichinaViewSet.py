@@ -51,10 +51,8 @@ class ProcedureResult_pichinaViewSet(viewsets.ModelViewSet):
                     'flash_values': flash
                 }
             else:
-                visualized['previous_test'] = {
-                    'message': "No previous test found matching the criteria."
-                }
-
+                serializer = Procedureresult_pichinaSerializer(result,context={'request': request})
+                visualized = serializer.data
         except Exception as e:
             print(f"Error in visualizer: {e}")
 
