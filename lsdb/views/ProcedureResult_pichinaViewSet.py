@@ -35,19 +35,26 @@ class ProcedureResult_pichinaViewSet(viewsets.ModelViewSet):
                 name__icontains="Pre"
             ).order_by('-linear_execution_group').first()
 
-            flash_measurements = MeasurementResult_pichina.objects.filter(
-                step_result__procedure_result=previous_result.id,
-                measurement_result_type__name__icontains='result_double'
-            )
-            flash = {}
-            for measurement in flash_measurements:
-                flash[measurement.name] = measurement.result_double
-            visualized['previous_test'] = {
-                'pre_execution':previous_result.linear_execution_group,
-                'prev_id' : previous_result.id,
-                'prev_name' : previous_result.name,
-                'flash_values': flash
-            }
+            if previous_result:
+                flash_measurements = MeasurementResult_pichina.objects.filter(
+                    step_result__procedure_result=previous_result.id,
+                    measurement_result_type__name__icontains='result_double'
+                )
+                flash = {}
+                for measurement in flash_measurements:
+                    flash[measurement.name] = measurement.result_double
+
+                visualized['previous_test'] = {
+                    'pre_execution': previous_result.linear_execution_group,
+                    'prev_id': previous_result.id,
+                    'prev_name': previous_result.name,
+                    'flash_values': flash
+                }
+            else:
+                visualized['previous_test'] = {
+                    'message': "No previous test found matching the criteria."
+                }
+
         except Exception as e:
             print(f"Error in visualizer: {e}")
 

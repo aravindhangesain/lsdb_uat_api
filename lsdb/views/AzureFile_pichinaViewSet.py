@@ -1,18 +1,17 @@
 from urllib import response
 import magic
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 from django_filters import rest_framework as filters
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
 from rest_framework_tracking.mixins import LoggingMixin
 
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny
+from azure.storage.blob import BlobServiceClient
+
 
 from lsdb.models import AzureFile_pichina
 from lsdb.serializers import AzureFile_pichinaSerializer
@@ -61,14 +60,23 @@ class AzureFile_pichinaViewSet(LoggingMixin, viewsets.ModelViewSet):
         permission_classes=(ConfiguredPermission,),
         )
     def download(self, request, pk=None):
-        queryset = AzureFile_pichina.objects.get(id=pk)
-        file = queryset.file
-        file_handle = file.open()
-        content_type = magic.from_buffer(file_handle.read(2048), mime=True)
-
-        response = HttpResponse(file_handle, content_type=content_type)
-        response['Content-Disposition'] = 'attachment; filename={0}'.format(file)
-        return response
+        try:
+            file_record = AzureFile_pichina.objects.get(id=pk)
+            blob_name = file_record.file.name
+            container_name = 'testmedia1'
+            connection_string = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
+            blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+            blob_data = blob_client.download_blob()
+            file_content = blob_data.readall()
+            mime_type = magic.Magic(mime=True).from_buffer(file_content)
+            response = HttpResponse(file_content, content_type=mime_type)
+            response['Content-Disposition'] = f'attachment; filename="{blob_name.split("/")[-1]}"'
+            return response
+        except AzureFile_pichina.DoesNotExist:
+            return HttpResponse("File not found", status=404)
+        except Exception as e:
+            return HttpResponse(f"An error occurred: {str(e)}", status=500)
 
     @action(detail=True, methods=['get'],
         # renderer_classes=(BinaryFileRenderer,),
