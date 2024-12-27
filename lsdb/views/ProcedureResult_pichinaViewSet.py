@@ -14,11 +14,9 @@ class ProcedureResult_pichinaViewSet(viewsets.ModelViewSet):
     permission_classes = [ConfiguredPermission]
 
     @action(detail=True,methods=['get'],
-    permission_classes=(ConfiguredPermission,),
-    serializer_class=ProcedureWorkLog_pichinaSerializer)
+        permission_classes=(ConfiguredPermission,),
+        serializer_class=ProcedureWorkLog_pichinaSerializer)
     def view(self, request, pk=None):
-        # read the visualizer value of the current record to determine the shape
-        # of the data to return.
         self.context = {'request':request}
         result = ProcedureResult_pichina.objects.get(id=pk)
         visualized={}
@@ -35,24 +33,19 @@ class ProcedureResult_pichinaViewSet(viewsets.ModelViewSet):
                 name__icontains="Pre"
             ).order_by('-linear_execution_group').first()
 
-            if previous_result:
-                flash_measurements = MeasurementResult_pichina.objects.filter(
-                    step_result__procedure_result=previous_result.id,
-                    measurement_result_type__name__icontains='result_double'
-                )
-                flash = {}
-                for measurement in flash_measurements:
-                    flash[measurement.name] = measurement.result_double
-
-                visualized['previous_test'] = {
-                    'pre_execution': previous_result.linear_execution_group,
-                    'prev_id': previous_result.id,
-                    'prev_name': previous_result.name,
-                    'flash_values': flash
-                }
-            else:
-                serializer = Procedureresult_pichinaSerializer(result,context={'request': request})
-                visualized = serializer.data
+            flash_measurements = MeasurementResult_pichina.objects.filter(
+                step_result__procedure_result=previous_result.id,
+                measurement_result_type__name__icontains='result_double'
+            )
+            flash = {}
+            for measurement in flash_measurements:
+                flash[measurement.name] = measurement.result_double
+            visualized['previous_test'] = {
+                'pre_execution':previous_result.linear_execution_group,
+                'prev_id' : previous_result.id,
+                'prev_name' : previous_result.name,
+                'flash_values': flash
+            }
         except Exception as e:
             print(f"Error in visualizer: {e}")
 

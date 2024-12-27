@@ -3,6 +3,7 @@ from django.db.models import Q
 import json
 import magic
 import pandas as pd
+from azure.storage.blob import BlobServiceClient
 from lsdb.models import MeasurementResult_pichina, ProcedureResult_FinalResult_pichina, ProcedureResult_pichina
 from lsdb.serializers import UnitType_pichinaSerializer
 
@@ -17,15 +18,15 @@ class TransformIVCurve_pichinaSerializer(serializers.HyperlinkedModelSerializer)
     iv_curves = serializers.SerializerMethodField()
     assets = serializers.SerializerMethodField()
     # multiplier = serializers.SerializerMethodField()
-    has_notes = serializers.SerializerMethodField()
-    open_notes = serializers.SerializerMethodField()
+    # has_notes = serializers.SerializerMethodField()
+    # open_notes = serializers.SerializerMethodField()
     final_result = serializers.SerializerMethodField()
 
-    def get_has_notes(self, obj):
-        if obj.notes.count() > 0:
-            return True
-        else:
-            return False
+    # def get_has_notes(self, obj):
+    #     if obj.notes.count() > 0:
+    #         return True
+    #     else:
+    #         return False
 
     def get_final_result(self, instance):
         try:
@@ -34,11 +35,11 @@ class TransformIVCurve_pichinaSerializer(serializers.HyperlinkedModelSerializer)
         except ProcedureResult_FinalResult_pichina.DoesNotExist:
             return None
 
-    def get_open_notes(self, obj):
-        if obj.notes.filter(Q(disposition__complete=False) | Q(disposition__isnull=True)).count() > 0:
-            return True
-        else:
-            return False
+    # def get_open_notes(self, obj):
+    #     if obj.notes.filter(Q(disposition__complete=False) | Q(disposition__isnull=True)).count() > 0:
+    #         return True
+    #     else:
+    #         return False
 
     def get_multiplier(self, obj):
         # Stubbed deliberately --MD
@@ -64,57 +65,28 @@ class TransformIVCurve_pichinaSerializer(serializers.HyperlinkedModelSerializer)
             flash[measurement.name] = measurement.result_double
         return (flash)
 
-    def parse_flash(self, file):
-        mult = None
-        # print(file.file.name)
-        file_handle = file.file.open('rb')
-        if magic.from_buffer(file_handle.read(2048), mime=True) != 'text/plain':
-            # It's binary, we can't eat that(mfr files show up as: application/x-wine-extension-ini)
-            # print('binary')
-            file_handle.close()
-            return None, None, None
-        file_handle.seek(0)
-        # print('about to read')
-        import traceback
+    def parse_flash(self, blob_client):
+        """
+        Parses the uploaded file and returns raw data.
+        """
         try:
-            data_table = pd.read_csv(file_handle, sep='\t', encoding_errors='ignore')
-            # maybe have a different seprator?
-            if len(data_table.columns.array) <= 1:
-                file_handle.seek(0)
-                data_table = pd.read_csv(file_handle, sep=';', encoding_errors='ignore', skiprows=12)
-            # print(data_table.columns)
-        except Exception as err:
-            print(Exception)
-            print(err)
-            traceback.print_tb(err.__traceback__)
-
-        # print(data_table)
-        # Check that this is a sinton or pasan text file
-        if 'Vcorr' in data_table.columns:
-            # pasan chart....
-            mult = float(int(data_table.iat[0, 12]) / 1000)
-            # print('pasandata')
-            cols = data_table[['Vcorr', 'Icorr']]
-            filetype = 'pdata'
-        elif 'Nr' in data_table.columns:
-            # Looks like a HALM file, make it look like a PASAN file
-            cols = data_table[['Ucor [[V]]', 'Icor [[A]]']]
-            cols.columns = ['Vcorr', 'Icorr']
-            filetype = 'pdata'
-        elif 'Model_Voltage_(V)' in data_table.columns:
-            # sinton data file
-            # print('sinton data')
-            cols = data_table[['Model_Voltage_(V)', 'Model_Current_(A)', 'Vload_(V)', 'ILoad_(A)']]
-            filetype = 'sdata'
-        else:
-            # print('sinton params')
-            if 'Power_per_Sun_(W/m2)' in data_table.columns:
-                cols = data_table['Power_per_Sun_(W/m2)'][0] * data_table['Intensity_(suns)'][0] / 1000
-                filetype = 'sparams'
-        file_handle.close()
-        return filetype, cols, mult
+            file_handle = blob_client.download_blob().readall()
+            if magic.from_buffer(file_handle[:2048], mime=True) != 'text/plain':
+                 return None
+            raw_data = [line.strip() for line in file_handle.decode('utf-8').splitlines()]
+            return raw_data
+        
+        except Exception as e:
+            print(f"Error parsing file: {e}")
+            return None
 
     def get_iv_curves(self, obj):
+        """
+        Processes measurement data to generate IV curves.
+        """
+        AZURE_CONNECTION_STRING = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
+        CONTAINER_NAME = 'testmedia1'
+        blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
         measurements = MeasurementResult_pichina.objects.filter(
             step_result__in=obj.stepresult_pichina_set.all(),
             measurement_result_type__name__icontains='result_files',
@@ -122,132 +94,61 @@ class TransformIVCurve_pichinaSerializer(serializers.HyperlinkedModelSerializer)
         ).exclude(
             disposition__name__icontains='fail'
         )
-        iv_curves = []
-        temp_curve = {}  # split sinton holding dict
-        # print('get_iv',measurements)
-        # print('count',measurements.count())
+        iv_curves = [{
+            'id': 0,
+            'multiplier': 1,
+            "color": "hsl(263, 70%, 50%)",
+            "chart": [{"x": 0, "y": 0}]
+        }]
         try:
             for measurement in measurements:
-                # print(measurement.id)
-                if measurement.result_files.all().count() == 1:  # Pasan or split-sinton
-                    curve_dict = {}
-                    # print('have 1 measurement')
-                    curve_dict['id'] = measurement.id
-                    curve_dict['color'] = "hsl(263, 70%, 50%)"
-                    curve_dict['multiplier'] = 0
-                    # for file in measurement.result_files.all():
-                    filetype, cols, mult = self.parse_flash(measurement.result_files.first())
-                    # print('uno')
-                    if filetype == 'sparams':  # sinton params,
-                        temp_curve['multiplier'] = cols
-                        temp_curve['color'] = "hsl(263, 70%, 50%)"
-                    if filetype == 'sdata':  # sinton data,
-                        temp_curve['id'] = measurement.id
-                        curve_one = cols[['Model_Voltage_(V)', 'Model_Current_(A)']]
-                        curve_two = cols[['Vload_(V)', 'ILoad_(A)']]
-                        curve_one.columns = ['x', 'y']
-                        curve_two.columns = ['x', 'y']
-                        temp_curve['curve_one'] = json.loads(curve_one.to_json(orient='records'))
-                        temp_curve['curve_two'] = json.loads(curve_two.to_json(orient='records'))
-                    if filetype == 'pdata':  # pasan data,
-                        cols.columns = ['x', 'y']
-                        json_points = cols.to_json(orient='records')
-                        curve_dict['multiplier'] = mult
-                        curve_dict['chart'] = json.loads(json_points)
-                        iv_curves.append(curve_dict)
-
-                elif measurement.result_files.all().count() > 1:  # multi-file, probably sinton
+                if measurement.result_files.all().count() == 1:  
                     curve_dict = {}
                     curve_dict['id'] = measurement.id
                     curve_dict['color'] = "hsl(263, 70%, 50%)"
                     curve_dict['multiplier'] = 0
-                    # print('ganged sinton')
-                    for file in measurement.result_files.all():
-                        filetype, data, mult = self.parse_flash(file)
-                        if filetype == None:
-                            # that was binary, ignore it.
-                            continue
-                        if filetype == 'sparams':  # sinton params,
-                            curve_dict['multiplier'] = data
-                            curve_dict['color'] = "hsl(263, 70%, 50%)"
-                        if filetype == 'sdata':  # sinton data,
-                            cols = data
-                    # done parsing files
-                    if 'Model_Voltage_(V)' in cols.columns:
-                        # sinton - multi
-                        bonus_dict = {}
-                        bonus_dict['id'] = '{}-A'.format(measurement.id)
-                        bonus_dict['color'] = "hsl(263, 70%, 50%)"
-                        bonus_dict['multiplier'] = curve_dict['multiplier']
-
-                        curve_one = cols[['Model_Voltage_(V)', 'Model_Current_(A)']]
-                        curve_two = cols[['Vload_(V)', 'ILoad_(A)']]
-                        curve_one.columns = ['x', 'y']
-                        curve_two.columns = ['x', 'y']
-
-                        curve_dict['chart'] = json.loads(curve_one.to_json(orient='records'))
-                        bonus_dict['chart'] = json.loads(curve_two.to_json(orient='records'))
-
-                        iv_curves.append(curve_dict)
-                        iv_curves.append(bonus_dict)
-
-            # Pasan cases hould be done, but if we get here and iv_curves is empty we need sinton:
-            if not len(iv_curves):
-                # print('unsplitting sinton!')
-                curve_dict = {}
-                bonus_dict = {}
-
-                curve_dict['id'] = '{}'.format(measurement.id)
-                bonus_dict['id'] = '{}-A'.format(measurement.id)
-
-                curve_dict['color'] = temp_curve['color']
-                bonus_dict['color'] = temp_curve['color']
-
-                curve_dict['multiplier'] = temp_curve['multiplier']
-                bonus_dict['multiplier'] = temp_curve['multiplier']
-
-                curve_dict['chart'] = temp_curve['curve_one']
-                bonus_dict['chart'] = temp_curve['curve_two']
-
-                iv_curves.append(curve_dict)
-                iv_curves.append(bonus_dict)
-            # print('curves:',iv_curves)
-        except:
-            # Something failed and we need a fake result, probably "no files"
-            measurements = MeasurementResult_pichina.objects.filter(
-                step_result__in=obj.stepresult_pichina_set.all(),
-                name__icontains='irradiance',
-                disposition__isnull=False
-            ).exclude(
-                disposition__name__icontains='fail'
+                    file_instance = measurement.result_files.first()
+                    blob_name = file_instance.file
+                    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=blob_name)
+                    raw_data = self.parse_flash(blob_client)
+                    if raw_data is None:
+                        raise ValueError("Failed to parse the file.")
+                    points_indices = [i for i, line in enumerate(raw_data) if 'Points' in line]
+                    if len(points_indices) < 3:
+                        raise ValueError("The file does not contain a third 'Points' section.")
+                    start_index = points_indices[2] + 2  
+                    header_line = raw_data[start_index] 
+                    data_lines = raw_data[start_index + 2:]  
+                    columns = header_line.split(';')
+                    parsed_data = [line.split(';') for line in data_lines if line.strip()]
+                    data_section = pd.DataFrame(parsed_data, columns=columns)
+                    data_section.columns = data_section.columns.str.strip()  
+                    relevant_data = data_section.iloc[:, [2, 3]]  
+                    relevant_data.columns = ["Voltage", "Current"]
+                    relevant_data["Voltage"] = pd.to_numeric(relevant_data["Voltage"], errors='coerce')
+                    relevant_data["Current"] = pd.to_numeric(relevant_data["Current"], errors='coerce')
+                    relevant_data = relevant_data.dropna()
+                    chart_array = {
+                        "id": measurement.id,
+                        "multiplier": 0.99887,
+                        "color": "hsl(263, 70%, 50%)",
+                        "chart": [
+                            {"x": row["Voltage"], "y": row["Current"]}
+                            for _, row in relevant_data.iterrows()
+                        ],
+                    }
+                    iv_curves.append(chart_array)
+        except Exception as e:
+            print(e)
+            print(f"Error processing measurement: {e}")
+            iv_curves.append(
+                {
+                    'id': 0,
+                    'multiplier': 1,
+                    "color": "hsl(263, 70%, 50%)",
+                    "chart": [{"x": 0, "y": 0}]
+                }
             )
-            if len(measurements):
-                measurement = measurements.first()
-                iv_curves.append(
-                    {
-                        'id': measurement.id,
-                        'multiplier': getattr(measurement, measurement.measurement_result_type.name) / 1000,
-                        "color": "hsl(263, 70%, 50%)",
-                        "chart": [{
-                            "x": 0,
-                            "y": 0
-                        }]
-                    }
-                )
-            else:
-                # Completely fake:
-                iv_curves.append(
-                    {
-                        'id': 0,
-                        'multiplier': 1,
-                        "color": "hsl(263, 70%, 50%)",
-                        "chart": [{
-                            "x": 0,
-                            "y": 0
-                        }]
-                    }
-                )
-            pass
         return iv_curves
 
     def get_disposition_name(self, obj):
@@ -278,7 +179,7 @@ class TransformIVCurve_pichinaSerializer(serializers.HyperlinkedModelSerializer)
             'flash_values',
             'iv_curves',
             'assets',
-            'has_notes',
-            'open_notes',
+            # 'has_notes',
+            # 'open_notes',
             'final_result'
         ]
