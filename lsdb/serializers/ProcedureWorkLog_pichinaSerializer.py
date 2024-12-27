@@ -1,10 +1,5 @@
 from rest_framework import serializers
-
 from lsdb.models import ProcedureResult_FinalResult_pichina, ProcedureResult_pichina
-
-
-
-
 
 
 class ProcedureWorkLog_pichinaSerializer(serializers.HyperlinkedModelSerializer):

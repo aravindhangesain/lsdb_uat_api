@@ -9,6 +9,8 @@ class MeasurementResult_pichinaSerializer(serializers.HyperlinkedModelSerializer
     result_files = AzureFile_pichinaSerializer(AzureFile_pichina.objects.all(), many=True, read_only=True)
     measurement_result_type_field = serializers.ReadOnlyField(source='measurement_result_type.name')
     result_defect_name = serializers.ReadOnlyField(source='result_defect.short_name')
+    asset_name = serializers.ReadOnlyField(source='asset.name')
+    username = serializers.ReadOnlyField(source='user.username')
     # within_limits = serializers.SerializerMethodField()
 
     # def get_within_limits(self, obj):
@@ -24,6 +26,7 @@ class MeasurementResult_pichinaSerializer(serializers.HyperlinkedModelSerializer
             'step_result',
             'measurement_definition',
             'user',
+            'username',
             'location',
             'software_revision',
             'disposition',
@@ -44,6 +47,7 @@ class MeasurementResult_pichinaSerializer(serializers.HyperlinkedModelSerializer
             'start_datetime',
             'duration',
             'asset',
+            'asset_name',
             'do_not_include',
             'name',
             'record_only',
