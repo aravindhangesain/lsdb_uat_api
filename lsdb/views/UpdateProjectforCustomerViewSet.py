@@ -13,25 +13,26 @@ class UpdateProjectforCustomerViewSet(viewsets.ModelViewSet):
     lookup_field = 'number'
     
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        project_number=self.kwargs.get(self.lookup_field)
+        project=Project.objects.filter(number=project_number).first()
+        serializer = self.get_serializer(project, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         # Update all fields except disposition
         for field in serializer.validated_data:
             if field != 'disposition':
-                setattr(instance, field, serializer.validated_data[field])
+                setattr(project, field, serializer.validated_data[field])
         # Save the instance
-        instance.save()
+        project.save()
 
      
         if 'disposition' in serializer.validated_data:
             new_disposition = serializer.validated_data['disposition']
-            if new_disposition != instance.disposition:
+            if new_disposition != project.disposition:
                 # Update disposition ID of the project
-                instance.disposition = new_disposition
-                instance.save()
+                project.disposition = new_disposition
+                project.save()
                 # Update disposition ID of work orders associated with the project
-                work_orders = WorkOrder.objects.filter(project=instance)
+                work_orders = WorkOrder.objects.filter(project=project.id)
                 for work_order in work_orders:
                     work_order.disposition = new_disposition
                     work_order.save()
@@ -54,12 +55,12 @@ class UpdateProjectforCustomerViewSet(viewsets.ModelViewSet):
         if 'location' in request.data:
             location_url = request.data.get('location')
             location_id = location_url.rstrip('/').split('/')[-1] 
-            if not LocationLog.objects.filter(project_id=instance.id,location_id=location_id,is_latest=True).exists():
-                if LocationLog.objects.filter(project_id=instance.id):
-                    LocationLog.objects.filter(project_id=instance.id).update(is_latest=False)
-                    LocationLog.objects.create(location_id=location_id,project_id=instance.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
+            if not LocationLog.objects.filter(project_id=project.id,location_id=location_id,is_latest=True).exists():
+                if LocationLog.objects.filter(project_id=project.id):
+                    LocationLog.objects.filter(project_id=project.id).update(is_latest=False)
+                    LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
                 else:
-                    LocationLog.objects.create(location_id=location_id,project_id=instance.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
+                    LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
 
                 
         
