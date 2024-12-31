@@ -134,6 +134,8 @@ from lsdb.views import ProcedureDefinition_pichinaViewSet
 from lsdb.views import AzureFile_pichinaViewSet
 from lsdb.views import AvailableDefect_pichinaViewSet
 from lsdb.views import DeleteModuleIntakeIDViewSet
+from lsdb.views import GetDeliverablesCoverPageViewSet
+from lsdb.views import GetProcedureDefinitionListViewSet
 # from lsdb.views import ProcedureUpdateViewSet
 # from lsdb.views import IAMMetaDataViewSet
 
@@ -269,6 +271,8 @@ router.register(r'proceduredefinition_pichina',ProcedureDefinition_pichinaViewSe
 router.register(r'azurefile_pichina',AzureFile_pichinaViewSet,basename = 'azurefile_pichina')
 router.register(r'availabledefect_pichina',AvailableDefect_pichinaViewSet,basename = 'availabledefect_pichina')
 router.register(r'deletemoduleintake',DeleteModuleIntakeIDViewSet,basename = 'deletemoduleintake')
+router.register(r'get-deliverables-cover',GetDeliverablesCoverPageViewSet, basename = 'get-deliverables-cover')
+router.register(r'getproceduredefinitionlist',GetProcedureDefinitionListViewSet, basename = 'getproceduredefinitionlist')
 # router.register(r'procupdate',ProcedureUpdateViewSet, basename = 'procupdate')
 # router.register(r'IAMMetaData',IAMMetaDataViewSet, basename = 'IAMMetaData')
 

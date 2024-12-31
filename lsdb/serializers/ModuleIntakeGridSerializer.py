@@ -3,15 +3,9 @@ from lsdb.models import ModuleIntakeDetails
 from datetime import datetime
 
 class ModuleIntakeGridSerializer(serializers.ModelSerializer):
-    customer_name= serializers.SerializerMethodField()
-    manufacturer_name = serializers.SerializerMethodField()
-    
+    customer_name= serializers.ReadOnlyField(source='customer.name')
+    manufacturer_name = serializers.ReadOnlyField(source='customer.name')
 
-    def get_manufacturer_name(self, obj):
-        return obj.customer.name if obj.customer else None
-    
-    def get_customer_name(self, obj):
-        return obj.customer.name if obj.customer else None
     
     class Meta:
         model = ModuleIntakeDetails

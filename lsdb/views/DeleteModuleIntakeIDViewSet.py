@@ -22,8 +22,8 @@ class DeleteModuleIntakeIDViewSet(viewsets.ModelViewSet):
 
         try:
             # Step 1: Retrieve the serial numbers from ScannedPannels before deleting them
-            panel_ids = ScannedPannels.objects.filter(module_intake_id=item_id)
-            serial_numbers = [panel.serial_number for panel in panel_ids]
+            # panel_ids = ScannedPannels.objects.filter(module_intake_id=item_id)
+            # serial_numbers = [panel.serial_number for panel in panel_ids]
 
             # Step 2: Delete related rows from all tables
             with connection.cursor() as cursor:
@@ -31,11 +31,11 @@ class DeleteModuleIntakeIDViewSet(viewsets.ModelViewSet):
                 cursor.execute("DELETE FROM lsdb_scannedpannels WHERE module_intake_id = %s",[item_id],)
                 cursor.execute("DELETE FROM lsdb_moduleintakedetails WHERE id = %s", [item_id])
 
-                for serial_number in serial_numbers:
-                    cursor.execute(
-                        "DELETE FROM lsdb_unit WHERE serial_number = %s",
-                        [serial_number],
-                    )
+                # for serial_number in serial_numbers:
+                #     cursor.execute(
+                #         "DELETE FROM lsdb_unit WHERE serial_number = %s",
+                #         [serial_number],
+                #     )
 
             return Response(
                 {"message": "Item deleted successfully"},
