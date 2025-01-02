@@ -7,8 +7,6 @@ class GetTestSequenceDefinitionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProcedureResult
         fields = [
-            'id',
-            'url',
             'test_sequence_definition',
             'test_sequence_definition_name',
         ]
