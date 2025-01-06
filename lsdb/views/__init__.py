@@ -134,3 +134,4 @@ from .DeleteModuleIntakeIDViewSet import DeleteModuleIntakeIDViewSet as DeleteMo
 from .GetDeliverablesCoverPageViewSet import GetDeliverablesCoverPageViewSet as GetDeliverablesCoverPageViewSet
 from .GetTestSequenceDefinitionListViewSet import GetTestSequenceDefinitionListViewSet as GetTestSequenceDefinitionListViewSet
 from .GetDeliverablesDataViewSet import GetDeliverablesDataViewSet as GetDeliverablesDataViewSet
+from .PdfViewSet import PdfViewSet as PdfViewSet

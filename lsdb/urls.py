@@ -137,6 +137,7 @@ from lsdb.views import DeleteModuleIntakeIDViewSet
 from lsdb.views import GetDeliverablesCoverPageViewSet
 from lsdb.views import GetTestSequenceDefinitionListViewSet
 from lsdb.views import GetDeliverablesDataViewSet
+from lsdb.views import PdfViewSet
 # from lsdb.views import ProcedureUpdateViewSet
 # from lsdb.views import IAMMetaDataViewSet
 
@@ -274,7 +275,9 @@ router.register(r'availabledefect_pichina',AvailableDefect_pichinaViewSet,basena
 router.register(r'deletemoduleintake',DeleteModuleIntakeIDViewSet,basename = 'deletemoduleintake')
 router.register(r'get-deliverables-cover',GetDeliverablesCoverPageViewSet, basename = 'get-deliverables-cover')
 router.register(r'gettestsequencedefinitionlist',GetTestSequenceDefinitionListViewSet, basename = 'gettestsequencedefinitionlist')
-router.register(r'get_deliverables_data',GetDeliverablesDataViewSet, basename = 'get_deliverables_data')
+router.register(r'deliverables_data',GetDeliverablesDataViewSet, basename = 'deliverables_data')
+router.register(r'download_deliverable_data',PdfViewSet, basename = 'download_deliverable_data')
+
 
 # router.register(r'procupdate',ProcedureUpdateViewSet, basename = 'procupdate')
 # router.register(r'IAMMetaData',IAMMetaDataViewSet, basename = 'IAMMetaData')

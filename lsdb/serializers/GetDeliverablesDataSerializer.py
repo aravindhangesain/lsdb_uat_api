@@ -1,38 +1,30 @@
 from rest_framework import serializers
-from lsdb.models import ProcedureResult, Unit, UnitType, ModuleProperty, MeasurementResult
-
+from lsdb.models import ProcedureResult, Unit, UnitType, ModuleProperty, MeasurementResult,AzureFile
+from lsdb.serializers import AzureFileSerializer
 
 class GetDeliverablesDataSerializer(serializers.ModelSerializer):
     const_rows = serializers.SerializerMethodField()
 
     def get_const_rows(self, obj):
-        work_order_id = self.context.get("work_order_id")
-        test_sequence_id = self.context.get("test_sequence_id")
-
-        if not work_order_id or not test_sequence_id:
-            return []  
-        
-        procedures = ProcedureResult.objects.filter(work_order_id=work_order_id, test_sequence_definition_id=test_sequence_id)
-
-        deliverable_datas = []
-
-        for procedure in procedures:
-            unit = Unit.objects.filter(id=procedure.unit_id).first()
+        # Ensure we're working with the actual ProcedureResult instance
+        if isinstance(obj, ProcedureResult):
+            unit = Unit.objects.filter(id=obj.unit_id).first()
             if not unit:
-                continue
+                return []  
 
             unittype = UnitType.objects.filter(id=unit.unit_type_id).first()
             if not unittype:
-                continue
+                return []  
 
             moduleproperty = ModuleProperty.objects.filter(id=unittype.id).first()
             if not moduleproperty:
-                continue
-
-            measurements = MeasurementResult.objects.filter(step_result__procedure_result=procedure.id)
+                return []  
+            measurements = MeasurementResult.objects.filter(step_result__procedure_result=obj.id)
             result_dict = {measurement.name: measurement.result_double for measurement in measurements}
 
+            
             flash_data = {
+                'unit_id': unit.id,
                 'serial_number': unit.serial_number,
                 'model': unittype.model,
                 'Pmax': moduleproperty.nameplate_pmax,
@@ -49,13 +41,63 @@ class GetDeliverablesDataSerializer(serializers.ModelSerializer):
                 'Im': moduleproperty.imp,
             }
 
-            deliverable_datas.append({
-                'test_name': procedure.name,
+            return [{
+                'test_name': obj.name,
                 'flash_data': [flash_data],
-            })
+            }]
+        else:
+            return []
+    
 
-        return deliverable_datas
 
     class Meta:
         model = ProcedureResult
         fields = ['id', 'const_rows']
+
+
+class GetDeliverablesDataImagesSerializer(serializers.ModelSerializer):
+    el_images = serializers.SerializerMethodField()
+
+    def get_el_images(self, obj):
+        
+
+        
+        unit = Unit.objects.filter(id=obj.unit_id).first()
+        el_images = []
+
+        if not unit:
+            return None  
+
+        
+        measurements = MeasurementResult.objects.filter(step_result__procedure_result=obj.id)
+
+        
+        filtered_measurements = measurements.filter(name__in=['EL Image (grayscale)'])
+
+        if not filtered_measurements.exists():
+            return None  
+       
+        azure_file_ids = filtered_measurements.values_list('result_files__id', flat=True)
+        azure_files = AzureFile.objects.filter(id__in=azure_file_ids)
+
+        
+        serializer = AzureFileSerializer(
+            azure_files, many=True, context={'request': self.context.get('request')}
+        )
+        serialized_data = serializer.data
+
+        
+        el_images.append({
+            'test_name': "EL",
+            'items': [{
+                'unit_id': unit.id,
+                'serial_number': unit.serial_number,
+                'image_data': serialized_data
+            }]
+        })
+
+        return el_images
+
+    class Meta:
+        model = ProcedureResult
+        fields = ['id', 'el_images']
