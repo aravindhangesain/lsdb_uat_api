@@ -290,4 +290,5 @@ urlpatterns =[
     # url(r'^login_successful/$', login_successful, name='login_successful'),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
+
 ]

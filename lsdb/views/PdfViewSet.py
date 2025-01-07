@@ -1,7 +1,7 @@
 import tempfile
 from datetime import datetime
 from rest_framework import viewsets
-from lsdb.models import UnitType,ProcedureResult,ModuleProperty,MeasurementResult,Unit,DeliverablesCoverData,Customer,Project
+from lsdb.models import UnitType,ProcedureResult,ModuleProperty,MeasurementResult,Unit,DeliverablesCoverData,Customer,Project,WorkOrder
 from django.contrib.auth.models import User
 import requests
 from django.http import HttpResponse
@@ -14,7 +14,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Ima
 from rest_framework.viewsets import ViewSet
 
 
-class PdfViewSet(viewsets.ViewSet):
+class PdfViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         work_order_id = request.query_params.get("work_order_id")
@@ -76,6 +76,7 @@ class PdfViewSet(viewsets.ViewSet):
         author=User.objects.filter(id=cover_page_data.author_id).first()
         checked=User.objects.filter(id=cover_page_data.checked_id).first()
         approved=User.objects.filter(id=cover_page_data.approved_id).first()
+        workorder=WorkOrder.objects.filter(id=work_order_id).first()
 
         form_data.append({
             "Title":cover_page_data.title,
@@ -92,7 +93,7 @@ class PdfViewSet(viewsets.ViewSet):
             "Approved": approved.username,
             "Provided By": "Kiwa PVEL (PVEL LLC)\n388 Devlin Road, Napa, CA 94558\nTel: +1 415 320 7835\nEnterprise No.: 27-0498579",
         })
-        print(form_data)
+        
         history_data = [
             ["Revision", "Date", "Summary"],
             ["", "", ""],
@@ -142,9 +143,9 @@ class PdfViewSet(viewsets.ViewSet):
             bold_style.fontName = "Helvetica-Bold"
             bold_style.fontSize = 6
 
-            elements.append(Paragraph("9709 - BOM 2", title_style))
-            elements.append(Paragraph(" TC600 , TC602, TC603, TC604 Flash Data", subtitle_style))
-            elements.append(Paragraph("Hanwha Qcells", normal_style))
+            elements.append(Paragraph(project.number+"&#45;"+workorder.name, title_style))
+            elements.append(Paragraph("TC600 , TC602, TC603, TC604 Flash Data", subtitle_style))
+            elements.append(Paragraph(customer.name, normal_style))
 
             elements.append(Spacer(1, 5))
             elements.append(Image("logo.PNG", width=400, height=150))
@@ -361,7 +362,7 @@ class PdfViewSet(viewsets.ViewSet):
             #     elements.append(grid_table)
 
             doc.build(elements)
-
+    
             with open(temp_file.name, "rb") as pdf_file:
                 response = HttpResponse(pdf_file.read(), content_type="application/pdf")
                 response["Content-Disposition"] = f"attachment; filename=flash_data_{datetime.now()}.pdf"

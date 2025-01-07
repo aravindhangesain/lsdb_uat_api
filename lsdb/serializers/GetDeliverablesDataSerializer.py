@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lsdb.models import ProcedureResult, Unit, UnitType, ModuleProperty, MeasurementResult,AzureFile
+from lsdb.models import ProcedureResult, Unit, UnitType, ModuleProperty, MeasurementResult,AzureFile,ProcedureDefinition
 from lsdb.serializers import AzureFileSerializer
 
 class GetDeliverablesDataSerializer(serializers.ModelSerializer):
@@ -59,45 +59,47 @@ class GetDeliverablesDataImagesSerializer(serializers.ModelSerializer):
     el_images = serializers.SerializerMethodField()
 
     def get_el_images(self, obj):
-        
-
-        
         unit = Unit.objects.filter(id=obj.unit_id).first()
-        el_images = []
-
         if not unit:
-            return None  
+            return None
 
-        
+        # Get all measurement results related to the current ProcedureResult
         measurements = MeasurementResult.objects.filter(step_result__procedure_result=obj.id)
 
-        
+        # Filter measurements to include only 'EL Image (grayscale)'
         filtered_measurements = measurements.filter(name__in=['EL Image (grayscale)'])
-
         if not filtered_measurements.exists():
-            return None  
-       
+            return None
+
+        # Fetch Azure files linked to the filtered measurements
         azure_file_ids = filtered_measurements.values_list('result_files__id', flat=True)
         azure_files = AzureFile.objects.filter(id__in=azure_file_ids)
 
-        
+        # Serialize Azure files
         serializer = AzureFileSerializer(
             azure_files, many=True, context={'request': self.context.get('request')}
         )
         serialized_data = serializer.data
 
-        
-        el_images.append({
-            'test_name': "EL",
-            'items': [{
-                'unit_id': unit.id,
-                'serial_number': unit.serial_number,
-                'image_data': serialized_data
-            }]
-        })
+        first_file_url = serialized_data[0]['file'] if serialized_data else None
 
-        return el_images
+        # Fetch the procedure definition name
+        procedure_definition = ProcedureDefinition.objects.filter(id=obj.procedure_definition_id).first()
+        if procedure_definition:
+            test_name = procedure_definition.name
+        else:
+            test_name = None  # Handle case where no ProcedureDefinition is found
+
+        return {
+            'serial_number': unit.serial_number,
+            'items': [
+                {
+                    'test_name': test_name,
+                    'image_url': first_file_url,
+                }
+            ],
+        }
 
     class Meta:
         model = ProcedureResult
-        fields = ['id', 'el_images']
+        fields = ['el_images']
