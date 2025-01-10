@@ -4,6 +4,10 @@ from lsdb.models import MeasurementResult_pichina, ProcedureResult_pichina
 from lsdb.serializers import ProcedureWorkLog_pichinaSerializer, Procedureresult_pichinaSerializer, TransformIVCurve_pichinaSerializer
 from lsdb.permissions import ConfiguredPermission
 from rest_framework.decorators import action
+from django.db.models import Q, Max
+from django.utils import timezone
+from datetime import datetime, timedelta, date
+import pandas as pd
 
 
 
@@ -90,5 +94,55 @@ class ProcedureResult_pichinaViewSet(viewsets.ModelViewSet):
         result = ProcedureResult_pichina.objects.get(id=pk)
         serializer = TransformIVCurve_pichinaSerializer(result, many=False, context=self.context)
         return serializer.data
-
     
+
+    @action(detail=False, methods=['get'],
+        permission_classes=(ConfiguredPermission,),
+        serializer_class=ProcedureWorkLog_pichinaSerializer)
+    def procedure_stats(self, request, pk=None):
+        self.context = {'request': request}
+        file = request.query_params.get('file', 'dummy')
+        start_datetime = request.query_params.get('start_datetime', 0)
+        end_datetime = request.query_params.get('end_datetime', 0)
+        # default to trailing 30 days
+        days = request.query_params.get('days', 30)
+        facility = request.query_params.get('facility', None)
+        if start_datetime == 0 and end_datetime == 0:
+            start_datetime = timezone.now() - timedelta(days=int(days))
+            end_datetime = timezone.now()
+        else:
+            start_datetime = datetime.fromisoformat(start_datetime) + timedelta(days=1, hours=8)
+            end_datetime = datetime.fromisoformat(end_datetime) + timedelta(days=1, hours=8)
+            # this is still in zulu
+        queryset = ProcedureResult_pichina.objects.filter(
+            disposition__isnull=False,
+            stepresult_pichina__archived=False,
+            stepresult_pichina__disposition__isnull=False,
+            stepresult_pichina__measurementresult_pichina__date_time__gte=start_datetime,
+            stepresult_pichina__measurementresult_pichina__date_time__lte=end_datetime,
+        ).distinct()
+        if facility:
+            queryset = queryset.filter(
+                stepresult_pichina__measurementresult_pichina__asset__location__name=facility
+            )
+        queryset = queryset.annotate(
+            last_result=Max('stepresult_pichina__measurementresult_pichina__date_time')
+        )
+        master_data_frame = pd.DataFrame(
+            list(queryset.values('last_result', 'procedure_definition__name'))
+        )
+        master_data_frame['last_result'] = master_data_frame['last_result'].dt.tz_convert("US/Pacific")
+        master_data_frame['last_result'] = master_data_frame['last_result'].dt.date
+        df1 = pd.crosstab(
+            master_data_frame['procedure_definition__name'],
+            master_data_frame['last_result'].fillna(0)
+        )
+        final = []
+        my_dict = df1.to_dict()
+        for day in my_dict:
+            row = {'date': day}
+            row.update(my_dict[day].items())
+            final.append(row)
+        return Response(final)
+
+        
