@@ -142,8 +142,9 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
                         data = []
                         image_streams = {}
                         for crate_image in crate_intake_images:
+                            crate_intake_id = crate_image.newcrateintake.id if crate_image.newcrateintake else None
                             data.append({
-                                'CrateIntake_id': crate_image.newcrateintake.id,
+                                'CrateIntake_id': crate_intake_id,
                                 'Label_name': crate_image.label_name,
                                 'Image_path': crate_image.image_path.name if crate_image.image_path else None,
                                 'Uploaded_date': format_date(crate_image.uploaded_date),

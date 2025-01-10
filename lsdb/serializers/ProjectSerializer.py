@@ -67,6 +67,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'notes',
             'note_count',
             'location',
-            'is_pvel',
+            # 'is_pvel',
             # 'expected_unit_types',
         ]
