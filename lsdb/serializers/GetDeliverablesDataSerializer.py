@@ -52,7 +52,7 @@ class GetDeliverablesDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProcedureResult
-        fields = ['id', 'const_rows']
+        fields = ['const_rows']
 
 
 class GetDeliverablesDataImagesSerializer(serializers.ModelSerializer):
@@ -63,42 +63,38 @@ class GetDeliverablesDataImagesSerializer(serializers.ModelSerializer):
         if not unit:
             return None
 
-        # Get all measurement results related to the current ProcedureResult
         measurements = MeasurementResult.objects.filter(step_result__procedure_result=obj.id)
 
-        # Filter measurements to include only 'EL Image (grayscale)'
         filtered_measurements = measurements.filter(name__in=['EL Image (grayscale)'])
         if not filtered_measurements.exists():
             return None
 
-        # Fetch Azure files linked to the filtered measurements
         azure_file_ids = filtered_measurements.values_list('result_files__id', flat=True)
         azure_files = AzureFile.objects.filter(id__in=azure_file_ids)
 
-        # Serialize Azure files
         serializer = AzureFileSerializer(
             azure_files, many=True, context={'request': self.context.get('request')}
         )
         serialized_data = serializer.data
 
-        first_file_url = serialized_data[0]['file'] if serialized_data else None
+        
+        filtered_items = [
+            {
+                'EL': 'EL Image at 1.0x Isc',
+                'image_url': item['file']
+            }
+            for item in serialized_data
+            if item['file']
+        ]
 
-        # Fetch the procedure definition name
-        procedure_definition = ProcedureDefinition.objects.filter(id=obj.procedure_definition_id).first()
-        if procedure_definition:
-            test_name = procedure_definition.name
-        else:
-            test_name = None  # Handle case where no ProcedureDefinition is found
+        if not filtered_items:
+            return None
 
         return {
             'serial_number': unit.serial_number,
-            'items': [
-                {
-                    'test_name': test_name,
-                    'image_url': first_file_url,
-                }
-            ],
+            'items': filtered_items,
         }
+
 
     class Meta:
         model = ProcedureResult
