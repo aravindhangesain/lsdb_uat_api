@@ -13,7 +13,7 @@ from django.utils import timezone
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
-from lsdb.models import CrateIntakeImages_pichina
+from lsdb.models import CrateIntakeImages_pichina, Workorder_pichina
 from lsdb.models import ModuleProperty_pichina 
 from lsdb.models import ScannedPannels_pichina 
 from lsdb.models import UnitType_pichina
@@ -31,7 +31,7 @@ from lsdb.models import Project
 def format_date(date):
     return date.strftime('%Y-%m-%d') if date else 'N/A'
 
-def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
+def create_download_file(work_orders: QuerySet[Workorder_pichina], tsd_ids, unit_ids,
                          procedure_ids, adjust_images=False):
     mem_zip = BytesIO()
 
@@ -141,8 +141,9 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
                         data = []
                         image_streams = {}
                         for crate_image in crate_intake_images:
+                            crate_intake_id = crate_image.newcrateintake.id if crate_image.newcrateintake else None
                             data.append({
-                                'CrateIntake_id': crate_image.newcrateintake.id,
+                                'CrateIntake_id': crate_intake_id,
                                 'Label_name': crate_image.label_name,
                                 'Image_path': crate_image.image_path.name if crate_image.image_path else None,
                                 'Uploaded_date': format_date(crate_image.uploaded_date),
