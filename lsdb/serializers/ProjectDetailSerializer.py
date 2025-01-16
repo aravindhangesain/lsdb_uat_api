@@ -73,7 +73,8 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
         latest_location_log = LocationLog.objects.filter(project_id=project_id, is_latest=True).first()
         
         if latest_location_log:
-            return latest_location_log.location_id 
+            location= latest_location_log.location_id
+            return ("https://lsdbhaveblueuat.azurewebsites.net/api/1.0/locations/"+str(location)+"/")
         return None 
 
     class Meta:
