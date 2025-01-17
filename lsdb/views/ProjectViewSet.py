@@ -74,20 +74,11 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
 
 
     @action(detail=False, methods=['get'],
-            permission_classes=(ConfiguredPermission,),
-            serializer_class=WorkOrderDataListSerializer)
+        permission_classes=(ConfiguredPermission,),
+        serializer_class=WorkOrderDataListSerializer)
     def download(self, request):
         """
-        This is the place where we can see the list of projects and be able to GET
-        data to be downloaded. WorkOrder IDs must be included on the query parameters
-        as a comma separated list:
-        `/api/1.0/projects/download/?ids=84,85`
-
-        Process of Downloading:
-        1. Get workorders from parameters and create a queryset of them.
-        2. Iterate over each workorder and get all Units related to the workorder. Open excel files for vi, wl, dt, color, el.
-        3. Iterate over each Unit and get all procedure results related to the unit.
-        4. Iterate over result, and write the data to the correct locations.
+        Download WorkOrder data based on filters like workorder_ids, location, etc.
         """
         self.context = {'request': request}
         params = {}
@@ -96,12 +87,12 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
         procedure_ids = request.query_params.get('procedure_ids')
         TSD_ids = request.query_params.get('test_sequence_definition_ids')
         adjust_images = request.query_params.get('adjust_images')
+        location_id = request.query_params.get('location')  # Location parameter
 
-        # This will convert anything not 'true' to False
+        # Convert strings to boolean
         str2bool = lambda string: string is not None and string.upper() == 'TRUE'
 
         if workorder_ids:
-            # print('There are work order ids')
             params["workorder_ids"] = workorder_ids.split(',')
 
             if unit_ids:
@@ -121,14 +112,24 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
 
             queryset = WorkOrder.objects.filter(id__in=params["workorder_ids"])
 
-            return create_download_file(work_orders=queryset, tsd_ids=params['test_sequence_definition_ids'],
-                                        unit_ids=params['unit_ids'], procedure_ids=params['procedure_ids'],
+            if location_id:  # Apply location filter if the parameter exists
+                project_ids = LocationLog.objects.filter(location_id=location_id, is_latest=True).values_list('project_id', flat=True)
+                queryset = queryset.filter(project_id__in=project_ids)
+
+            return create_download_file(work_orders=queryset,
+                                        tsd_ids=params['test_sequence_definition_ids'],
+                                        unit_ids=params['unit_ids'],
+                                        procedure_ids=params['procedure_ids'],
                                         adjust_images=str2bool(adjust_images))
         else:
-            # print('There are no work order ids')
             queryset = WorkOrder.objects.all()
+            if location_id:  # Apply location filter if the parameter exists
+                project_ids = LocationLog.objects.filter(location_id=location_id, is_latest=True).values_list('project_id', flat=True)
+                queryset = queryset.filter(project_id__in=project_ids)
+
         serializer = WorkOrderDataListSerializer(queryset, many=True, context=self.context)
         return Response(serializer.data)
+
 
     @action(detail=True, methods=['get'], permission_classes=(ConfiguredPermission,),
             serializer_class=WorkOrderDataListSerializer)
@@ -139,7 +140,7 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
 
         response = create_download_file(work_orders=work_orders, tsd_ids=[], unit_ids=[], procedure_ids=[])
 
-        print(response.headers)
+        # print(response.headers)
 
         return response
 
@@ -701,22 +702,35 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'],
-            permission_classes=(ConfiguredPermission,),
-            serializer_class=GetActiveProjectsDataGridSerializer)
+        permission_classes=(ConfiguredPermission,),
+        serializer_class=GetActiveProjectsDataGridSerializer)
     def active_projects(self, request, pk=None):
         """
-        This action allows all interested parties dig into active project status.
-        adding a `?show_archived=true` query parameter on GET will disable the active filter.
+        This action allows all interested parties to dig into active project status.
+        Adding a `?show_archived=true` query parameter on GET will disable the active filter.
         The value can equal any string, I only test for the presence of the parameter.
+        Adding a `?location=<location_id>` query parameter will filter active projects by location.
         """
         self.context = {'request': request}
+        
+        # Retrieve query parameters
         show_archived = request.query_params.get('show_archived', 'TRUE')
+        location_id = request.query_params.get('location', None)
+        # Base queryset
         if show_archived.upper() == 'TRUE':
             projects = Project.objects.all()
         else:
             projects = Project.objects.filter(disposition__complete=False)
+
+        # Apply location filter if `location` is provided
+        if location_id:
+            project_ids = LocationLog.objects.filter(location_id=location_id, is_latest=True).values_list('project_id', flat=True)
+            projects = projects.filter(id__in=project_ids)
+
+        # Serialize the filtered queryset
         serializer = self.serializer_class(projects, many=True, context=self.context)
         return Response(serializer.data)
+
 
     @transaction.atomic
     @action(detail=True, methods=['get', 'post'],

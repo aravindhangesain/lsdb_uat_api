@@ -26,7 +26,7 @@ from lsdb.models import Unit
 from lsdb.models import Note
 from lsdb.models import MeasurementResult
 from lsdb.models import ProcedureResult
-from lsdb.models import StepResult
+from lsdb.models import StepResult,LocationLog
 from lsdb.models import StepDefinition
 
 from lsdb.serializers import DispositionCodeListSerializer
@@ -431,23 +431,32 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
         serializer = TransformIVCurveSerializer(result, many=False, context=self.context)
         return serializer.data
 
-    @action(detail=False,methods=['get'],
-        permission_classes=(ConfiguredPermission,),
-        serializer_class=ProcedureWorkLogSerializer)
+    @action(detail=False, methods=['get'], 
+        permission_classes=(ConfiguredPermission,), 
+        serializer_class=ProcedureResultVerificationSerializer)
     def verify(self, request, pk=None):
         """
-        this is where I pull all of the records that require verification in
-        to be viewed for review.
+        Retrieve all records requiring verification, optionally filtering by location.
         """
-        self.context = {'request':request}
+        self.context = {'request': request}
+
+        # Get the query parameter for location
+        location_id = request.query_params.get('location', None)
+
+        # Filter units requiring verification
         disposition = Disposition.objects.get(name__iexact='requires review')
-        # results = ProcedureResult.objects.filter(
-        #     disposition=disposition
-        # ).distinct()
         units = Unit.objects.filter(procedureresult__disposition=disposition).distinct()
 
-        # that's all of the individul units that have results needing verification
-        serializer = ProcedureResultVerificationSerializer(units, many=True, context=self.context)
+        # If location_id is provided, filter further based on location
+        if location_id:
+            location_filtered_unit_ids = LocationLog.objects.filter(
+                location_id=location_id,
+                is_latest=True
+            ).values_list('unit_id', flat=True)
+            units = units.filter(id__in=location_filtered_unit_ids)
+
+        # Serialize the filtered queryset
+        serializer = self.serializer_class(units, many=True, context=self.context)
         return Response(serializer.data)
 
     @action(detail=False,methods=['get'],

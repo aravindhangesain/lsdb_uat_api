@@ -42,7 +42,7 @@ from lsdb.models import Note
 from lsdb.models import ProcedureResult
 from lsdb.models import StepResult
 from lsdb.models import TestSequenceDefinition
-from lsdb.models import Unit
+from lsdb.models import Unit,Location,LocationLog
 from lsdb.models import UnitType
 from django.contrib.auth.models import User
 
@@ -493,34 +493,45 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             return Response(serializer.data)
 
     @transaction.atomic
-    def get_queue(self, group=None, asset=None):
-        queryset = ProcedureResult.objects.filter(disposition__isnull=True,
-                                                  unit__disposition__complete=False,)\
-            .exclude(unit__disposition__name__iexact="in progress") \
-            .exclude(work_order__project__disposition__complete=True) \
-            .exclude(test_sequence_definition__group__name__iexact="control") \
-            .annotate(last_action_date=Coalesce(
-                Max('unit__procedureresult__stepresult__measurementresult__date_time'),timezone.now())) \
-            .annotate(done_to=Coalesce(Max('unit__procedureresult__linear_execution_group',
-                    filter=Q(unit__procedureresult__disposition__isnull=False)),
-                    Min('unit__procedureresult__linear_execution_group'))) \
-            .distinct()
-            # .exclude(unit__procedureresult__work_in_progress_must_comply=True) \
-        if asset:
-            # if any of asset.asset_types in proceduredefinition.asset_types:
-            # print(asset.location.id, queryset)
-            queryset = queryset.filter(procedure_definition__asset_types__in=asset.asset_types.all(),
-                unit__location__id = asset.location.id,
+    def get_queue(self, group=None, asset=None, location_id=None):
+        queryset = ProcedureResult.objects.filter(
+            disposition__isnull=True,
+            unit__disposition__complete=False,
+        ).exclude(
+            unit__disposition__name__iexact="in progress"
+        ).exclude(
+            work_order__project__disposition__complete=True
+        ).exclude(
+            test_sequence_definition__group__name__iexact="control"
+        ).annotate(
+            last_action_date=Coalesce(
+                Max('unit__procedureresult__stepresult__measurementresult__date_time'),
+                timezone.now()
             )
-            # print(queryset)
-        # if group:
-        #     queryset = queryset.filter(group__name__iexact=group)
+        ).annotate(
+            done_to=Coalesce(
+                Max(
+                    'unit__procedureresult__linear_execution_group',
+                    filter=Q(unit__procedureresult__disposition__isnull=False)
+                ),
+                Min('unit__procedureresult__linear_execution_group')
+            )
+        ).distinct()
 
+        # Apply filters for asset and location
+        if asset:
+            queryset = queryset.filter(
+                procedure_definition__asset_types__in=asset.asset_types.all(),
+                unit__location__id=asset.location.id,
+            )
+        if location_id:
+            queryset = queryset.filter(unit__location__id=location_id)
+
+        # Continue with the rest of the existing logic
         master_data_frame = pd.DataFrame(list(queryset.values(
             'unit__serial_number',
             'test_sequence_definition__name',
             'done_to',
-            # 'highest_leg',
             'linear_execution_group',
             'procedure_definition__name',
             'work_order__project__customer__name',
@@ -532,21 +543,24 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'group__name',
             'unit__location__name',
         )))
-        master_data_frame['last_action_days'] = ((timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)).astype(int)
-        print(timezone.now())
+        master_data_frame['last_action_days'] = (
+            (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
+        ).astype(int)
         master_data_frame.dropna(inplace=True)
+
         # Select everything in the current LEG or above
         filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
-        # select only records where LEG <= next highest unskippable
-        gframe = filtered.groupby(['unit__serial_number','allow_skip'])
-        #filtered = filtered[filtered.allow_skip == False]
-        filterframe = gframe[['unit__serial_number','allow_skip','linear_execution_group']].min()
+
+        # Select only records where LEG <= next highest unskippable
+        gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
+        filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
         filterframe = filterframe[filterframe.allow_skip == False]
-        filterframe.columns=['f_serial','f_allow_skip','highest_leg']
+        filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
         filterframe.set_index(['f_serial'], inplace=True)
-        filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False,False))
+        filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
         filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
-        # Now we have the map, fiter down to our char group:
+
+        # Filter down to the specific group
         if group:
             filtered = filtered[filtered.group__name.str.lower() == group.lower()]
 
@@ -564,109 +578,153 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'last_action_days',
             'unit__location__name',
         ]]
-        filtered.columns = ['serial_number', 'test_sequence', 'linear_execution_group',
-                         'procedure_definition', 'customer', 'project_number', 'work_order',
-                         'characterization', 'allow_skip',
-                         'last_action_date',
-                         'last_action_days',
-                         'location',
-                         ]
-        # Excel needs TZ stripped
+        filtered.columns = [
+            'serial_number', 'test_sequence', 'linear_execution_group',
+            'procedure_definition', 'customer', 'project_number', 'work_order',
+            'characterization', 'allow_skip',
+            'last_action_date',
+            'last_action_days',
+            'location',
+        ]
+
+        # Strip timezone for Excel
         filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
         grouped = filtered.groupby('procedure_definition')
         full = {}
         for name, group in grouped:
             full[name] = group.to_dict(orient='records')
-        # serializer = self.serializer_class(queryset, many=False, context=self.context)
-        # print(serializer.data)
+
         return full, filtered
 
     @transaction.atomic
-    @action(detail=False, methods=['get'],
-            # serializer_class=UnitGroupedAssetTypeSerializer,
-            )
+    @action(detail=False, methods=['get'])
     def characterization_queue(self, request, pk=None):
         # This is the list of "characterization ready" modules grouped by their test type
         self.context = {'request': request}
-        # get the asset from the request, pass it to get_queue:
-        if request.method=='GET':
-            # print('foo',request.GET.get('asset_name',None))
+
+        # Get location ID from the request
+        location_id = request.GET.get('location', None)
+
+        # Optionally get the asset from the request
+        asset_name = request.GET.get('asset_name', None)
+        asset = None
+        if asset_name:
             try:
-                asset = Asset.objects.get(name = request.GET.get('asset_name',None))
-            except:
-                # print('failed')
+                asset = Asset.objects.get(name=asset_name)
+            except Asset.DoesNotExist:
                 asset = None
-        full, fcols = self.get_queue('characterizations', asset)
+
+        # Pass the location and asset to get_queue
+        full, fcols = self.get_queue('characterizations', asset=asset, location_id=location_id)
         return Response(full)
 
     @transaction.atomic
-    @action(detail=False, methods=['get'],
-            # serializer_class=UnitGroupedAssetTypeSerializer,
-            )
+    @action(detail=False, methods=['get'])
     def stress_queue(self, request, pk=None):
         # This is the list of "chamber ready" modules grouped by their stressor
         self.context = {'request': request}
-        full, fcols = self.get_queue('stressors')
+
+        # Get location ID from the request
+        location_id = request.GET.get('location', None)
+
+        # Call get_queue with the location filter
+        full, fcols = self.get_queue('stressors', location_id=location_id)
         return Response(full)
 
     @transaction.atomic
-    @action(detail=False, methods=['get'], serializer_class=UnitSerializer, )
+    @action(detail=False, methods=['get'], serializer_class=UnitSerializer)
     def end_of_life(self, request):
         self.context = {'request': request}
-        units = Unit.objects.annotate(max_leg=Max('procedureresult__linear_execution_group')) \
-            .filter(max_leg__isnull=False)
+        
+        # Get the location ID from query parameters
+        location_id = request.query_params.get('location', None)
 
+        # Annotate units with the maximum linear_execution_group
+        units = Unit.objects.annotate(max_leg=Max('procedureresult__linear_execution_group')).filter(max_leg__isnull=False)
+
+        # Filter units based on the maximum linear_execution_group with complete disposition
         unit_ids = []
-
         for unit in units:
             max_leg = unit.max_leg
             if unit.procedureresult_set.filter(linear_execution_group=max_leg, disposition__complete=True):
                 unit_ids.append(unit.id)
 
+        # Filter the final units by IDs
         final_units = Unit.objects.filter(id__in=unit_ids)
 
+        # If location filter is provided, apply it
+        if location_id:
+            final_units = final_units.filter(locationlog__location_id=location_id, locationlog__is_latest=True)
+
+        # Create a DataFrame from the filtered units
         units_data_frame = pd.DataFrame(list(
             final_units.values('serial_number',
-                               'workorder__project__customer__name',
-                               'workorder__project__number',
-                               'workorder__name',
-                               'procedureresult__test_sequence_definition__name',
-                               'procedureresult__end_datetime',
-                               'procedureresult__linear_execution_group'))
+                            'workorder__project__customer__name',
+                            'workorder__project__number',
+                            'workorder__name',
+                            'procedureresult__test_sequence_definition__name',
+                            'procedureresult__end_datetime',
+                            'procedureresult__linear_execution_group'))
         )
 
+        # Add location_name column
+        location_names = []
+        for serial_number in units_data_frame['serial_number']:
+            try:
+                unit = Unit.objects.get(serial_number=serial_number)
+                location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
+                if location_log and location_log.location:
+                    location_names.append(location_log.location.name)
+                else:
+                    location_names.append(None)
+            except Unit.DoesNotExist:
+                location_names.append(None)
+
+        # Add location_name to the DataFrame
+        units_data_frame['location_name'] = location_names
+
+        # Set DataFrame columns, including location_name
         units_data_frame.columns = [
             'serial_number',
-            'customer_name',
-            'project_number',
-            'work_order_name',
-            'test_sequence_definition_name',
-            'completion_date',
-            'linear_execution_group',
+            'workorder__project__customer__name',
+            'workorder__project__number',
+            'workorder__name',
+            'procedureresult__test_sequence_definition__name',
+            'procedureresult__end_datetime',
+            'procedureresult__linear_execution_group',
+            'location_name',
         ]
 
+        # Sort and clean the DataFrame
         units_data_frame.sort_values(by='linear_execution_group', ascending=False, inplace=True)
         units_data_frame.drop_duplicates(subset='serial_number', inplace=True)
         units_data_frame.drop(labels='linear_execution_group', axis=1, inplace=True)
 
         return Response(units_data_frame.to_dict(orient='records'))
 
+
+
     @transaction.atomic
-    @action(detail=False, methods=['get'],
-            # serializer_class=UnitGroupedAssetTypeSerializer,
-            )
+    @action(detail=False, methods=['get'])
     def in_progress(self, request, pk=None):
-        # This is the list of modules currently "in progress" of a stress, grouped by their stressor
         self.context = {'request': request}
         disposition = Disposition.objects.get(name__iexact='in progress')
+        location_id = request.query_params.get('location', None)  # Get location ID from query params
+
+        # Initial queryset
         queryset = ProcedureResult.objects.filter(
             disposition=disposition,
             stepresult__disposition__isnull=False,
-            stepresult__name__iexact="test start",  # KLUGE!
-            group__name__iexact='stressors') \
-            .exclude(test_sequence_definition__group__name__iexact="control") \
-            .distinct()
-        
+            stepresult__name__iexact="test start",
+            group__name__iexact='stressors'
+        ).exclude(test_sequence_definition__group__name__iexact="control").distinct()
+
+        # If location_id is provided, filter units by location
+        if location_id:
+            queryset = queryset.filter(
+                unit__locationlog__location_id=location_id,
+                unit__locationlog__is_latest=True
+            )
 
         master_data_frame = pd.DataFrame(list(queryset.values(
             'unit__serial_number',
@@ -679,12 +737,33 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'start_datetime',
             'procedure_definition__aggregate_duration'
         )))
-        # master_data_frame
+
+        # Rename columns for consistent naming
+        master_data_frame.rename(columns={'unit__serial_number': 'serial_number'}, inplace=True)
+
+        # Fill missing values and convert aggregate_duration
         filled = master_data_frame.fillna('foo')  # this needs removal
         filled['procedure_definition__aggregate_duration'] = pd.to_timedelta(
             filled.procedure_definition__aggregate_duration, unit='m')
         filled['eta_datetime'] = filled['start_datetime'] + filled['procedure_definition__aggregate_duration']
-        # print(filled)
+
+        # Add location_name column (set to None by default)
+        location_names = []
+        for serial_number in filled['serial_number']:
+            try:
+                unit = Unit.objects.get(serial_number=serial_number)
+                location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
+                if location_log and location_log.location:
+                    location_names.append(location_log.location.name)
+                else:
+                    location_names.append(None)
+            except Unit.DoesNotExist:
+                location_names.append(None)
+
+        # Add the location name as a column
+        filled['location_name'] = location_names
+
+        # Set final columns
         filled.columns = [
             'serial_number',
             'asset_type',
@@ -695,22 +774,22 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'procedure_definition',
             'start_datetime',
             'procedure_duration',
-            'eta_datetime', ]
+            'eta_datetime',
+            'location_name',
+        ]
 
         filled.sort_values(by=['asset_id', 'start_datetime'], inplace=True)
         filled.drop_duplicates(subset='asset_id', keep='first', inplace=True)
         grouped = filled.groupby('asset_type')
 
-        # filtered = master_data_frame.duplicated(subset='asset_id',keep='first').sum()
-        # grouped = filtered.groupby('asset_type')
         full = {}
         for name, group in grouped:
             full[name] = group.to_dict(orient='records')
-        # serializer = self.serializer_class(queryset, many=False, context=self.context)
-        # print(serializer.data)
-        # print(full)
+
         return Response(full)
-        # return Response(serializer.data)
+
+
+
 
     @transaction.atomic
     @action(detail=False, methods=['get'])

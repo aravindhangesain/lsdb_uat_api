@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from lsdb.models import ProcedureResult
 from lsdb.models import ProcedureResult_FinalResult
-from lsdb.models import Unit
+from lsdb.models import Unit,LocationLog,Location
 
 
 class ProcedureResultVerificationRecordSerializer(serializers.HyperlinkedModelSerializer):
@@ -73,6 +73,8 @@ class ProcedureResultVerificationSerializer(serializers.HyperlinkedModelSerializ
     project_number = serializers.SerializerMethodField()
     work_order_name = serializers.SerializerMethodField()
     test_sequence_definition_name = serializers.SerializerMethodField()
+    location=serializers.SerializerMethodField()
+    location_name=serializers.SerializerMethodField()
 
     # def to_representation(self, data):
     #     iterable = data.all() if isinstance(data, models.Manager) else data
@@ -133,6 +135,24 @@ class ProcedureResultVerificationSerializer(serializers.HyperlinkedModelSerializ
         except:
             date_time = None
         return date_time
+    def get_location(self, obj):
+
+        
+        location=LocationLog.objects.filter(unit_id=obj.id,is_latest=True).first()
+        if location:
+            print(location.location_id)
+            return location.location_id
+        return None
+    
+    def get_location_name(self,obj):
+        location=LocationLog.objects.filter(unit_id=obj.id,is_latest=True).first()
+        if location:
+            location_name=Location.objects.filter(id=location.location_id).first()
+            print(location_name.name)
+            return location_name.name
+        return None
+
+
 
     class Meta:
         model = Unit
@@ -143,6 +163,8 @@ class ProcedureResultVerificationSerializer(serializers.HyperlinkedModelSerializ
             'work_order_name',
             'serial_number',
             'test_sequence_definition_name',
+            'location',
+            'location_name'
             # 'procedure_results',
             ]
 
