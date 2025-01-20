@@ -119,3 +119,5 @@ from .Notetype_pichina import Notetype_pichina as Notetype_pichina
 from .MeasurementType_pichina import MeasurementType_pichina as MeasurementType_pichina
 from .Visualizer_pichina import Visualizer_pichina as Visualizer_pichina
 from .DeliverablesCoverData import DeliverablesCoverData as DeliverablesCoverData
+from .GroupType_pichina import GroupType_pichina as GroupType_pichina
+from .Organization_pichina import Organization_pichina as Organization_pichina

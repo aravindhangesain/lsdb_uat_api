@@ -8,7 +8,7 @@ class Unit_pichina(models.Model):
     location = models.ForeignKey('Location_pichina', on_delete=models.CASCADE, blank=False, null=False)
     name = models.CharField(max_length=32, blank=True, null=True)
     description = models.CharField(max_length=128, blank=True, null=True)
-    # notes = models.ManyToManyField('Note', blank=True)
+    # note_pichina = models.ManyToManyField('Note_pichina', blank=True)
     old_notes = models.CharField(max_length=128, blank=True, null=True)
     # unit_images = models.ManyToManyField('AzureFile', blank=True) # TODO: This may need some voodoo to get right
     disposition = models.ForeignKey('Disposition_pichina', on_delete=models.CASCADE, blank=False, null=False,

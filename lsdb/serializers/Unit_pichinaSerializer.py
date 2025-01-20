@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from lsdb.utils.HasHistory_pichina import unit_history
 from lsdb.models import Unit_pichina
+from lsdb.utils.NoteUtils import get_note_counts_pichina
 
 
 class Unit_pichinaSerializer(serializers.HyperlinkedModelSerializer):
@@ -8,6 +9,11 @@ class Unit_pichinaSerializer(serializers.HyperlinkedModelSerializer):
     model = serializers.ReadOnlyField(source='unit_type.model')
     bom = serializers.ReadOnlyField(source='unit_type.bom')
     disposition_name  = serializers.ReadOnlyField(source='disposition.name')
+    # notes = serializers.SerializerMethodField()
+
+    # def get_notes(self, obj):
+    #     user = self.context.get('request').user
+    #     return get_note_counts_pichina(user,obj)
 
     def get_history(self, obj):
         return (unit_history(obj))

@@ -14,7 +14,7 @@ class ObjectSerializer(serializers.BaseSerializer):
         }
 
 class Note_pichinaSerializer(serializers.ModelSerializer):
-    attachments = AzureFile_pichinaSerializer(instance=AzureFile_pichina.objects.all(), many=True, read_only=True)
+    # attachments = AzureFile_pichinaSerializer(instance=AzureFile_pichina.objects.all(), many=True, read_only=True)
     # labels = Label_pichinaSerializer(Label_pichina.objects.all(), many=True, read_only=True)
     tagged_users = serializers.SerializerMethodField()
     owner_name = serializers.ReadOnlyField(source='owner.username')
@@ -90,9 +90,9 @@ class Note_pichinaSerializer(serializers.ModelSerializer):
             'disposition_complete',
             # 'read',
             # 'organization',
-            'attachments',
-            'labels',
-            'groups',
+            # 'attachments',
+            # 'labels',
+            # 'groups',
             'tagged_users',
             'parent_objects',
         ]

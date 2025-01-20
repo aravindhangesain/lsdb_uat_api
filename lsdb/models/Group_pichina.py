@@ -4,8 +4,8 @@ from django.db import models
 class Group_pichina(models.Model):
     name = models.CharField(max_length=32, blank=False, null=False)
     notes = models.CharField(max_length=128, blank=True, null=True)
-    # organization = models.ForeignKey('Organization', on_delete=models.CASCADE, blank=False, null=False)
-    # group_type = models.ForeignKey('GroupType', on_delete=models.CASCADE, blank=False, null=False)
+    organization = models.ForeignKey('Organization_pichina', on_delete=models.CASCADE, blank=False, null=False)
+    group_type = models.ForeignKey('GroupType_pichina', on_delete=models.CASCADE, blank=False, null=False)
     unit_type = models.ManyToManyField('UnitType_pichina', blank=True)
     # users = models.ManyToManyField('auth.User', blank=True)
 

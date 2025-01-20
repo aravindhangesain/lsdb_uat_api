@@ -14,8 +14,8 @@ class Note_pichina(models.Model):
     # organization = models.ForeignKey('Organization', on_delete=models.CASCADE, blank=False, null=False,
     #     default=1) # For the future
     owner = models.ForeignKey('AuthUser_pichina', related_name='noteowner', on_delete=models.CASCADE, blank=True, null=True)
-    attachments = models.ManyToManyField('AzureFile_pichina', blank=True)
-    groups = models.ManyToManyField('Group_pichina', blank=True)
+    # attachments = models.ManyToManyField('AzureFile_pichina', blank=True)
+    # groups = models.ManyToManyField('Group_pichina', blank=True)
     # labels = models.ManyToManyField('Label', blank=True)
     tagged_users = models.ManyToManyField('AuthUser_pichina', related_name='notetaggedusers', blank=True)
     # read_status = models.ManyToManyField('AuthUser_pichina', related_name='notereadstaus', through='NoteReadStatus', blank=True)

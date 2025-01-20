@@ -527,7 +527,11 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         if location_id:
             queryset = queryset.filter(unit__location__id=location_id)
 
-        # Continue with the rest of the existing logic
+        # If queryset is empty, return an empty response
+        if not queryset.exists():
+            return [], pd.DataFrame()
+
+        # Create DataFrame from queryset
         master_data_frame = pd.DataFrame(list(queryset.values(
             'unit__serial_number',
             'test_sequence_definition__name',
@@ -543,6 +547,11 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'group__name',
             'unit__location__name',
         )))
+
+        # Handle case where DataFrame is empty after values conversion
+        if master_data_frame.empty:
+            return {}, master_data_frame
+
         master_data_frame['last_action_days'] = (
             (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
         ).astype(int)
@@ -596,6 +605,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
 
         return full, filtered
 
+
     @transaction.atomic
     @action(detail=False, methods=['get'])
     def characterization_queue(self, request, pk=None):
@@ -631,76 +641,85 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         full, fcols = self.get_queue('stressors', location_id=location_id)
         return Response(full)
 
+    
     @transaction.atomic
     @action(detail=False, methods=['get'], serializer_class=UnitSerializer)
     def end_of_life(self, request):
         self.context = {'request': request}
-        
+
         # Get the location ID from query parameters
         location_id = request.query_params.get('location', None)
 
         # Annotate units with the maximum linear_execution_group
-        units = Unit.objects.annotate(max_leg=Max('procedureresult__linear_execution_group')).filter(max_leg__isnull=False)
+        units = Unit.objects.annotate(max_leg=Max('procedureresult__linear_execution_group')) \
+            .filter(max_leg__isnull=False)
 
-        # Filter units based on the maximum linear_execution_group with complete disposition
         unit_ids = []
+
+        # Collect unit IDs where the maximum linear_execution_group has a complete disposition
         for unit in units:
             max_leg = unit.max_leg
             if unit.procedureresult_set.filter(linear_execution_group=max_leg, disposition__complete=True):
                 unit_ids.append(unit.id)
 
-        # Filter the final units by IDs
+        # Filter final units by IDs
         final_units = Unit.objects.filter(id__in=unit_ids)
 
         # If location filter is provided, apply it
         if location_id:
-            final_units = final_units.filter(locationlog__location_id=location_id, locationlog__is_latest=True)
+            final_units = final_units.filter(
+                locationlog__location_id=location_id, locationlog__is_latest=True
+            )
 
         # Create a DataFrame from the filtered units
         units_data_frame = pd.DataFrame(list(
-            final_units.values('serial_number',
-                            'workorder__project__customer__name',
-                            'workorder__project__number',
-                            'workorder__name',
-                            'procedureresult__test_sequence_definition__name',
-                            'procedureresult__end_datetime',
-                            'procedureresult__linear_execution_group'))
-        )
+            final_units.values(
+                'serial_number',
+                'workorder__project__customer__name',
+                'workorder__project__number',
+                'workorder__name',
+                'procedureresult__test_sequence_definition__name',
+                'procedureresult__end_datetime',
+                'procedureresult__linear_execution_group'
+            )
+        ))
 
-        # Add location_name column
-        location_names = []
-        for serial_number in units_data_frame['serial_number']:
-            try:
-                unit = Unit.objects.get(serial_number=serial_number)
-                location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
-                if location_log and location_log.location:
-                    location_names.append(location_log.location.name)
-                else:
+        if not units_data_frame.empty:
+            # Retrieve location_name using the serial_number
+            location_names = []
+            for serial_number in units_data_frame['serial_number']:
+                try:
+                    # Get the unit by serial_number
+                    unit = Unit.objects.get(serial_number=serial_number)
+
+                    # Retrieve the latest location log entry for the unit
+                    location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
+
+                    # Get the name of the location if it exists
+                    if location_log and location_log.location:
+                        location_names.append(location_log.location.name)
+                    else:
+                        location_names.append(None)
+                except Unit.DoesNotExist:
                     location_names.append(None)
-            except Unit.DoesNotExist:
-                location_names.append(None)
 
-        # Add location_name to the DataFrame
-        units_data_frame['location_name'] = location_names
+            # Add the location_name column to the DataFrame
+            units_data_frame['location_name'] = location_names
 
-        # Set DataFrame columns, including location_name
-        units_data_frame.columns = [
-            'serial_number',
-            'workorder__project__customer__name',
-            'workorder__project__number',
-            'workorder__name',
-            'procedureresult__test_sequence_definition__name',
-            'procedureresult__end_datetime',
-            'procedureresult__linear_execution_group',
-            'location_name',
-        ]
-
-        # Sort and clean the DataFrame
-        units_data_frame.sort_values(by='linear_execution_group', ascending=False, inplace=True)
-        units_data_frame.drop_duplicates(subset='serial_number', inplace=True)
-        units_data_frame.drop(labels='linear_execution_group', axis=1, inplace=True)
+            # Rename columns for better readability
+            units_data_frame.columns = [
+                'serial_number',
+                'customer_name',
+                'project_number',
+                'work_order_name',
+                'test_sequence_definition_name',
+                'completion_date',
+                'linear_execution_group',
+                'location_name',
+            ]
 
         return Response(units_data_frame.to_dict(orient='records'))
+
 
 
 
@@ -726,6 +745,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 unit__locationlog__is_latest=True
             )
 
+        # Convert queryset to DataFrame
         master_data_frame = pd.DataFrame(list(queryset.values(
             'unit__serial_number',
             'procedure_definition__asset_types__name',
@@ -738,18 +758,22 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'procedure_definition__aggregate_duration'
         )))
 
+        # Check if the DataFrame is empty
+        if master_data_frame.empty:
+            return Response([], status=200)
+
         # Rename columns for consistent naming
         master_data_frame.rename(columns={'unit__serial_number': 'serial_number'}, inplace=True)
 
         # Fill missing values and convert aggregate_duration
-        filled = master_data_frame.fillna('foo')  # this needs removal
-        filled['procedure_definition__aggregate_duration'] = pd.to_timedelta(
-            filled.procedure_definition__aggregate_duration, unit='m')
-        filled['eta_datetime'] = filled['start_datetime'] + filled['procedure_definition__aggregate_duration']
+        master_data_frame.fillna('foo', inplace=True)  # this needs removal
+        master_data_frame['procedure_definition__aggregate_duration'] = pd.to_timedelta(
+            master_data_frame['procedure_definition__aggregate_duration'], unit='m')
+        master_data_frame['eta_datetime'] = master_data_frame['start_datetime'] + master_data_frame['procedure_definition__aggregate_duration']
 
         # Add location_name column (set to None by default)
         location_names = []
-        for serial_number in filled['serial_number']:
+        for serial_number in master_data_frame['serial_number']:
             try:
                 unit = Unit.objects.get(serial_number=serial_number)
                 location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
@@ -761,10 +785,10 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 location_names.append(None)
 
         # Add the location name as a column
-        filled['location_name'] = location_names
+        master_data_frame['location_name'] = location_names
 
         # Set final columns
-        filled.columns = [
+        master_data_frame.columns = [
             'serial_number',
             'asset_type',
             'asset_name',
@@ -778,16 +802,15 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'location_name',
         ]
 
-        filled.sort_values(by=['asset_id', 'start_datetime'], inplace=True)
-        filled.drop_duplicates(subset='asset_id', keep='first', inplace=True)
-        grouped = filled.groupby('asset_type')
+        master_data_frame.sort_values(by=['asset_id', 'start_datetime'], inplace=True)
+        master_data_frame.drop_duplicates(subset='asset_id', keep='first', inplace=True)
+        grouped = master_data_frame.groupby('asset_type')
 
         full = {}
         for name, group in grouped:
             full[name] = group.to_dict(orient='records')
 
         return Response(full)
-
 
 
 
