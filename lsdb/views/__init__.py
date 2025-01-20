@@ -137,3 +137,4 @@ from .GetDeliverablesDataViewSet import GetDeliverablesDataViewSet as GetDeliver
 from .PdfViewSet import PdfViewSet as PdfViewSet
 from .Notetype_PichinaViewSet import Notetype_PichinaViewSet as Notetype_PichinaViewSet
 from .Note_pichinaViewSet import Note_pichinaViewSet as Note_pichinaViewSet
+from .CronStatusViewSet import CronStatusViewSet as CronStatusViewSet

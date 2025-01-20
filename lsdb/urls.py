@@ -140,6 +140,7 @@ from lsdb.views import GetDeliverablesDataViewSet
 from lsdb.views import PdfViewSet
 from lsdb.views import Notetype_PichinaViewSet
 from lsdb.views import Note_pichinaViewSet
+from lsdb.views import CronStatusViewSet
 # from lsdb.views import ProcedureUpdateViewSet
 # from lsdb.views import IAMMetaDataViewSet
 
@@ -280,6 +281,7 @@ router.register(r'getproceduredefinitionlist',GetProcedureDefinitionListViewSet,
 router.register(r'flashdatadeliverables',GetDeliverablesDataViewSet, basename = 'flashdatadeliverables')
 router.register(r'download_deliverable_data',PdfViewSet, basename = 'download_deliverable_data')
 router.register(r'note_pichina',Note_pichinaViewSet,basename='note_pichina')
+router.register(r'cron',CronStatusViewSet,basename='cron')
 # router.register(r'notetype_pichina',Notetype_PichinaViewSet,basename='notetype_pichina')
 
 
