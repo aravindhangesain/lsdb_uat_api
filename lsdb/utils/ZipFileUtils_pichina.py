@@ -325,7 +325,7 @@ def create_download_file(work_orders: QuerySet[Workorder_pichina], tsd_ids, unit
                                         ).exists()
                                         for azurefile in measurement.result_files.all():
                                             try:
-                                                if has_result and "Results" in azurefile.file.name:
+                                                if (has_result and "Results" in azurefile.file.name) or azurefile.file.name.endswith(".csv"):
                                                     path = "Flash Data/"
                                                     if "200" in step_result.name:
                                                         path += "200W/"
@@ -340,7 +340,7 @@ def create_download_file(work_orders: QuerySet[Workorder_pichina], tsd_ids, unit
 
                                                     blob_data = blob_client.download_blob().readall()
                                                     zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/{path}/{blob_name}',
+                                                        f'{work_order.project.number}/{work_order.name}/{path}/{azurefile.file.name}',
                                                         blob_data
                                                     )
                                                 elif not has_result:
@@ -358,7 +358,7 @@ def create_download_file(work_orders: QuerySet[Workorder_pichina], tsd_ids, unit
 
                                                     blob_data = blob_client.download_blob().readall()
                                                     zf.writestr(
-                                                        f'{work_order.project.number}/{work_order.name}/{path}/{blob_name}',
+                                                        f'{work_order.project.number}/{work_order.name}/{path}/{azurefile.file.name}',
                                                         blob_data
                                                     )
                                                 else:
