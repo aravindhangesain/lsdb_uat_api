@@ -336,7 +336,7 @@ def create_download_file(work_orders: QuerySet[Workorder_pichina], tsd_ids, unit
                                                         test.name
                                                     )
                                                     container_name = 'testmedia1'  
-                                                    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+                                                    blob_client = blob_service_client.get_blob_client(container=container_name, blob=azurefile.file.name)
 
                                                     blob_data = blob_client.download_blob().readall()
                                                     zf.writestr(
@@ -354,7 +354,7 @@ def create_download_file(work_orders: QuerySet[Workorder_pichina], tsd_ids, unit
                                                         test.name
                                                     )
                                                     container_name = 'testmedia1'  
-                                                    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+                                                    blob_client = blob_service_client.get_blob_client(container=container_name, blob=azurefile.file.name)
 
                                                     blob_data = blob_client.download_blob().readall()
                                                     zf.writestr(
