@@ -77,11 +77,10 @@ class GetDeliverablesDataImagesSerializer(serializers.ModelSerializer):
         )
         serialized_data = serializer.data
 
-        
         filtered_items = [
             {
                 'EL': 'EL Image at 1.0x Isc',
-                'image_url': item['file']
+                'image_url':f"https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{item['id']}/download/"
             }
             for item in serialized_data
             if item['file']

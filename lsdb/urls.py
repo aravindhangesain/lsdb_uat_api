@@ -141,8 +141,7 @@ from lsdb.views import PdfViewSet
 from lsdb.views import Notetype_PichinaViewSet
 from lsdb.views import Note_pichinaViewSet
 from lsdb.views import CronStatusViewSet
-# from lsdb.views import ProcedureUpdateViewSet
-# from lsdb.views import IAMMetaDataViewSet
+
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)

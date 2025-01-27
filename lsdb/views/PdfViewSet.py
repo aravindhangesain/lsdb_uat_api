@@ -1,9 +1,12 @@
 import tempfile
 from datetime import datetime
-from rest_framework import viewsets
-from lsdb.models import UnitType,ProcedureResult,ModuleProperty,MeasurementResult,Unit,DeliverablesCoverData,Customer,Project,WorkOrder,ProcedureDefinition
+import magic
+from rest_framework import viewsets,status
+from lsdb.models import AzureFile, UnitType,ProcedureResult,ModuleProperty,MeasurementResult,Unit,DeliverablesCoverData,Customer,Project,WorkOrder,ProcedureDefinition
 from django.contrib.auth.models import User
 import requests
+from lsdb.serializers.GetDeliverablesDataSerializer import GetDeliverablesDataImagesSerializer
+import re
 from django.http import HttpResponse
 from rest_framework.response import Response
 
@@ -12,6 +15,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Image, Paragraph
 from rest_framework.viewsets import ViewSet
+from lsdb.views import GetDeliverablesDataViewSet
 
 
 class PdfViewSet(viewsets.ModelViewSet):
@@ -103,26 +107,50 @@ class PdfViewSet(viewsets.ModelViewSet):
             ["", "", ""],
         ]
 
-        rowImages = [
-            {
-                "serialNumber": "SN 20552349593549858",
-                "items": [
-                    {"Flash": "Post TC 200",
-                     "imageUrl": "https://lumprodsta.blob.core.windows.net/prodcontainer/Images/3118c9fb-6014-4b93-8d4f-3aa6888604f1_165W_Poly_crystalline-panel_1%20%281%29.png"},
-                    {"Flash": "Post TC 400",
-                     "imageUrl": "https://lumprodsta.blob.core.windows.net/prodcontainer/Images/3118c9fb-6014-4b93-8d4f-3aa6888604f1_165W_Poly_crystalline-panel_1%20%281%29.png"},
-                    {"Flash": "Post TC 600",
-                     "imageUrl": "https://lumprodsta.blob.core.windows.net/prodcontainer/Images/3118c9fb-6014-4b93-8d4f-3aa6888604f1_165W_Poly_crystalline-panel_1%20%281%29.png"},
-                    {"Flash": "Post TC 800",
-                     "imageUrl": "https://lumprodsta.blob.core.windows.net/prodcontainer/Images/3118c9fb-6014-4b93-8d4f-3aa6888604f1_165W_Poly_crystalline-panel_1%20%281%29.png"},
-                    {"Flash": "Post TC 800",
-                     "imageUrl": "https://lumprodsta.blob.core.windows.net/prodcontainer/Images/3118c9fb-6014-4b93-8d4f-3aa6888604f1_165W_Poly_crystalline-panel_1%20%281%29.png"},
-                    {"Flash": "Post TC 800",
-                     "imageUrl": "https://lumprodsta.blob.core.windows.net/prodcontainer/Images/3118c9fb-6014-4b93-8d4f-3aa6888604f1_165W_Poly_crystalline-panel_1%20%281%29.png"},
-                ],
-            }
-          
-        ]
+        
+
+        
+
+        if not work_order_id or not procedure_definition_id:
+            return Response(
+                {"error": "work_order_id and procedure_definition_id are required."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        
+
+        if not procedure_results.exists():
+            return Response(
+                {"error": "No procedures found for the given work_order_id and procedure_definition_id."}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        grouped_data = {}
+        for procedure in procedure_results:
+            serializer = GetDeliverablesDataImagesSerializer(procedure, context={"request": request})
+            # print(f"Serialized Data: {serializer.data}")
+
+            procedure_data = serializer.data.get('el_images')
+
+            if not procedure_data:
+                continue
+
+            serial_number = procedure_data['serial_number']
+            if serial_number not in grouped_data:
+                grouped_data[serial_number] = []
+
+            grouped_data[serial_number].extend(procedure_data['items'])
+
+       
+        formatted_response = [
+            {"serial_number": serial_number, "items": items}
+            for serial_number, items in grouped_data.items()]
+        # print("formatted_response:"+str(formatted_response))
+
+        
+
+        rowImages = formatted_response
+        # print("rowImages:"+str(rowImages))
 
         try:
             doc = SimpleDocTemplate(
@@ -293,15 +321,22 @@ class PdfViewSet(viewsets.ModelViewSet):
 
             temp_dir = tempfile.mkdtemp()
 
-            def download_image(url, filename):
-                """Download an image from a URL."""
-                response = requests.get(url)
-                if response.status_code == 200:
-                    with open(filename, "wb") as f:
-                        f.write(response.content)
-                    return filename
-                return None
+            
+            
+            def download(image_id=None):
+                queryset = AzureFile.objects.get(id=image_id)
+                file = queryset.file
+                file_handle = file.open()
+                content_type = magic.from_buffer(file_handle.read(2048), mime=True)
 
+                response = HttpResponse(file_handle, content_type=content_type)
+                response['Content-Disposition'] = 'attachment; filename={0}'.format(file)
+                with open(file.name, "wb") as f:
+                        f.write(response.content)
+                return file.name
+
+            
+                
             styles = getSampleStyleSheet()
             text_style = styles["BodyText"]
 
@@ -309,7 +344,7 @@ class PdfViewSet(viewsets.ModelViewSet):
 
             for row in rowImages:
                 serial_number_table = Table(
-                    [[Paragraph(f"Serial Number: {row['serialNumber']}")]],
+                    [[Paragraph(f"Serial Number: {row['serial_number']}")]],
                     colWidths=[500],
                 )
                 serial_number_table.setStyle(
@@ -332,15 +367,19 @@ class PdfViewSet(viewsets.ModelViewSet):
                 elements.append(serial_number_table)
 
                 image_grid = []
+                
 
                 for item in row["items"]:
-                    local_image_path = os.path.join(temp_dir, f"image_{item['Flash']}.png")
-                    downloaded_image = download_image(item["imageUrl"], local_image_path)
+                    local_image_path = os.path.join(temp_dir, f"image_{item['EL']}.png")
+                    # downloaded_image = download_image(item["imageUrl"], local_image_path)
+                    image_id=item["image_url"].strip("/").split("/")[-2]
+                    downloaded_image = download(image_id)
+
 
                     if downloaded_image:
-                        flash_text = Paragraph(item["Flash"], text_style)
+                        EL_text = Paragraph(item["EL"], text_style)
                         img = Image(downloaded_image, width=200, height=150)
-                        image_grid.append([flash_text, img])
+                        image_grid.append([EL_text, img])
 
                 num_columns = len(row["items"])
                 total_width = 500
@@ -375,3 +414,6 @@ class PdfViewSet(viewsets.ModelViewSet):
             if temp_file.name:
                 import os
                 os.remove(temp_file.name)
+
+
+
