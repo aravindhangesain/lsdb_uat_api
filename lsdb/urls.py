@@ -141,6 +141,7 @@ from lsdb.views import PdfViewSet
 from lsdb.views import Notetype_PichinaViewSet
 from lsdb.views import Note_pichinaViewSet
 from lsdb.views import CronStatusViewSet
+from lsdb.views import EndProcedureViewSet
 
 
 router = DefaultRouter()
@@ -281,6 +282,7 @@ router.register(r'flashdatadeliverables',GetDeliverablesDataViewSet, basename = 
 router.register(r'download_deliverable_data',PdfViewSet, basename = 'download_deliverable_data')
 router.register(r'note_pichina',Note_pichinaViewSet,basename='note_pichina')
 router.register(r'cron',CronStatusViewSet,basename='cron')
+router.register(r'end',EndProcedureViewSet,basename='end')
 # router.register(r'notetype_pichina',Notetype_PichinaViewSet,basename='notetype_pichina')
 
 
