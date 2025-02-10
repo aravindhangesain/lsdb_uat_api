@@ -139,3 +139,10 @@ from .Notetype_PichinaViewSet import Notetype_PichinaViewSet as Notetype_Pichina
 from .Note_pichinaViewSet import Note_pichinaViewSet as Note_pichinaViewSet
 from .CronStatusViewSet import CronStatusViewSet as CronStatusViewSet
 from .EndProcedureViewSet import EndProcedureViewSet as EndProcedureViewSet
+from .TemplateMasterViewSet import TemplateMasterViewSet as TemplateMasterViewSet
+from .TemplateDetailsViewSet import TemplateDetailsViewSet as TemplateDetailsViewSet
+from .ReportProductTypeViewSet import ReportProductTypeViewSet as ReportProductTypeViewSet
+from .ReportTypeViewSet import ReportTypeViewSet as ReportTypeViewSet
+from .ReportDefinitionViewSet import ReportDefinitionViewSet as ReportDefinitionViewSet
+from .ReportSequenceDefinitionViewSet import ReportSequenceDefinitionViewSet as ReportSequenceDefinitionViewSet
+from .ReportResultViewSet import ReportResultViewSet as ReportResultViewSet
