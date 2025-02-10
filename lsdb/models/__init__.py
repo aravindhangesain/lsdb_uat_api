@@ -127,3 +127,4 @@ from .ReportProductType import ReportProductType as ReportProductType
 from .ReportType import ReportType as ReportType
 from .ReportSequenceDefinition import ReportSequenceDefinition as ReportSequenceDefinition
 from .ReportResult import ReportResult as ReportResult
+from .ReportDefinition import ReportDefinition as ReportDefinition
