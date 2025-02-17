@@ -142,6 +142,14 @@ from lsdb.views import Notetype_PichinaViewSet
 from lsdb.views import Note_pichinaViewSet
 from lsdb.views import CronStatusViewSet
 from lsdb.views import EndProcedureViewSet
+from lsdb.views import TemplateMasterViewSet
+from lsdb.views import TemplateDetailsViewSet
+from lsdb.views import ProductTypeDefinitionViewSet
+from lsdb.views import ReportTypeDefinitionViewSet
+from lsdb.views import ReportExecutionOrderViewSet
+from lsdb.views import ReportSequenceDefinitionViewSet
+from lsdb.views import ReportResultViewSet
+from lsdb.views import WorkOrderTemplateViewSet
 
 
 router = DefaultRouter()
@@ -283,11 +291,25 @@ router.register(r'download_deliverable_data',PdfViewSet, basename = 'download_de
 router.register(r'note_pichina',Note_pichinaViewSet,basename='note_pichina')
 router.register(r'cron',CronStatusViewSet,basename='cron')
 router.register(r'end',EndProcedureViewSet,basename='end')
+router.register(r'template_master',TemplateMasterViewSet,basename='template_master')
+router.register(r'template_details',TemplateDetailsViewSet,basename='template_details')
+router.register(r'producttypedefinition',ProductTypeDefinitionViewSet,basename='producttypedefinition')
+router.register(r'reporttypedefinition',ReportTypeDefinitionViewSet,basename='reporttypedefinition')
+router.register(r'reportexecutionorder',ReportExecutionOrderViewSet,basename='reportexecutionorder')
+router.register(r'reportsequencedefinition',ReportSequenceDefinitionViewSet,basename='reportsequencedefinition')
+router.register(r'report_result',ReportResultViewSet,basename='report_result')
+router.register(r'workordertemplate',WorkOrderTemplateViewSet,basename='workordertemplate')
+
+
+
+
+
+
 # router.register(r'notetype_pichina',Notetype_PichinaViewSet,basename='notetype_pichina')
-
-
 # router.register(r'procupdate',ProcedureUpdateViewSet, basename = 'procupdate')
 # router.register(r'IAMMetaData',IAMMetaDataViewSet, basename = 'IAMMetaData')
+
+
 
 
 # app_name='lsdb'

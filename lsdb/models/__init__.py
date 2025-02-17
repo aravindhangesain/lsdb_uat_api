@@ -123,8 +123,9 @@ from .GroupType_pichina import GroupType_pichina as GroupType_pichina
 from .Organization_pichina import Organization_pichina as Organization_pichina
 from .TemplateMaster import TemplateMaster as TemplateMaster
 from .TemplateDetails import TemplateDetails as TemplateDetails
-from .ReportProductType import ReportProductType as ReportProductType
-from .ReportType import ReportType as ReportType
+from .ProductTypeDefinition import ProductTypeDefinition as ProductTypeDefinition
+from .ReportTypeDefinition import ReportTypeDefinition as ReportTypeDefinition
 from .ReportSequenceDefinition import ReportSequenceDefinition as ReportSequenceDefinition
 from .ReportResult import ReportResult as ReportResult
-from .ReportDefinition import ReportDefinition as ReportDefinition
+from .ReportExecutionOrder import ReportExecutionOrder as ReportExecutionOrder
+from .WorkOrderTemplate import WorkOrderTemplate as WorkOrderTemplate

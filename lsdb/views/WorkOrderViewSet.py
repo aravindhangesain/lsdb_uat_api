@@ -20,7 +20,7 @@ from lsdb.models import StepResult
 from lsdb.models import ProcedureResult
 from lsdb.models import TestSequenceDefinition
 from lsdb.models import TestSequenceExecutionData
-from lsdb.models import ProcedureExecutionOrder
+from lsdb.models import ProcedureExecutionOrder,WorkOrderTemplate
 
 from lsdb.serializers import ActionResultSerializer
 from lsdb.serializers import DispositionCodeListSerializer
@@ -47,6 +47,26 @@ class WorkOrderViewSet(
     serializer_class = WorkOrderSerializer
     # serializer_detail_class = WorkOrderDetailSerializer
     permission_classes = [ConfiguredPermission]
+
+    def create(self, request, *args, **kwargs):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            created_workorder = serializer.save()
+
+            # project = Project.objects.filter(id=created_workorder.project_id).first()
+            # disposition_id=Disposition.objects.get(name=created_workorder.unit_disposition)
+            largest_id = WorkOrderTemplate.objects.order_by('-id').values_list('id', flat=True).first()
+            WorkOrderTemplate.objects.create(workorder=created_workorder,template_name=f"Template_{largest_id+1}-{created_workorder.name}")
+            
+            queryset = WorkOrder.objects.all()
+            serialized_workorders = WorkOrderSerializer(queryset, many=True,context={'request': request})
+            return Response(serialized_workorders.data)
+
+                
+
+
+
+
 
 
     @action(detail=False, methods=['get', ],
