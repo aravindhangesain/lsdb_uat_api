@@ -494,7 +494,40 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
 
     @transaction.atomic
     def get_queue(self, group=None, asset=None, location_id=None):
-        queryset = ProcedureResult.objects.filter(
+        if group=="characterizations":
+            excluded_units = ProcedureResult.objects.filter(
+                group_id=45
+            ).filter(
+                Q(disposition_id=7) | Q(disposition_id__isnull=True)
+            ).values_list("unit_id", flat=True)
+
+            queryset = ProcedureResult.objects.filter(
+            disposition__isnull=True,
+            unit__disposition__complete=False,
+            ).exclude(
+                unit__disposition__name__iexact="in progress"
+            ).exclude(
+                work_order__project__disposition__complete=True
+            ).exclude(
+                test_sequence_definition__group__name__iexact="control"
+            ).exclude(
+                unit_id__in=excluded_units 
+            ).annotate(
+                last_action_date=Coalesce(
+                    Max('unit__procedureresult__stepresult__measurementresult__date_time'),
+                    timezone.now()
+                )
+            ).annotate(
+                done_to=Coalesce(
+                    Max(
+                        'unit__procedureresult__linear_execution_group',
+                        filter=Q(unit__procedureresult__disposition__isnull=False)
+                    ),
+                    Min('unit__procedureresult__linear_execution_group')
+                )
+            ).distinct()
+        else:
+            queryset = ProcedureResult.objects.filter(
             disposition__isnull=True,
             unit__disposition__complete=False,
         ).exclude(
@@ -517,7 +550,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 Min('unit__procedureresult__linear_execution_group')
             )
         ).distinct()
-
         # Apply filters for asset and location
         if asset:
             queryset = queryset.filter(
