@@ -23,17 +23,11 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         for result in report_results:
             workorder=WorkOrder.objects.get(id=work_order_id)
             report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
-            ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,report_execution_order_number=result.execution_group_number)
+            ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,report_execution_order_number=result.execution_group_number,
+                                        product_type_definition=result.product_definition,
+                                        report_type_definition=result.report_definition)
         
         queryset = ReportResult.objects.all()
         serializer = serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
         return Response(serializer.data)
-        
-
-        
-
-        
-
-
-
 

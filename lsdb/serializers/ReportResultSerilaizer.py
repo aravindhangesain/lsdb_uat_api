@@ -18,11 +18,11 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
             'data_ready_status',
             'status',
             'username',
-            'work_order',
-            'report_sequence_definition',
-            'product_type_definition',
-            'report_type_definition',
-            'disposition',
+            'work_order_id',
+            'report_sequence_definition_id',
+            'product_type_definition_id',
+            'report_type_definition_id',
+            'disposition_id',
             'report_execution_order_number',
             'execution_group_name'
         ]
