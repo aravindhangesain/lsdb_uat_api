@@ -351,45 +351,86 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
         serializer = TransformIVCurveSerializer(result, many=False, context=self.context)
         return Response(serializer.data)
 
-    @action(detail=True,methods=['get'],
+    @action(detail=True, methods=['get'],
         permission_classes=(ConfiguredPermission,),
         serializer_class=ProcedureWorkLogSerializer)
     def view(self, request, pk=None):
-        # read the visualizer value of the current record to determine the shape
-        # of the data to return.
-        self.context = {'request':request}
+        # Read the visualizer value of the current record to determine the shape of the data to return.
+        self.context = {'request': request}
         result = ProcedureResult.objects.get(id=pk)
-        visualized={}
+        visualized = {}
+
         try:
             visualized = getattr(self, "_view_{}".format(result.procedure_definition.visualizer.name))(request, pk)
-        except:
-            'some error'
+        except Exception as e:
+            print(f"Visualizer function error: {e}")
+
         try:
-            previous_result = ProcedureResult.objects.filter(
+            previous_results = ProcedureResult.objects.filter(
                 linear_execution_group__lt=result.linear_execution_group,
                 procedure_definition=result.procedure_definition,
                 unit_id=result.unit_id,
-                test_sequence_definition=result.test_sequence_definition,
-                name__icontains="Pre"
-            ).order_by('-linear_execution_group').first()
-
-            flash_measurements = MeasurementResult.objects.filter(
-                step_result__procedure_result=previous_result.id,
-                measurement_result_type__name__icontains='result_double'
-            )
-            flash = {}
-            for measurement in flash_measurements:
-                flash[measurement.name] = measurement.result_double
-            visualized['previous_test'] = {
-                'pre_execution':previous_result.linear_execution_group,
-                'prev_id' : previous_result.id,
-                'prev_name' : previous_result.name,
-                'flash_values': flash
-            }
+                # test_sequence_definition=result.test_sequence_definition,
+            ).order_by('-linear_execution_group')
+            for procedure_result in previous_results:
+                flash_measurements = MeasurementResult.objects.filter(
+                    step_result__procedure_result=procedure_result.id,
+                ).exclude(result_double__isnull=True,)
+                flash = {}
+                for measurement in flash_measurements:
+                    flash[measurement.name] = measurement.result_double
+                visualized['previous_test'] = {
+                    'pre_execution': procedure_result.linear_execution_group,
+                    'prev_id': procedure_result.id,
+                    'prev_name': procedure_result.name,
+                    'flash_values': flash
+                }
+                if flash:
+                    break
         except Exception as e:
             print(f"Error in visualizer: {e}")
-
+        print("visualized:"+str(visualized))
         return Response(visualized)
+    
+    # @action(detail=True,methods=['get'],
+    #     permission_classes=(ConfiguredPermission,),
+    #     serializer_class=ProcedureWorkLogSerializer)
+    # def view(self, request, pk=None):
+    #     # read the visualizer value of the current record to determine the shape
+    #     # of the data to return.
+    #     self.context = {'request':request}
+    #     result = ProcedureResult.objects.get(id=pk)
+    #     visualized={}
+    #     try:
+    #         visualized = getattr(self, "_view_{}".format(result.procedure_definition.visualizer.name))(request, pk)
+    #     except:
+    #         'some error'
+    #     try:
+    #         previous_result = ProcedureResult.objects.filter(
+    #             linear_execution_group__lt=result.linear_execution_group,
+    #             procedure_definition=result.procedure_definition,
+    #             unit_id=result.unit_id,
+    #             test_sequence_definition=result.test_sequence_definition,
+    #             name__icontains="Pre"
+    #         ).order_by('-linear_execution_group').first()
+
+    #         flash_measurements = MeasurementResult.objects.filter(
+    #             step_result__procedure_result=previous_result.id,
+    #             measurement_result_type__name__icontains='result_double'
+    #         )
+    #         flash = {}
+    #         for measurement in flash_measurements:
+    #             flash[measurement.name] = measurement.result_double
+    #         visualized['previous_test'] = {
+    #             'pre_execution':previous_result.linear_execution_group,
+    #             'prev_id' : previous_result.id,
+    #             'prev_name' : previous_result.name,
+    #             'flash_values': flash
+    #         }
+    #     except Exception as e:
+    #         print(f"Error in visualizer: {e}")
+
+    #     return Response(visualized)
     
     # Base visualizers:
     def _view_colorimeter(self, request, pk=None):
