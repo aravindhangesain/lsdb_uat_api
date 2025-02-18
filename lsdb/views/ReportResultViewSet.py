@@ -1,7 +1,39 @@
 from rest_framework import viewsets
-from lsdb.models import ReportResult
-from lsdb.serializers import ReportResultSerilaizer
+from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition
+from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer
+from rest_framework.decorators import action
+from django.db import IntegrityError, transaction
+from rest_framework.response import Response
+
 
 class ReportResultViewSet(viewsets.ModelViewSet):
     queryset = ReportResult.objects.all()
-    serializer_class = ReportResultSerilaizer
+    serializer_class = ReportResultSerilaizer 
+
+
+    @transaction.atomic
+    @action(detail=False,serializer_class=ReportResultSerilaizer,methods=['post','get'],)
+    def create_report_result(self, request):
+        work_order_id=request.data.get('work_order_id')
+        report_sequence_definition_id=request.data.get('report_sequence_definition_id')
+        
+
+        report_results=ReportExecutionOrder.objects.filter(report_sequence_definition_id=report_sequence_definition_id).order_by('execution_group_number')
+
+        for result in report_results:
+            workorder=WorkOrder.objects.get(id=work_order_id)
+            report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
+            ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,report_execution_order_number=result.execution_group_number)
+        
+        queryset = ReportResult.objects.all()
+        serializer = serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
+        return Response(serializer.data)
+        
+
+        
+
+        
+
+
+
+

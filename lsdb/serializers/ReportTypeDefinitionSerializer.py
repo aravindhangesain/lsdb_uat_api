@@ -5,4 +5,12 @@ class ReportTypeDefinitionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=ReportTypeDefinition
-        fields='__all__'
+        fields=[
+            'id',
+            'url',
+            'name',
+            'disposition',
+            'group',
+            'version',
+            'linear_execution_order'
+        ]

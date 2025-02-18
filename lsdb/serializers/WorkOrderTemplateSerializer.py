@@ -9,13 +9,14 @@ class WorkOrderTemplateSerializer(serializers.HyperlinkedModelSerializer):
         fields=[
             'id',
             'url',
-            'workorder_name',
-            'template_name',
-            'description',
-            'project',
-            'project_number',
-            'start_datetime',
-            'disposition',
-            'unit_disposition',
-            'workorder'
+            # 'workorder_name',
+            # 'template_name',
+            # 'description',
+            # 'project',
+            # 'project_number',
+            # 'start_datetime',
+            # 'disposition',
+            # 'unit_disposition',
+            'workorder',
+            'template_name'
             ]

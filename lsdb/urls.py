@@ -297,7 +297,7 @@ router.register(r'producttypedefinition',ProductTypeDefinitionViewSet,basename='
 router.register(r'reporttypedefinition',ReportTypeDefinitionViewSet,basename='reporttypedefinition')
 router.register(r'reportexecutionorder',ReportExecutionOrderViewSet,basename='reportexecutionorder')
 router.register(r'reportsequencedefinition',ReportSequenceDefinitionViewSet,basename='reportsequencedefinition')
-router.register(r'report_result',ReportResultViewSet,basename='report_result')
+router.register(r'reportresult',ReportResultViewSet,basename='reportresult')
 router.register(r'workordertemplate',WorkOrderTemplateViewSet,basename='workordertemplate')
 
 
