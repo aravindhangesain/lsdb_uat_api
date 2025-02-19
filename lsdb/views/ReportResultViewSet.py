@@ -7,8 +7,20 @@ from rest_framework.response import Response
 
 
 class ReportResultViewSet(viewsets.ModelViewSet):
-    queryset = ReportResult.objects.all()
+    # queryset = ReportResult.objects.all()
     serializer_class = ReportResultSerilaizer 
+
+    def get_queryset(self):
+        """
+        Override get_queryset to filter results based on work_order_id.
+        """
+        queryset = ReportResult.objects.all()
+        work_order_id = self.request.query_params.get('work_order_id')
+
+        if work_order_id:
+            queryset = queryset.filter(work_order_id=work_order_id)
+
+        return queryset
 
 
     @transaction.atomic
