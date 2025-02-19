@@ -12,6 +12,8 @@ from django.db.models import Q, Max
 from io import BytesIO
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl import Workbook
+from rest_framework import status
+from django.core.exceptions import ObjectDoesNotExist
 
 
 from rest_framework import viewsets
@@ -350,6 +352,54 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
         result = ProcedureResult.objects.get(id=pk)
         serializer = TransformIVCurveSerializer(result, many=False, context=self.context)
         return Response(serializer.data)
+    
+
+    @action(detail=False, methods=['post', 'get'])
+    def valid_procedure(self, request):
+        self.context = {'request': request}
+        procedure_id = request.data.get('procedure_id')
+
+        if not procedure_id:
+            return Response({"message": "No procedure_id provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            result = ProcedureResult.objects.get(id=procedure_id)
+        except ObjectDoesNotExist:
+            return Response({"message": "No Procedure found"}, status=status.HTTP_404_NOT_FOUND)
+
+        previous_results = ProcedureResult.objects.filter(
+            linear_execution_group__lt=result.linear_execution_group,
+            procedure_definition=result.procedure_definition,
+            unit_id=result.unit_id
+        )
+
+        serialized_data = ProcedureWorkLogSerializer(previous_results, many=True, context=self.context).data
+        return Response(serialized_data, status=status.HTTP_200_OK)
+        
+        
+    @action(detail=False,methods=['post','get'])
+    def flash_values(self, request):
+        self.context = {'request': request}
+        selected_procedure_id = request.data.get('selected_procedure_id')
+
+        if not selected_procedure_id:
+            return Response({"error": "selected_procedure_id is required."}, status=400)
+
+        try:
+            procedure = ProcedureResult.objects.get(id=selected_procedure_id)
+            flash_measurements = MeasurementResult.objects.filter(
+                step_result__procedure_result=procedure.id
+            ).exclude(result_double__isnull=True)
+
+            flash = {measurement.name: measurement.result_double for measurement in flash_measurements}
+            # SelectedProcedure.objects.create()
+            return Response({'flash_values': flash}, status=200)
+
+        except ProcedureResult.DoesNotExist:
+            return Response({"error": "Procedure not found."}, status=404)
+
+
+
 
     @action(detail=True, methods=['get'],
         permission_classes=(ConfiguredPermission,),
