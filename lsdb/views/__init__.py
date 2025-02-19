@@ -147,3 +147,4 @@ from .ReportExecutionOrderViewSet import ReportExecutionOrderViewSet as ReportEx
 from .ReportSequenceDefinitionViewSet import ReportSequenceDefinitionViewSet as ReportSequenceDefinitionViewSet
 from .ReportResultViewSet import ReportResultViewSet as ReportResultViewSet
 from .WorkOrderTemplateViewSet import WorkOrderTemplateViewSet as WorkOrderTemplateViewSet
+from .FinalProcedureViewSet import FinalProcedureViewSet as FinalProcedureViewSet
