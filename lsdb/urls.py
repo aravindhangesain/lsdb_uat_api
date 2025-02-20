@@ -151,6 +151,7 @@ from lsdb.views import ReportSequenceDefinitionViewSet
 from lsdb.views import ReportResultViewSet
 from lsdb.views import WorkOrderTemplateViewSet
 from lsdb.views import FinalProcedureViewSet
+from lsdb.views import UnitTypeTemplateViewSet
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)
@@ -300,7 +301,7 @@ router.register(r'reportsequencedefinition',ReportSequenceDefinitionViewSet,base
 router.register(r'reportresult',ReportResultViewSet,basename='reportresult')
 router.register(r'workordertemplate',WorkOrderTemplateViewSet,basename='workordertemplate')
 router.register(r'finalprocedure',FinalProcedureViewSet,basename='finalprocedure')
-
+router.register(r'unittypetemplate',UnitTypeTemplateViewSet,basename='unittypetemplate')
 
 
 

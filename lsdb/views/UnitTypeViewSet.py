@@ -14,7 +14,7 @@ from lsdb.serializers import UnitTypeSerializer
 from lsdb.serializers import UnitSerializer
 from lsdb.serializers import AzureFileSerializer
 from lsdb.models import UnitType
-from lsdb.models import AzureFile
+from lsdb.models import AzureFile,UnitTypeTemplate
 from lsdb.permissions import ConfiguredPermission
 
 
@@ -26,6 +26,14 @@ class UnitTypeViewSet(LoggingMixin, viewsets.ModelViewSet):
     queryset = UnitType.objects.all()
     serializer_class = UnitTypeSerializer
     permission_classes = [ConfiguredPermission]
+
+    def perform_create(self, serializer):
+        created_unittype = serializer.save()
+        largest_id = UnitTypeTemplate.objects.order_by('-id').values_list('id', flat=True).first() or 0
+        UnitTypeTemplate.objects.create(
+            unittype=created_unittype, 
+            template_name=f"Template_{largest_id + 1}-{created_unittype.model}"
+        )
 
     @transaction.atomic
     @action(detail=True, methods=['get','post'],

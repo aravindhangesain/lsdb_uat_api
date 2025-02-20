@@ -179,3 +179,4 @@ from .ReportSequenceDefinitionSerializer import ReportSequenceDefinitionSerializ
 from .ReportResultSerilaizer import ReportResultSerilaizer as ReportResultSerilaizer
 from .WorkOrderTemplateSerializer import WorkOrderTemplateSerializer as WorkOrderTemplateSerializer
 from .FinalProcedureSerializer import FinalProcedureSerializer as FinalProcedureSerializer
+from .UnitTypeTemplateSerializer import UnitTypeTemplateSerializer as UnitTypeTemplateSerializer

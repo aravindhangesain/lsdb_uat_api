@@ -4,19 +4,14 @@ from lsdb.models import WorkOrderTemplate
 
 class WorkOrderTemplateSerializer(serializers.HyperlinkedModelSerializer):
 
+    workorder_id=serializers.ReadOnlyField(source='workorder.id')
+
     class Meta:
         model=WorkOrderTemplate
         fields=[
             'id',
             'url',
-            # 'workorder_name',
-            # 'template_name',
-            # 'description',
-            # 'project',
-            # 'project_number',
-            # 'start_datetime',
-            # 'disposition',
-            # 'unit_disposition',
+            'workorder_id',
             'workorder',
             'template_name'
             ]
