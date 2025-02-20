@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition
 from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer
 from rest_framework.decorators import action
@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 class ReportResultViewSet(viewsets.ModelViewSet):
     # queryset = ReportResult.objects.all()
-    serializer_class = ReportResultSerilaizer 
+    serializer_class = ReportResultSerilaizer
 
     def get_queryset(self):
         """
@@ -35,11 +35,37 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         for result in report_results:
             workorder=WorkOrder.objects.get(id=work_order_id)
             report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
-            ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,report_execution_order_number=result.execution_group_number,
+            ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
+                                        report_execution_order_number=result.execution_group_number,
                                         product_type_definition=result.product_definition,
-                                        report_type_definition=result.report_definition)
+                                        report_type_definition=result.report_definition
+                                    )
         
         queryset = ReportResult.objects.all()
         serializer = serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
         return Response(serializer.data)
+    
+    @transaction.atomic
+    @action(detail=False,methods=["patch","get"], url_path="update_report_result")
+    def update_report_result(self, request):
+        
+        report_result_id=request.data.get('report_result_id')
+        if report_result_id:
+            try:
+                report_result = ReportResult.objects.get(id=report_result_id)
+            except ReportResult.DoesNotExist:
+                return Response({"message": "ReportResult not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = ReportResultSerilaizer(report_result, data=request.data, partial=True, context={"request": request})
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "ReportResult updated successfully", "data": serializer.data}, status=status.HTTP_200_OK)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "ReportResult id not provided"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
 
