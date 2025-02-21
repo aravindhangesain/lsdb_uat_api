@@ -4,13 +4,13 @@ from lsdb.models import ReportResult,Disposition
 
 class ReportResultSerilaizer(serializers.ModelSerializer):
     
-    status_disposition_id = serializers.PrimaryKeyRelatedField(queryset=Disposition.objects.all(), source="status_disposition")
     execution_group_name=serializers.ReadOnlyField(source='report_execution_order.execution_group_name')
     work_order_name=serializers.ReadOnlyField(source='work_order.name')
     report_sequence_definition_name=serializers.ReadOnlyField(source='report_sequence_definition.name')
     product_type_definition_name=serializers.ReadOnlyField(source='product_type_definition.name')
     report_type_definition_name=serializers.ReadOnlyField(source='report_type_definition.name')
     status_disposition_name=serializers.ReadOnlyField(source='status_disposition.name')
+    status_disposition = serializers.PrimaryKeyRelatedField(queryset=Disposition.objects.filter(name__in=["Yet To Start", "Completed","In Progress","Issued"]),required=True)
 
     class Meta:
         model=ReportResult
@@ -32,11 +32,8 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
             'product_type_definition_name',
             'report_type_definition_id',
             'report_type_definition_name',
-            'status_disposition_id',
+            'status_disposition',
             'status_disposition_name',
             'report_execution_order_number',
             'execution_group_name'
         ]
-
-
-
