@@ -3,6 +3,8 @@ import pandas as pd
 from django.db import IntegrityError, transaction
 from django.db.models import Q, Max
 from django_filters import rest_framework as filters
+import tempfile
+from django.http import HttpResponse
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -205,3 +207,70 @@ class AssetViewSet(LoggingMixin, viewsets.ModelViewSet):
         #     full[name]=group.to_dict(orient='records')
         full = filled.to_dict(orient='records')
         return Response(full)
+    
+
+    @action(detail=True, methods=['get'], url_path="units/download_excel")
+    def download_units_excel(self, request, pk=None):
+        """
+        Download all units currently under stress in/on this asset as an Excel file
+        """
+        units = Unit.objects.filter(
+            procedureresult__disposition__name__iexact="in progress",
+            procedureresult__stepresult__measurementresult__asset__id=pk,
+        ).distinct()
+
+        if not units.exists():
+            return Response({"detail": "No units found for this asset."}, status=404)
+
+        df = pd.DataFrame(list(units.values(
+            'serial_number',
+            'location__name',
+            'fixture_location__name',
+            'procedureresult__test_sequence_definition__name',
+            'workorder__project__number',
+            'workorder__name',
+            'workorder__project__customer__name',
+            'procedureresult__name',
+            'procedureresult__start_datetime',
+            'procedureresult__procedure_definition__aggregate_duration',
+        )))
+
+        if df.empty:
+            return Response({"detail": "No data available for download."}, status=204)
+
+        df['procedureresult__procedure_definition__aggregate_duration'] = pd.to_timedelta(
+            df['procedureresult__procedure_definition__aggregate_duration'], unit='m')
+        df['eta_datetime'] = df['procedureresult__start_datetime'] + \
+            df['procedureresult__procedure_definition__aggregate_duration']
+
+        # Convert timezone-aware datetimes to naive
+        datetime_fields = ['procedureresult__start_datetime', 'eta_datetime']
+        for field in datetime_fields:
+            if field in df.columns:
+                df[field] = pd.to_datetime(df[field]).dt.tz_localize(None)
+
+        df.columns = [
+            'Serial Number',
+            'Location',
+            'Fixture Location',
+            'Test Sequence',
+            'Project Number',
+            'Work Order',
+            'Customer',
+            'Execution Group Name',
+            'Start Datetime',
+            'Procedure Duration',
+            'ETA Datetime',
+        ]
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+            file_path = tmp.name
+            df.to_excel(file_path, index=False)
+
+        with open(file_path, 'rb') as f:
+            response = HttpResponse(
+                f.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = 'attachment; filename="units_data.xlsx"'
+            return response
