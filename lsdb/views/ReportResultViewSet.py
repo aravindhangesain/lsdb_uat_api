@@ -1,6 +1,6 @@
 from rest_framework import viewsets,status
-from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition
-from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer
+from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition
+from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer,DispositionSerializer
 from rest_framework.decorators import action
 from django.db import IntegrityError, transaction
 from rest_framework.response import Response
@@ -38,11 +38,11 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
                                         report_execution_order_number=result.execution_group_number,
                                         product_type_definition=result.product_definition,
-                                        report_type_definition=result.report_definition
+                                        report_type_definition=result.report_definition,data_ready_status='Define'
                                     )
         
         queryset = ReportResult.objects.all()
-        serializer = serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
+        serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
         return Response(serializer.data)
     
     @transaction.atomic
@@ -65,7 +65,14 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"message": "ReportResult id not provided"}, status=status.HTTP_404_NOT_FOUND)
+        
 
+    @action(detail=False,methods=["get"])
+    def report_dispositions(self, request):
+
+        dispositions=Disposition.objects.filter(id__in=[7,20,61,62])
+        serializer=DispositionSerializer(dispositions,many=True,context={'request': request})
+        return Response(serializer.data)
 
 
 

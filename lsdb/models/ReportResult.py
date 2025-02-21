@@ -6,7 +6,7 @@ class ReportResult(models.Model):
     due_date=models.DateTimeField(blank=True, null=True)
     report_writer_name=models.CharField(max_length=256, blank=True, null=True)
     report_approver_name=models.CharField(max_length=256, blank=True, null=True)
-    data_ready_status=models.BooleanField()
+    data_ready_status=models.CharField(max_length=256, blank=True, null=True)
     # status=models.BooleanField()
     username=models.CharField(max_length=256, blank=True, null=True)
     work_order=models.ForeignKey('WorkOrder', on_delete=models.CASCADE, blank=False, null=False)
