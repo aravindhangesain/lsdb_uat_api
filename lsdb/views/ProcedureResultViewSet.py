@@ -27,7 +27,7 @@ from lsdb.models import Disposition, DispositionCode
 from lsdb.models import Unit
 from lsdb.models import Note
 from lsdb.models import MeasurementResult
-from lsdb.models import ProcedureResult
+from lsdb.models import ProcedureResult,FinalProcedure
 from lsdb.models import StepResult,LocationLog
 from lsdb.models import StepDefinition
 
@@ -381,6 +381,13 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
     def flash_values(self, request):
         self.context = {'request': request}
         selected_procedure_id = request.data.get('selected_procedure_id')
+        procedure_id=request.data.get('procedure_id')
+
+        if procedure_id:
+            FinalProcedure.objects.create(selected_procedure=selected_procedure_id,procedure=procedure_id)
+        else:
+            return Response({"error": "procedure_id is required."}, status=400)
+
 
         if not selected_procedure_id:
             return Response({"error": "selected_procedure_id is required."}, status=400)
