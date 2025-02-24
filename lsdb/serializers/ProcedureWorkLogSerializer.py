@@ -226,6 +226,7 @@ class ProcedureWorkLogSerializer(serializers.HyperlinkedModelSerializer):
             'username',
             'characterization_point',
             'final_result',
+            'name'
 
             # 'procedure_definition',
             # 'disposition',
