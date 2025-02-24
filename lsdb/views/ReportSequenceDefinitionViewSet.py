@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from lsdb.models import DispositionCode, ReportSequenceDefinition,ReportExecutionOrder,ProductTypeDefinition, ReportTypeDefinition
-from lsdb.serializers import ReportSequenceDefinitionSerializer
+from lsdb.serializers import ReportSequenceDefinitionSerializer,ReportExecutionOrderSerializer
 import json
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -97,10 +97,10 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['get', 'post'],
             serializer_class=ReportSequenceDefinitionSerializer
             )
-    def tsd_full_view(self, request, pk=None):
-        queryset = ReportSequenceDefinition.objects.get(id=pk)
+    def rsd_full_view(self, request, pk=None):
+        queryset = ReportExecutionOrder.objects.filter(report_sequence_definition=pk)
         self.context = {'request': request}
-        serializer = self.serializer_class(queryset, many=False, context=self.context)
+        serializer = ReportExecutionOrderSerializer(queryset, many=True, context=self.context)
         return Response(serializer.data)
 
     @transaction.atomic
