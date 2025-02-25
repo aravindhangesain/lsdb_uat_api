@@ -11,6 +11,9 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
     report_type_definition_name=serializers.ReadOnlyField(source='report_type_definition.name')
     status_disposition_name=serializers.ReadOnlyField(source='status_disposition.name')
     status_disposition = serializers.PrimaryKeyRelatedField(queryset=Disposition.objects.filter(name__in=["Yet To Start", "Completed","In Progress","Issued"]),required=True)
+    report_writer_name=serializers.ReadOnlyField(source='report_writer.username')
+    report_approver_name=serializers.ReadOnlyField(source='report_approver.username')
+    username=serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model=ReportResult
@@ -19,10 +22,13 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
             'url',
             'issue_date',
             'due_date',
+            'report_writer',
             'report_writer_name',
+            'report_approver',
             'report_approver_name',
             'data_ready_status',
             # 'status',
+            'user',
             'username',
             'work_order_id',
             'work_order_name',
