@@ -82,7 +82,7 @@ class FileUploadforFlashViewSet(viewsets.ModelViewSet):
 
                 self.insert_into_resultfiles_table(measurement_result_id, azure_file.id)
             
-            self.handle_test_sequence_logic(procedure_result_id)
+            # self.handle_test_sequence_logic(procedure_result_id)
 
             return Response({"success": "File uploaded and data updated successfully."}, status=status.HTTP_201_CREATED)
 

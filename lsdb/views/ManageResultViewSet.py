@@ -434,6 +434,68 @@ class ManageResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                     measurement.review_datetime = timezone.now()
                     measurement.disposition = disposition
                     measurement.save()
+            test_sequence_definition_id = result.test_sequence_definition_id
+            procedure_definition_id = result.procedure_definition_id
+            allowed_definition_ids = [14, 54, 50, 62, 33, 49, 21, 38, 48]
+            if test_sequence_definition_id == 134 and procedure_definition_id in allowed_definition_ids:
+                test_sequence = result.test_sequence_definition
+                execution = test_sequence.procedureexecutionorder_set.filter(procedure_definition=result.procedure_definition).first()
+                if execution:
+                    if execution.execution_condition:
+                        ldict = {'unit': result.unit, 'retval': False}
+                        try:
+                            exec(f"retval={execution.execution_condition}", None, ldict)
+                        except Exception as e:
+                            errors.append(f"Error evaluating execution condition: {str(e)}")
+                            return Response(errors, status=400)
+                        if not ldict['retval']:
+                            return Response({"message": "Execution condition not met. No new record created."}, status=200)
+                    new_procedure_result = ProcedureResult.objects.create(
+                        unit=result.unit,
+                        name=execution.execution_group_name,
+                        disposition=None,
+                        group=execution.procedure_definition.group,
+                        work_order=result.work_order,
+                        procedure_definition=execution.procedure_definition,
+                        version=execution.procedure_definition.version,
+                        linear_execution_group=execution.execution_group_number,
+                        test_sequence_definition=test_sequence,
+                        allow_skip=execution.allow_skip,
+                    )
+                    for step_execution in execution.procedure_definition.stepexecutionorder_set.all():
+                        new_step_result = StepResult.objects.create(
+                            name=step_execution.execution_group_name,
+                            procedure_result=new_procedure_result,
+                            step_definition=step_execution.step_definition,
+                            execution_number=0,
+                            disposition=None,
+                            start_datetime=None,
+                            duration=0,
+                            test_step_result=None,
+                            archived=False,
+                            description=None,
+                            step_number=step_execution.execution_group_number,
+                            step_type=step_execution.step_definition.step_type,
+                            linear_execution_group=step_execution.execution_group_number,
+                            allow_skip=step_execution.allow_skip,
+                        )
+                        for measurement_definition in step_execution.step_definition.measurementdefinition_set.all():
+                            MeasurementResult.objects.create(
+                                step_result=new_step_result,
+                                measurement_definition=measurement_definition,
+                                software_revision=0.0,
+                                disposition=None,
+                                limit=measurement_definition.limit,
+                                station=0,
+                                name=measurement_definition.name,
+                                record_only=measurement_definition.record_only,
+                                allow_skip=measurement_definition.allow_skip,
+                                requires_review=measurement_definition.requires_review,
+                                measurement_type=measurement_definition.measurement_type,
+                                order=measurement_definition.order,
+                                report_order=measurement_definition.report_order,
+                                measurement_result_type=measurement_definition.measurement_result_type,
+                            )
             serializer = ProcedureResultSerializer(result, many=False, context=self.context)
         else:
             serializer = ProcedureResultSerializer([], many=True, context=self.context)
