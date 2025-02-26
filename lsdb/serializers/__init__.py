@@ -180,3 +180,4 @@ from .ReportResultSerilaizer import ReportResultSerilaizer as ReportResultSerila
 from .WorkOrderTemplateSerializer import WorkOrderTemplateSerializer as WorkOrderTemplateSerializer
 from .FinalProcedureSerializer import FinalProcedureSerializer as FinalProcedureSerializer
 from .UnitTypeTemplateSerializer import UnitTypeTemplateSerializer as UnitTypeTemplateSerializer
+from .UVIDandFlashReportSerializer import UVIDandFlashReportSerializer as UVIDandFlashReportSerializer

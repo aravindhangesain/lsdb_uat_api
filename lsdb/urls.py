@@ -111,6 +111,7 @@ from lsdb.views import ReportResultViewSet
 from lsdb.views import WorkOrderTemplateViewSet
 from lsdb.views import FinalProcedureViewSet
 from lsdb.views import UnitTypeTemplateViewSet
+from lsdb.views import UVIDandFlashReportViewSet
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)
@@ -221,6 +222,9 @@ router.register(r'reportresult',ReportResultViewSet,basename='reportresult')
 router.register(r'workordertemplate',WorkOrderTemplateViewSet,basename='workordertemplate')
 router.register(r'finalprocedure',FinalProcedureViewSet,basename='finalprocedure')
 router.register(r'unittypetemplate',UnitTypeTemplateViewSet,basename='unittypetemplate')
+router.register(r'uvid-flash-report',UVIDandFlashReportViewSet, basename = 'uvid-flash-report')
+
+
 # router.register(r'iv_el_inprogress',IVandEL_InProgressViewSet,basename = 'iv_el_inprogress')
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')
 # router.register(r'IAMTestFileUpload',IAMTestFileUploadViewSet, basename = 'IAMTestFileUpload')
