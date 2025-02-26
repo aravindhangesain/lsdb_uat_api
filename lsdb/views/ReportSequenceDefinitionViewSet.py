@@ -49,7 +49,7 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['get', 'post'],
             serializer_class=ReportSequenceDefinitionSerializer,
             )
-    def delete_procedures(self, request, pk=None):
+    def delete_report_procedure(self, request, pk=None):
         """
         This action is used to remove procedure definitions from a test sequence definition. The link is located via perfect matches to test_sequence,
         POST:
@@ -74,11 +74,12 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
 
                 report_definition = ReportTypeDefinition.objects.get(id=execution.get('report_definition_id'))
                 product_definition = ProductTypeDefinition.objects.get(id=execution.get('product_definition_id'))
-                ReportExecutionOrder.objects.create(execution_group_name=execution.get('execution_group_name'),
+                ReportExecutionOrder.objects.filter(execution_group_name=execution.get('execution_group_name'),
                                                     report_definition=report_definition,
                                                     product_definition=product_definition,
                                                     execution_group_number=execution.get('execution_group_number'),
                                                     report_sequence_definition=report_sequence).delete()
+                
         serializer = ReportSequenceDefinitionSerializer(report_sequence, many=False, context=self.context)
         return Response(serializer.data)
 

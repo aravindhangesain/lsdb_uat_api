@@ -29,7 +29,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         work_order_id=request.data.get('work_order_id')
         report_sequence_definition_id=request.data.get('report_sequence_definition_id')
         
-
+        
         report_results=ReportExecutionOrder.objects.filter(report_sequence_definition_id=report_sequence_definition_id).order_by('execution_group_number')
 
         for result in report_results:
