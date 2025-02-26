@@ -29,17 +29,22 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         work_order_id=request.data.get('work_order_id')
         report_sequence_definition_id=request.data.get('report_sequence_definition_id')
         
+        if ReportResult.objects.filter(work_order_id=work_order_id).exists():
+                return Response({"message":"Report already assigned for the given work-order"}, status=status.HTTP_404_NOT_FOUND)
         
         report_results=ReportExecutionOrder.objects.filter(report_sequence_definition_id=report_sequence_definition_id).order_by('execution_group_number')
 
         for result in report_results:
             workorder=WorkOrder.objects.get(id=work_order_id)
             report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
+            
+                
+            
             ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
-                                        report_execution_order_number=result.execution_group_number,
-                                        product_type_definition=result.product_definition,
-                                        report_type_definition=result.report_definition,data_ready_status='Define'
-                                    )
+                                            report_execution_order_number=result.execution_group_number,
+                                            product_type_definition=result.product_definition,
+                                            report_type_definition=result.report_definition,data_ready_status='Define'
+                                        )
         
         queryset = ReportResult.objects.all()
         serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
