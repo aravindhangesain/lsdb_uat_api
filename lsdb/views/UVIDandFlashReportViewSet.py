@@ -69,6 +69,7 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "Work Order Name": item.get("work_order_name"),
                 "Unit Serial Number": item.get("unit_serial_number"),
                 "Module Type Name": item.get("module_type_name"),
+                "Procedure_Name":item.get("name"),
                 "Procedure Definition Name": item.get("procedure_definition_name"),
                 "Test Sequence Definition Name": item.get("test_sequence_definition_name"),
                 "Flash Start DateTime": item.get("flash_start_datetime"),
