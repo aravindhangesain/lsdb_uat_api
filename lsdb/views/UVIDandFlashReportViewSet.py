@@ -50,35 +50,39 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
             return HttpResponse("No data available for the given filters", status=404)
         serializer = UVIDandFlashReportSerializer(queryset, many=True,context={'request': request})
         data = serializer.data
-        df = pd.DataFrame(data)
-        if "url" in df.columns:
-            df.drop(columns=["url"], inplace=True)
-        for col in ["start_datetime", "flash_start_datetime", "date_time"]:
+        filtered_data = []
+        for item in data:
+            flash_values = item.get("flash_values", {})
+            flash_start_datetime = item.get("flash_start_datetime")
+            date_time = item.get("date_time")
+            if isinstance(flash_start_datetime, str):
+                flash_start_datetime = pd.to_datetime(flash_start_datetime, errors="coerce")
+            if isinstance(date_time, str):
+                date_time = pd.to_datetime(date_time, errors="coerce")
+            if pd.notna(flash_start_datetime) and hasattr(flash_start_datetime, "utcoffset") and is_aware(flash_start_datetime):
+                flash_start_datetime = flash_start_datetime.replace(tzinfo=None)
+            if pd.notna(date_time) and hasattr(date_time, "utcoffset") and is_aware(date_time):
+                date_time = date_time.replace(tzinfo=None)
+            filtered_data.append({
+                "Customer Name": item.get("customer_name"),
+                "Project Number": item.get("project_number"),
+                "Work Order Name": item.get("work_order_name"),
+                "Unit Serial Number": item.get("unit_serial_number"),
+                "Module Type Name": item.get("module_type_name"),
+                "Procedure Definition Name": item.get("procedure_definition_name"),
+                "Test Sequence Definition Name": item.get("test_sequence_definition_name"),
+                "Flash Start DateTime": item.get("flash_start_datetime"),
+                "Date Time": item.get("date_time"),
+                "Pmp": flash_values.get("Pmp", ""),
+                "Voc": flash_values.get("Voc", ""),
+                "Vmp": flash_values.get("Vmp", ""),
+                "Isc": flash_values.get("Isc", ""),
+                "Imp": flash_values.get("Imp", ""),
+            })
+        df = pd.DataFrame(filtered_data)
+        for col in ["Flash Start DateTime", "Date Time"]:
             if col in df.columns:
                 df[col] = df[col].apply(lambda dt: dt.replace(tzinfo=None) if pd.notna(dt) and hasattr(dt, "utcoffset") and is_aware(dt) else dt)
-        for col in ["id", "unit", "procedure_definition", "disposition", "work_order", "test_sequence_definition"]:
-            if col in df.columns:
-                df[col] = df[col].apply(lambda x: x.split("/")[-2] if isinstance(x, str) and "/" in x else x)
-        df.rename(columns={
-            "id": "Procedure Result ID",
-            "name": "Procedure Name",
-            "unit": "Unit ID",
-            "unit__serial_number": "Serial Number",
-            "procedure_definition": "Procedure Definition ID",
-            "procedure_definition__name": "Procedure Definition Name",
-            "disposition": "Disposition ID",
-            "disposition__name": "Disposition Name",
-            "start_datetime": "Start DateTime",
-            "project_number": "Project Number",
-            "work_order": "WorkOrder ID",
-            "work_order__name": "Work Order Name",
-            "test_sequence_definition": "Test Sequence Definition ID",
-            "test_sequence_definition__name": "Test Sequence Definition Name",
-            "customer_name": "Customer Name",
-            "flash_start_datetime": "Flash Start DateTime",
-            "module_type_name": "Module Type Name",
-            "stepresult__measurementresult__date_time": "Date Time"
-        }, inplace=True)
         output = BytesIO()
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
             df.to_excel(writer, index=False, sheet_name="Report")

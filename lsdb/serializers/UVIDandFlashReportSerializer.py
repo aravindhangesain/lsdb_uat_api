@@ -15,6 +15,19 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
     flash_start_datetime = serializers.SerializerMethodField()
     module_type_name = serializers.SerializerMethodField()
     date_time=serializers.SerializerMethodField()
+    flash_values = serializers.SerializerMethodField()
+
+    def get_flash_values(self, obj):
+        stepresult_id = StepResult.objects.filter(procedure_result_id=obj.id).values_list('id', flat=True).first()
+        measurementresults = MeasurementResult.objects.filter(step_result_id=stepresult_id,name__in=["Imp", "Isc", "Vmp", "Voc", "Pmp"])
+        correction_factor = {}
+        for measurementresult in measurementresults:
+            if measurementresult.name is not None:
+                if measurementresult.result_double is not None:
+                    correction_factor[measurementresult.name] = round(measurementresult.result_double, 2)
+                else:
+                    correction_factor[measurementresult.name] = None
+        return correction_factor
 
     def get_flash_start_datetime(self, obj):
         step_results = StepResult.objects.filter(procedure_result_id=obj)
@@ -66,4 +79,5 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
             'flash_start_datetime',
             'module_type_name',
             'date_time',
+            'flash_values',
         ]
