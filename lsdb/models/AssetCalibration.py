@@ -1,7 +1,7 @@
 from django.db import models
 
 class AssetCalibration(models.Model):
-    asset=models.ForeignKey('Asset',on_delete=models.CASCADE, blank=False, null=False)
+    asset=models.ForeignKey('Asset',on_delete=models.CASCADE, blank=False, null=True)
     asset_number = models.CharField(max_length=150, blank=True, null=False)
     asset_name = models.CharField(max_length=150, blank=True, null=True)
     description = models.CharField(max_length=150, blank=True, null=True)

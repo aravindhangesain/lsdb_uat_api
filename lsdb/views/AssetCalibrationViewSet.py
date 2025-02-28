@@ -9,11 +9,12 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         asset_calibration = serializer.save()
-        asset_data = {
-            "name": asset_calibration.asset_name,
-            "description": asset_calibration.description,
-            "location_id":asset_calibration.location.id,
-            "last_action_datetime": asset_calibration.last_action_datetime,
-            "disposition_id":16
-        }
-        Asset.objects.create(**asset_data)
+        asset = Asset.objects.create(
+            name = asset_calibration.asset_name,
+            description = asset_calibration.description,
+            location_id = asset_calibration.location.id,
+            last_action_datetime = asset_calibration.last_action_datetime,
+            disposition_id = 16
+        )
+        asset_calibration.asset = asset 
+        asset_calibration.save(update_fields=['asset'])
