@@ -131,3 +131,4 @@ from .ReportExecutionOrder import ReportExecutionOrder as ReportExecutionOrder
 from .WorkOrderTemplate import WorkOrderTemplate as WorkOrderTemplate
 from .FinalProcedure import FinalProcedure as FinalProcedure
 from .UnitTypeTemplate import UnitTypeTemplate as UnitTypeTemplate
+from .AssetCalibration import AssetCalibration as AssetCalibration

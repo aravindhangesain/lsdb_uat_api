@@ -181,3 +181,4 @@ from .WorkOrderTemplateSerializer import WorkOrderTemplateSerializer as WorkOrde
 from .FinalProcedureSerializer import FinalProcedureSerializer as FinalProcedureSerializer
 from .UnitTypeTemplateSerializer import UnitTypeTemplateSerializer as UnitTypeTemplateSerializer
 from .UVIDandFlashReportSerializer import UVIDandFlashReportSerializer as UVIDandFlashReportSerializer
+from .AssetCalibrationSerializer import AssetCalibrationSerializer as AssetCalibrationSerializer

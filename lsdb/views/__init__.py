@@ -150,3 +150,4 @@ from .WorkOrderTemplateViewSet import WorkOrderTemplateViewSet as WorkOrderTempl
 from .FinalProcedureViewSet import FinalProcedureViewSet as FinalProcedureViewSet
 from .UnitTypeTemplateViewSet import UnitTypeTemplateViewSet as UnitTypeTemplateViewSet
 from .UVIDandFlashReportViewSet import UVIDandFlashReportViewSet as UVIDandFlashReportViewSet
+from .AssetCalibrationViewSet import AssetCalibrationViewSet as AssetCalibrationViewSet

@@ -112,6 +112,7 @@ from lsdb.views import WorkOrderTemplateViewSet
 from lsdb.views import FinalProcedureViewSet
 from lsdb.views import UnitTypeTemplateViewSet
 from lsdb.views import UVIDandFlashReportViewSet
+from lsdb.views import AssetCalibrationViewSet
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)
@@ -223,6 +224,7 @@ router.register(r'workordertemplate',WorkOrderTemplateViewSet,basename='workorde
 router.register(r'finalprocedure',FinalProcedureViewSet,basename='finalprocedure')
 router.register(r'unittypetemplate',UnitTypeTemplateViewSet,basename='unittypetemplate')
 router.register(r'uvid-flash-report',UVIDandFlashReportViewSet, basename = 'uvid-flash-report')
+router.register(r'assetcalibration',AssetCalibrationViewSet, basename = 'assetcalibration')
 
 
 # router.register(r'iv_el_inprogress',IVandEL_InProgressViewSet,basename = 'iv_el_inprogress')
