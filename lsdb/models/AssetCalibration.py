@@ -14,6 +14,3 @@ class AssetCalibration(models.Model):
     is_calibration_required = models.BooleanField(null=False)
     last_calibrated_date = models.DateTimeField(null=False, blank=False)
     schedule_for_calibration = models.IntegerField(null=False,blank=False)
-    next_calibration_date = models.DateTimeField(null=False, blank=False)
-    days_since_calibrated  = models.IntegerField(null=False,blank=False)
-    days_to_next_calibration = models.IntegerField(null=False,blank=False)
