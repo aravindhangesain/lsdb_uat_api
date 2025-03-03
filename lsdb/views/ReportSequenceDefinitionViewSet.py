@@ -47,7 +47,7 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
 
     @transaction.atomic
     @action(detail=True, methods=['get', 'post'],
-            serializer_class=ReportSequenceDefinitionSerializer,
+            serializer_class=ReportSequenceDefinitionSerializer,              
             )
     def delete_report_procedure(self, request, pk=None):
         """

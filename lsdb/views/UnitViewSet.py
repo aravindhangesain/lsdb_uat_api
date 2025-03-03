@@ -525,7 +525,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     ),
                     Min('unit__procedureresult__linear_execution_group')
                 )
-            ).distinct()
+            ).distinct().order_by('last_action_date')
         else:
             queryset = ProcedureResult.objects.filter(
             disposition__isnull=True,
