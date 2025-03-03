@@ -96,14 +96,30 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
 
     @transaction.atomic
     @action(detail=True, methods=['get', 'post'],
-            serializer_class=ReportSequenceDefinitionSerializer
-            )
+        serializer_class=ReportSequenceDefinitionSerializer
+        )
     def rsd_full_view(self, request, pk=None):
-        queryset = ReportExecutionOrder.objects.filter(report_sequence_definition=pk)
-        self.context = {'request': request}
-        serializer = ReportExecutionOrderSerializer(queryset, many=True, context=self.context)
-        return Response(serializer.data)
+        instance = self.get_object()
+        serialized_data = self.get_serializer(instance, context={'request': request}).data
 
+        # Fetch related ReportExecutionOrder records
+        report_execution_orders = ReportExecutionOrder.objects.filter(report_sequence_definition=pk)
+        report_execution_orders_data = ReportExecutionOrderSerializer(report_execution_orders, many=True, context={'request': request}).data
+
+        # Constructing the final response structure
+        transformed_data = {
+            "id": serialized_data["id"],
+            "name": serialized_data["name"],
+            "short_name": serialized_data["short_name"],
+            "description": serialized_data["description"],
+            "disposition": serialized_data["disposition"],
+            "version": serialized_data["version"],
+            "hex_color": serialized_data.get("hex_color", "#FFFFFF"),  # Default to white if not available
+            "report_execution_orders": report_execution_orders_data  # Using full serialized data instead of just IDs
+        }
+
+        return Response(transformed_data)
+    
     @transaction.atomic
     @action(detail=True, methods=['get', 'post'],
             serializer_class=ReportSequenceDefinitionSerializer,
