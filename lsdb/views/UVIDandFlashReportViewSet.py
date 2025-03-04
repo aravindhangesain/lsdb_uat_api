@@ -8,6 +8,8 @@ from datetime import datetime
 from io import BytesIO
 from django.http import HttpResponse
 from rest_framework.decorators import action
+from django.db.models import Q
+
 
 
 class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
@@ -15,7 +17,7 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        queryset = ProcedureResult.objects.none()  
+        queryset = ProcedureResult.objects.none()
         test_sequence_ids_mapping = {
             "UVID": [255, 256, 319, 454, 475, 556],
             "FE": [11, 22, 42, 43, 132, 224, 326]
@@ -23,24 +25,34 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
         procedure_definitions = [14, 54, 50, 62, 33, 49, 21, 38, 48]
         date_param = self.request.query_params.get("date") 
         name = self.request.query_params.get("name")
-        if not date_param or not name:
-            return queryset 
+        start_date_param = self.request.query_params.get("start_date") 
+        end_date_param = self.request.query_params.get("end_date")
+        if not name:
+            return queryset  
         name = name.upper()
         if name in test_sequence_ids_mapping:
             try:
-                year, month = map(int, date_param.split("-"))
-                last_day = calendar.monthrange(year, month)[1]
-                start_date = make_aware(datetime(year, month, 1))  
-                end_date = make_aware(datetime(year, month, last_day))
                 test_sequence_ids = test_sequence_ids_mapping[name]
-                queryset = ProcedureResult.objects.filter(
-                    test_sequence_definition_id__in=test_sequence_ids,
-                    procedure_definition_id__in=procedure_definitions,
-                    stepresult__measurementresult__date_time__range=(start_date, end_date)
+                if start_date_param and end_date_param:
+                    start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
+                    end_date = datetime.strptime(end_date_param, "%Y-%m-%d").date()
+                    queryset = ProcedureResult.objects.filter(
+                        test_sequence_definition_id__in=test_sequence_ids,
+                        procedure_definition_id__in=procedure_definitions,
+                        stepresult__measurementresult__date_time__date__range=(start_date, end_date)
                     ).distinct()
-                # print(queryset.query)
+                elif date_param:
+                    year, month = map(int, date_param.split("-"))
+                    start_date = datetime(year, month, 1).date()
+                    last_day = calendar.monthrange(year, month)[1]
+                    end_date = datetime(year, month, last_day).date()
+                    queryset = ProcedureResult.objects.filter(
+                        test_sequence_definition_id__in=test_sequence_ids,
+                        procedure_definition_id__in=procedure_definitions,
+                        stepresult__measurementresult__date_time__date__range=(start_date, end_date)
+                    ).distinct()
             except ValueError:
-                return queryset
+                return queryset 
         return queryset
     
     @action(detail=False, methods=["get"])
