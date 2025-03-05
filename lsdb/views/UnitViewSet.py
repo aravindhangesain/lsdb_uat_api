@@ -1,3 +1,5 @@
+from datetime import datetime as dt  
+from rest_framework import status
 import json
 import pandas as pd
 from io import BytesIO
@@ -19,6 +21,7 @@ from rest_framework.response import Response
 from rest_framework_tracking.mixins import LoggingMixin
 from rest_framework.status import (HTTP_400_BAD_REQUEST)
 from rest_framework.permissions import AllowAny
+from django.db.models import BooleanField, Case, Value, When, OuterRef, Subquery, Exists
 
 from lsdb.serializers import AzureFileSerializer
 from lsdb.serializers import AssetSerializer
@@ -34,7 +37,7 @@ from lsdb.serializers import UnitDumpSerializer
 from lsdb.models import Asset, StepResultNotes
 from lsdb.models import AssetType
 from lsdb.models import AzureFile
-from lsdb.models import Customer
+from lsdb.models import Customer,OpsQueuePriority
 from lsdb.models import Disposition
 from lsdb.models import DispositionCode
 from lsdb.models import MeasurementResult
@@ -491,19 +494,52 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             return myFile.get_response(filename)
         else:
             return Response(serializer.data)
+        
+    @transaction.atomic
+    @action(detail=False, methods=['post'])
+    def set_priority(self, request):
+        # Fix the typo in 'procedure_result_id'
+        procedure_result_id = request.data.get('procedure_result_id')  
+        status_value = request.data.get('status')  
+
+        if procedure_result_id is None:
+            return Response({"error": "procedure_result_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch the procedure result
+        procedure = ProcedureResult.objects.filter(id=procedure_result_id).first()
+
+        if not procedure:
+            return Response({"error": f"ProcedureResult with id {procedure_result_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create the OpsQueuePriority entry
+        OpsQueuePriority.objects.create(
+            procedure_result_id=procedure_result_id,
+            unit_id=procedure.unit_id,
+            created_date=dt.now(),
+            status=status_value
+        )
+
+        return Response({"message": "Priority set successfully"}, status=status.HTTP_201_CREATED)
+
+
 
     @transaction.atomic
     def get_queue(self, group=None, asset=None, location_id=None):
         if group=="characterizations":
+
+            priority_subquery = OpsQueuePriority.objects.filter(
+            procedure_result_id=OuterRef('id'),
+            status=True).values('status')
+            
             excluded_units = ProcedureResult.objects.filter(
-                group_id=45
+                                group_id=45
             ).filter(
                 Q(disposition_id=7) | Q(disposition_id__isnull=True)
             ).values_list("unit_id", flat=True)
 
             queryset = ProcedureResult.objects.filter(
-            disposition__isnull=True,
-            unit__disposition__complete=False,
+                disposition__isnull=True,
+                unit__disposition__complete=False,
             ).exclude(
                 unit__disposition__name__iexact="in progress"
             ).exclude(
@@ -511,21 +547,28 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             ).exclude(
                 test_sequence_definition__group__name__iexact="control"
             ).exclude(
-                unit_id__in=excluded_units 
+                unit_id__in=excluded_units
             ).annotate(
                 last_action_date=Coalesce(
                     Max('unit__procedureresult__stepresult__measurementresult__date_time'),
                     timezone.now()
-                )
-            ).annotate(
+                ),
                 done_to=Coalesce(
                     Max(
                         'unit__procedureresult__linear_execution_group',
                         filter=Q(unit__procedureresult__disposition__isnull=False)
                     ),
                     Min('unit__procedureresult__linear_execution_group')
+                ),
+                # Check if procedure has priority in OpsQueuePriority
+                priority_status=Exists(priority_subquery),
+                priority_order=Case(
+                    When(priority_status=True, then=Value(0)),  # Priority first
+                    default=Value(1),
+                    output_field=BooleanField()
                 )
             ).distinct().order_by('last_action_date')
+        
         else:
             queryset = ProcedureResult.objects.filter(
             disposition__isnull=True,
@@ -628,14 +671,50 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'location',
         ]
 
-        # Strip timezone for Excel
+        # Remove timezone information
         filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
-        grouped = filtered.groupby('procedure_definition')
+
+        # Define custom order
+        custom_order = [
+            "Diode Test",
+            "EL Image at 1.0x Isc",
+            "EL Image at 0.1x Isc",
+            "I-V Curve at STC (Front)",
+            "I-V Curve at STC (Rear)",
+            "I-V Curve at LIC (Front)",
+            "IAM Measurement",
+            "IEC 60904-1-2 Measurement",
+            "IEC 61853-1 Measurement",
+            "Insulation Test",
+            "Visual Inspection",
+            "Wet Leakage Current Test"
+        ]
+
+        # Ensure no extra spaces or case mismatches
+        filtered["procedure_definition"] = filtered["procedure_definition"].str.strip()
+
+        # Print unique values to check for mismatches
+        print("Unique procedure_definition values:", filtered["procedure_definition"].unique())
+
+        # Sort using the custom order
+        filtered["procedure_definition"] = pd.Categorical(
+            filtered["procedure_definition"],
+            categories=custom_order,
+            ordered=True
+        )
+
+        # Sort dataframe by the ordered category
+        filtered = filtered.sort_values("procedure_definition")
+
+        # Group after sorting
+        grouped = filtered.groupby("procedure_definition")
+
         full = {}
         for name, group in grouped:
             full[name] = group.to_dict(orient='records')
 
         return full, filtered
+
 
 
     @transaction.atomic

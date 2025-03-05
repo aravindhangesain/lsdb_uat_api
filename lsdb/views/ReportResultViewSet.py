@@ -1,5 +1,7 @@
 from rest_framework import viewsets,status
-from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition
+from datetime import datetime as dt  
+
+from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition,OpsQueuePriority,ProcedureResult
 from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer,DispositionSerializer
 from rest_framework.decorators import action
 from django.db import IntegrityError, transaction
@@ -78,6 +80,32 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         dispositions=Disposition.objects.filter(id__in=[7,20,61,62])
         serializer=DispositionSerializer(dispositions,many=True,context={'request': request})
         return Response(serializer.data)
+    
+    # @transaction.atomic
+    # @action(detail=False, methods=['post'])
+    # def set_priority(self, request):
+    #     # Fix the typo in 'procedure_result_id'
+    #     procedure_result_id = request.data.get('procedure_result_id')  
+    #     status_value = request.data.get('status')  
+
+    #     if procedure_result_id is None:
+    #         return Response({"error": "procedure_result_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     # Fetch the procedure result
+    #     procedure = ProcedureResult.objects.filter(id=procedure_result_id).first()
+
+    #     if not procedure:
+    #         return Response({"error": f"ProcedureResult with id {procedure_result_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    #     # Create the OpsQueuePriority entry
+    #     OpsQueuePriority.objects.create(
+    #         procedure_result_id=procedure_result_id,
+    #         unit_id=procedure.unit_id,
+    #         created_date=dt.now(),
+    #         status=status_value
+    #     )
+
+    #     return Response({"message": "Priority set successfully"}, status=status.HTTP_201_CREATED)
 
 
 
