@@ -10,6 +10,8 @@ from lsdb.models import ProcedureResult_FinalResult
 from lsdb.serializers.StepResultSerializer import StepResultSerializer
 from lsdb.serializers.StepResultSerializer import StepResultStressSerializer
 from lsdb.serializers.UnitTypeSerializer import UnitTypeSerializer
+from django.db import connection
+
 
 
 # class IVCurveMeasurementSerializer(serializers.HyperlinkedModelSerializer):
@@ -543,12 +545,26 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     description = serializers.ReadOnlyField(source='test_sequence_definition.description')
     disposition_name = serializers.SerializerMethodField()
     customer_name = serializers.ReadOnlyField(source='work_order.project.customer.name')
+    notes = serializers.SerializerMethodField()
+
 
     def get_disposition_name(self, obj):
         if obj.disposition:
             return obj.disposition.name
         else:
             return None
+        
+    def get_notes(self, obj):
+        if not obj.unit_id:
+            return []
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT un.note_id
+                FROM lsdb_unit_notes un
+                WHERE un.unit_id = %s
+            """, [obj.unit_id])
+            note_ids = [row[0] for row in cursor.fetchall()]
+            return note_ids
 
     class Meta:
         model = ProcedureResult
@@ -571,6 +587,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'test_sequence_definition_name',
             'description',
             'customer_name',
+            'notes',
         ]
 
 
