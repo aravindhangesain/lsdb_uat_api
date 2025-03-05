@@ -46,7 +46,26 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         serializer = FailedProjectReportSerializer(queryset, many=True, context={'request': request})
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
                         'start_datetime','end_datetime']
-        data_for_csv = [{field: item[field] for field in selected_fields} for item in serializer.data]
+        note_fields = ['note_id', 'subject', 'text', 'owner_id', 'owner_name','user_id','user_name','note_type_id','note_type_name','disposition_id','disposition_name']
+
+        data_for_csv = []
+        for item in serializer.data:
+            row = {field: item.get(field, "") for field in selected_fields}
+            note = item.get("notes", [{}])[0]
+            row.update({
+                "note_id": note.get("id", ""),
+                "subject": note.get("subject", ""),
+                "text": note.get("text", ""),
+                "owner_id": note.get("owner", ""),
+                "owner_name": note.get("owner_name", ""),
+                "user_id":note.get("user",""),
+                "user_name":note.get("user_name",""),
+                "note_type_id":note.get("note_type",""),
+                "note_type_name":note.get("note_type_name",""),
+                "disposition_id":note.get("disposition",""),
+                "disposition_name":note.get("disposition_name","")
+            })
+            data_for_csv.append(row)
         df = pd.DataFrame(data_for_csv)
         html_pattern = re.compile(r'<.*?>')
         df = df.applymap(lambda x: re.sub(html_pattern, '', str(x)) if isinstance(x, str) else x)
