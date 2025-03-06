@@ -548,6 +548,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 test_sequence_definition__group__name__iexact="control"
             ).exclude(
                 unit_id__in=excluded_units
+            ).exclude(
+                work_order__project__customer__name = "PVEL"
             ).annotate(
                 last_action_date=Coalesce(
                     Max('unit__procedureresult__stepresult__measurementresult__date_time'),
@@ -567,7 +569,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     default=Value(1),
                     output_field=BooleanField()
                 )
-            ).distinct().order_by('priority_status','last_action_date')
+            ).distinct().order_by('last_action_date')
 
             if asset:
                 queryset = queryset.filter(
