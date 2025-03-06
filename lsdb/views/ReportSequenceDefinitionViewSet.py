@@ -16,12 +16,7 @@ from lsdb.serializers import MockTravelerSerializer
 from lsdb.serializers import DispositionCodeListSerializer
 from lsdb.permissions import ConfiguredPermission
 
-class TestSequenceDefinitionFilter(filters.FilterSet):
-    class Meta:
-        model = ReportSequenceDefinition
-        fields = [
-            'disposition',
-        ]
+
 
 
 class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
@@ -40,7 +35,7 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
     def dispositions(self, request, pk=None):
         self.context = {'request': request}
         serializer = DispositionCodeListSerializer(DispositionCode.objects.get(
-            name='test_sequence_definitions'),
+            name='report_sequence_definitions'),
             many=False,
             context={'request': request})
         return Response(serializer.data)
