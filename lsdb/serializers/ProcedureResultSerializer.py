@@ -546,6 +546,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     disposition_name = serializers.SerializerMethodField()
     customer_name = serializers.ReadOnlyField(source='work_order.project.customer.name')
     note_id = serializers.SerializerMethodField()
+    note_text = serializers.SerializerMethodField()
     notes = serializers.SerializerMethodField()
 
 
@@ -559,6 +560,18 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT un.note_id 
+                FROM lsdb_unit_notes un 
+                JOIN lsdb_note n ON un.note_id = n.id 
+                WHERE n.note_type_id = 3 AND un.unit_id = %s
+                LIMIT 1
+            """, [obj.unit_id])
+            result = cursor.fetchone()
+        return result[0] if result else None
+    
+    def get_note_text(self, obj):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT n.text 
                 FROM lsdb_unit_notes un 
                 JOIN lsdb_note n ON un.note_id = n.id 
                 WHERE n.note_type_id = 3 AND un.unit_id = %s
@@ -628,6 +641,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'customer_name',
             'note_id',
+            'note_text',
             'notes',
         ]
 
