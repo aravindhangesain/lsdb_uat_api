@@ -548,8 +548,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 test_sequence_definition__group__name__iexact="control"
             ).exclude(
                 unit_id__in=excluded_units
-            ).exclude(
-                work_order__project__customer__name = "PVEL"
             ).annotate(
                 last_action_date=Coalesce(
                     Max('unit__procedureresult__stepresult__measurementresult__date_time'),
@@ -576,123 +574,121 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     procedure_definition__asset_types__in=asset.asset_types.all(),
                     unit__location__id=asset.location.id,
                 )
-            if location_id:
-                queryset = queryset.filter(unit__location__id=location_id)
+                if location_id:
+                    queryset = queryset.filter(unit__location__id=location_id)
 
-        # If queryset is empty, return an empty response
-            if not queryset.exists():
-                return [], pd.DataFrame()
+                # If queryset is empty, return an empty response
+                if not queryset.exists():
+                    return [], pd.DataFrame()
 
-        # Create DataFrame from queryset
-            master_data_frame = pd.DataFrame(list(queryset.values(
-                'unit__serial_number',
-                'test_sequence_definition__name',
-                'done_to',
-                'linear_execution_group',
-                'procedure_definition__name',
-                'work_order__project__customer__name',
-                'work_order__project__number',
-                'work_order__name',
-                'name',
-                'allow_skip',
-                'last_action_date',
-                'group__name',
-                'unit__location__name',
-            )))
+                # Create DataFrame from queryset
+                master_data_frame = pd.DataFrame(list(queryset.values(
+                    'unit__serial_number',
+                    'test_sequence_definition__name',
+                    'done_to',
+                    'linear_execution_group',
+                    'procedure_definition__name',
+                    'work_order__project__customer__name',
+                    'work_order__project__number',
+                    'work_order__name',
+                    'name',
+                    'allow_skip',
+                    'last_action_date',
+                    'group__name',
+                    'unit__location__name',
+                )))
 
-            # Handle case where DataFrame is empty after values conversion
-            if master_data_frame.empty:
-                return {}, master_data_frame
+                # Handle case where DataFrame is empty after values conversion
+                if master_data_frame.empty:
+                    return {}, master_data_frame
 
-            master_data_frame['last_action_days'] = (
-                (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
-            ).astype(int)
-            master_data_frame.dropna(inplace=True)
+                master_data_frame['last_action_days'] = (
+                    (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
+                ).astype(int)
+                master_data_frame.dropna(inplace=True)
 
-            # Select everything in the current LEG or above
-            filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
+                # Select everything in the current LEG or above
+                filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
 
-            # Select only records where LEG <= next highest unskippable
-            gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
-            filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
-            filterframe = filterframe[filterframe.allow_skip == False]
-            filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
-            filterframe.set_index(['f_serial'], inplace=True)
-            filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
-            filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
+                # Select only records where LEG <= next highest unskippable
+                gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
+                filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
+                filterframe = filterframe[filterframe.allow_skip == False]
+                filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
+                filterframe.set_index(['f_serial'], inplace=True)
+                filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
+                filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
 
-            # Filter down to the specific group
-            if group:
-                filtered = filtered[filtered.group__name.str.lower() == group.lower()]
+                # Filter down to the specific group
+                if group:
+                    filtered = filtered[filtered.group__name.str.lower() == group.lower()]
 
-            filtered = filtered[[
-                'unit__serial_number',
-                'test_sequence_definition__name',
-                'linear_execution_group',
-                'procedure_definition__name',
-                'work_order__project__customer__name',
-                'work_order__project__number',
-                'work_order__name',
-                'name',
-                'allow_skip',
-                'last_action_date',
-                'last_action_days',
-                'unit__location__name',
-            ]]
-            filtered.columns = [
-                'serial_number', 'test_sequence', 'linear_execution_group',
-                'procedure_definition', 'customer', 'project_number', 'work_order',
-                'characterization', 'allow_skip',
-                'last_action_date',
-                'last_action_days',
-                'location',
-            ]
+                filtered = filtered[[
+                    'unit__serial_number',
+                    'test_sequence_definition__name',
+                    'linear_execution_group',
+                    'procedure_definition__name',
+                    'work_order__project__customer__name',
+                    'work_order__project__number',
+                    'work_order__name',
+                    'name',
+                    'allow_skip',
+                    'last_action_date',
+                    'last_action_days',
+                    'unit__location__name',
+                ]]
+                filtered.columns = [
+                    'serial_number', 'test_sequence', 'linear_execution_group',
+                    'procedure_definition', 'customer', 'project_number', 'work_order',
+                    'characterization', 'allow_skip',
+                    'last_action_date',
+                    'last_action_days',
+                    'location',
+                ]
 
+                # Remove timezone information
+                filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
+
+                # Define custom order
+                custom_order = [
+                    "Diode Test",
+                    "EL Image at 1.0x Isc",
+                    "EL Image at 0.1x Isc",
+                    "I-V Curve at STC (Front)",
+                    "I-V Curve at STC (Rear)",
+                    "I-V Curve at LIC (Front)",
+                    "IAM Measurement",
+                    "IEC 60904-1-2 Measurement",
+                    "IEC 61853-1 Measurement",
+                    "Insulation Test",
+                    "Visual Inspection",
+                    "Wet Leakage Current Test"
+                ]
+
+                # Ensure no extra spaces or case mismatches
+                filtered["procedure_definition"] = filtered["procedure_definition"].str.strip()
+
+                # Print unique values to check for mismatches
+                print("Unique procedure_definition values:", filtered["procedure_definition"].unique())
+
+                # Sort using the custom order
+                filtered["procedure_definition"] = pd.Categorical(
+                    filtered["procedure_definition"],
+                    categories=custom_order,
+                    ordered=True
+                )
+
+                filtered = filtered.sort_values(["procedure_definition", "last_action_date"], ascending=[True, True])
+
+                # Group after sorting
+                grouped = filtered.groupby("procedure_definition")
+
+                full = {}
+                for name, group in grouped:
+                    full[name] = group.to_dict(orient='records')
+
+                return full, filtered
             
-
-            # Define custom order
-            custom_order = [
-                "Diode Test",
-                "EL Image at 1.0x Isc",
-                "EL Image at 0.1x Isc",
-                "I-V Curve at STC (Front)",
-                "I-V Curve at STC (Rear)",
-                "I-V Curve at LIC (Front)",
-                "IAM Measurement",
-                "IEC 60904-1-2 Measurement",
-                "IEC 61853-1 Measurement",
-                "Insulation Test",
-                "Visual Inspection",
-                "Wet Leakage Current Test"
-            ]
-
-            # Ensure no extra spaces or case mismatches
-            filtered["procedure_definition"] = filtered["procedure_definition"].str.strip()
-
-            # Print unique values to check for mismatches
-            print("Unique procedure_definition values:", filtered["procedure_definition"].unique())
-
-            # Sort using the custom order
-            filtered["procedure_definition"] = pd.Categorical(
-                filtered["procedure_definition"],
-                categories=custom_order,
-                ordered=True
-            )
-
-            # Sort dataframe by the ordered category
-            filtered = filtered.sort_values("procedure_definition")
-
-            filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
-            grouped = filtered.groupby("procedure_definition")
-
-            full = {}
-            for name, group in grouped:
-                records = group.to_dict(orient='records')
-                if records:                                        
-                    full[name] = records
-
-            return full, filtered
-        
         else:
             queryset = ProcedureResult.objects.filter(
             disposition__isnull=True,
@@ -717,7 +713,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 Min('unit__procedureresult__linear_execution_group')
             )
         ).distinct()
-        # Apply filters for asset and location
         if asset:
             queryset = queryset.filter(
                 procedure_definition__asset_types__in=asset.asset_types.all(),
@@ -802,8 +797,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         # serializer = self.serializer_class(queryset, many=False, context=self.context)
         # print(serializer.data)
         return full, filtered
-        
-        
 
 
 
