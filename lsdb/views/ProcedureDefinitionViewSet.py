@@ -89,21 +89,51 @@ class ProcedureDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
         "allow_skip": tells server if this procedure must be completed before the next execution group can be started,
         "step_definition": ID of the procedure to link
         """
-        self.context = {'request':request}
+        self.context = {'request': request}
         procedure = ProcedureDefinition.objects.get(id=pk)
+
         if request.method == "POST":
             params = json.loads(request.body)
+            
+            # Pre-fetch special StepDefinition instances
+            special_steps = {
+                "Test Start": StepDefinition.objects.get(id=6),
+                "Test Pause": StepDefinition.objects.get(id=31),
+                "Test Resume": StepDefinition.objects.get(id=32),
+                "Test End": StepDefinition.objects.get(id=5),
+            }
+
             for step in params:
                 step_definition = StepDefinition.objects.get(id=step.get('step_definition'))
-                # TODO: Better exception handling here
-                StepExecutionOrder.objects.create(
-                    execution_group_name = step.get('execution_group_name'),
-                    execution_group_number = step.get('execution_group_number'),
-                    allow_skip = step.get('allow_skip'),
-                    procedure_definition = procedure,
-                    step_definition = step_definition,
-                )
-        serializer = ProcedureDefinitionSerializer(procedure,many=False, context=self.context)
+
+                if not StepExecutionOrder.objects.filter(procedure_definition=procedure, step_definition=step_definition).exists():
+                    # Check if the step is a special test step
+                    if step_definition.name in special_steps:
+                        # Create all special test steps
+                        for step_name, step_instance in special_steps.items():
+                            StepExecutionOrder.objects.create(
+                                execution_group_name=step_name,
+                                execution_group_number={
+                                    "Test Start": 1,
+                                    "Test End": 2,
+                                    "Test Pause": 3,
+                                    "Test Resume": 4,
+                                }[step_name],
+                                allow_skip=step.get('allow_skip'),
+                                procedure_definition=procedure,
+                                step_definition=step_instance,
+                            )
+                    else:
+                        # Create a regular step execution order
+                        StepExecutionOrder.objects.create(
+                            execution_group_name=step.get('execution_group_name'),
+                            execution_group_number=step.get('execution_group_number'),
+                            allow_skip=step.get('allow_skip'),
+                            procedure_definition=procedure,
+                            step_definition=step_definition,
+                        )
+
+        serializer = ProcedureDefinitionSerializer(procedure, many=False, context=self.context)
         return Response(serializer.data)
 '''
 [
