@@ -8,9 +8,10 @@ from rest_framework_tracking.mixins import LoggingMixin
 from lsdb.permissions import ConfiguredPermission
 import pandas as pd
 from rest_framework.decorators import action
-import re
 from django.http import HttpResponse
 from django.db import connection
+import re
+import csv
 
 
 class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
@@ -44,32 +45,37 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     def download_csv(self, request):
         queryset = self.get_queryset()
         serializer = FailedProjectReportSerializer(queryset, many=True, context={'request': request})
+        base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
+        azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
-                        'start_datetime','end_datetime']
-        note_fields = ['note_id', 'subject', 'text', 'owner_id', 'owner_name','user_id','user_name','note_type_id','note_type_name','disposition_id','disposition_name']
-
+                        'start_datetime','end_datetime','note_text','note_subject']
         data_for_csv = []
         for item in serializer.data:
-            row = {field: item.get(field, "") for field in selected_fields}
-            note = item.get("notes", [{}])[0]
-            row.update({
-                "note_id": note.get("id", ""),
-                "subject": note.get("subject", ""),
-                "text": note.get("text", ""),
-                "owner_id": note.get("owner", ""),
-                "owner_name": note.get("owner_name", ""),
-                "user_id":note.get("user",""),
-                "user_name":note.get("user_name",""),
-                "note_type_id":note.get("note_type",""),
-                "note_type_name":note.get("note_type_name",""),
-                "disposition_id":note.get("disposition",""),
-                "disposition_name":note.get("disposition_name","")
-            })
+            row = {field: item.get(field, '') for field in selected_fields}
+            if item.get('note_id'):
+                note_url = f"{base_url}{item['note_id']}"
+                row['note_url'] = f'=HYPERLINK("{note_url}", "{note_url}")'
+            else:
+                row['note_url'] = ""
+            note_id = item.get('note_id')
+            image_urls = []
+            if note_id:
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                    SELECT azurefile_id 
+                    FROM lsdb_note_attachments 
+                    WHERE note_id = %s
+                """, [note_id])
+                    attachment_ids = [row[0] for row in cursor.fetchall()]
+                    for azurefile_id in attachment_ids:
+                        file_url = azure_file_base_url.format(azurefile_id)
+                        image_urls.append(f'"{file_url}"')
+            row['image_urls'] = ", ".join(image_urls) if image_urls else ""
             data_for_csv.append(row)
         df = pd.DataFrame(data_for_csv)
         html_pattern = re.compile(r'<.*?>')
         df = df.applymap(lambda x: re.sub(html_pattern, '', str(x)) if isinstance(x, str) else x)
-        csv_string = df.to_csv(index=False)
+        csv_string = df.to_csv(index=False, encoding='utf-8', quoting=csv.QUOTE_ALL)
         response = HttpResponse(csv_string, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Failed_projects_Report.csv"'
         return response
