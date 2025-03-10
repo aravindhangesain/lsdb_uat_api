@@ -13,7 +13,7 @@ from django.db.models.functions import Coalesce
 # from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Border, NamedStyle, Side, PatternFill, Font, GradientFill, Alignment
-
+from itertools import chain
 from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -500,7 +500,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
     def set_priority(self, request):
         # Fix the typo in 'procedure_result_id'
         procedure_result_id = request.data.get('procedure_result_id')  
-        status_value = request.data.get('status')  
+        status_value = request.data.get('status')
 
         if procedure_result_id is None:
             return Response({"error": "procedure_result_id is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -525,18 +525,15 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
 
     @transaction.atomic
     def get_queue(self, group=None, asset=None, location_id=None):
-        if group=="characterizations":
-
-            priority_subquery = OpsQueuePriority.objects.filter(
-            procedure_result_id=OuterRef('id'),
-            status=True).values('status')
+        if group == "characterizations":
+            priority_procedure_ids = set(OpsQueuePriority.objects.values_list('procedure_result_id', flat=True))
             
             excluded_units = ProcedureResult.objects.filter(
-                                group_id=45
+                group_id=45
             ).filter(
                 Q(disposition_id=7) | Q(disposition_id__isnull=True)
             ).values_list("unit_id", flat=True)
-
+            
             queryset = ProcedureResult.objects.filter(
                 disposition__isnull=True,
                 unit__disposition__complete=False,
@@ -560,15 +557,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     ),
                     Min('unit__procedureresult__linear_execution_group')
                 ),
-                # Check if procedure has priority in OpsQueuePriority
-                priority_status=Exists(priority_subquery),
-                priority_order=Case(
-                    When(priority_status=True, then=Value(0)),  # Priority first
-                    default=Value(1),
-                    output_field=BooleanField()
-                )
             ).distinct().order_by('last_action_date')
-
+            
             if asset:
                 queryset = queryset.filter(
                     procedure_definition__asset_types__in=asset.asset_types.all(),
@@ -576,227 +566,216 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 )
                 if location_id:
                     queryset = queryset.filter(unit__location__id=location_id)
-
-                # If queryset is empty, return an empty response
-                if not queryset.exists():
-                    return [], pd.DataFrame()
-
-                # Create DataFrame from queryset
-                master_data_frame = pd.DataFrame(list(queryset.values(
-                    'unit__serial_number',
-                    'test_sequence_definition__name',
-                    'done_to',
-                    'linear_execution_group',
-                    'procedure_definition__name',
-                    'work_order__project__customer__name',
-                    'work_order__project__number',
-                    'work_order__name',
-                    'name',
-                    'allow_skip',
-                    'last_action_date',
-                    'group__name',
-                    'unit__location__name',
-                )))
-
-                # Handle case where DataFrame is empty after values conversion
-                if master_data_frame.empty:
-                    return {}, master_data_frame
-
-                master_data_frame['last_action_days'] = (
-                    (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
-                ).astype(int)
-                master_data_frame.dropna(inplace=True)
-
-                # Select everything in the current LEG or above
-                filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
-
-                # Select only records where LEG <= next highest unskippable
-                gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
-                filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
-                filterframe = filterframe[filterframe.allow_skip == False]
-                filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
-                filterframe.set_index(['f_serial'], inplace=True)
-                filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
-                filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
-
-                # Filter down to the specific group
-                if group:
-                    filtered = filtered[filtered.group__name.str.lower() == group.lower()]
-
-                filtered = filtered[[
-                    'unit__serial_number',
-                    'test_sequence_definition__name',
-                    'linear_execution_group',
-                    'procedure_definition__name',
-                    'work_order__project__customer__name',
-                    'work_order__project__number',
-                    'work_order__name',
-                    'name',
-                    'allow_skip',
-                    'last_action_date',
-                    'last_action_days',
-                    'unit__location__name',
-                ]]
-                filtered.columns = [
-                    'serial_number', 'test_sequence', 'linear_execution_group',
-                    'procedure_definition', 'customer', 'project_number', 'work_order',
-                    'characterization', 'allow_skip',
-                    'last_action_date',
-                    'last_action_days',
-                    'location',
-                ]
-
-                # Remove timezone information
-                filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
-
-                # Define custom order
-                custom_order = [
-                    "Diode Test",
-                    "EL Image at 1.0x Isc",
-                    "EL Image at 0.1x Isc",
-                    "I-V Curve at STC (Front)",
-                    "I-V Curve at STC (Rear)",
-                    "I-V Curve at LIC (Front)",
-                    "IAM Measurement",
-                    "IEC 60904-1-2 Measurement",
-                    "IEC 61853-1 Measurement",
-                    "Insulation Test",
-                    "Visual Inspection",
-                    "Wet Leakage Current Test"
-                ]
-
-                # Ensure no extra spaces or case mismatches
-                filtered["procedure_definition"] = filtered["procedure_definition"].str.strip()
-
-                # Print unique values to check for mismatches
-                print("Unique procedure_definition values:", filtered["procedure_definition"].unique())
-
-                # Sort using the custom order
-                filtered["procedure_definition"] = pd.Categorical(
-                    filtered["procedure_definition"],
-                    categories=custom_order,
-                    ordered=True
-                )
-
-                filtered = filtered.sort_values(["procedure_definition", "last_action_date"], ascending=[True, True])
-
-                # Group after sorting
-                grouped = filtered.groupby("procedure_definition")
-
-                full = {}
-                for name, group in grouped:
-                    full[name] = group.to_dict(orient='records')
-
-                return full, filtered
             
+            if not queryset.exists():
+                return [], pd.DataFrame()
+            
+            master_data_frame = pd.DataFrame(list(queryset.values(
+                'unit__serial_number',
+                'test_sequence_definition__name',
+                'done_to',
+                'linear_execution_group',
+                'procedure_definition__name',
+                'work_order__project__customer__name',
+                'work_order__project__number',
+                'work_order__name',
+                'name',
+                'allow_skip',
+                'last_action_date',
+                'group__name',
+                'unit__location__name',
+                'id'  # Assuming 'id' represents procedure_result_id
+            )))
+            
+            if master_data_frame.empty:
+                return {}, master_data_frame
+            
+            master_data_frame['last_action_days'] = (
+                (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
+            ).astype(int)
+            master_data_frame.dropna(inplace=True)
+            
+            filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
+            
+            gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
+            filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
+            filterframe = filterframe[filterframe.allow_skip == False]
+            filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
+            filterframe.set_index(['f_serial'], inplace=True)
+            filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial')
+            filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
+            
+            if group:
+                filtered = filtered[filtered.group__name.str.lower() == group.lower()]
+            
+            filtered = filtered[[
+                'unit__serial_number',
+                'test_sequence_definition__name',
+                'linear_execution_group',
+                'procedure_definition__name',
+                'work_order__project__customer__name',
+                'work_order__project__number',
+                'work_order__name',
+                'name',
+                'allow_skip',
+                'last_action_date',
+                'last_action_days',
+                'unit__location__name',
+                'id'  # procedure_result_id
+            ]]
+            
+            filtered.columns = [
+                'serial_number', 'test_sequence', 'linear_execution_group',
+                'procedure_definition', 'customer', 'project_number', 'work_order',
+                'characterization', 'allow_skip',
+                'last_action_date', 'last_action_days', 'location', 'procedure_result_id'
+            ]
+            
+            filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
+            
+            custom_order = [
+                "Diode Test",
+                "EL Image at 1.0x Isc",
+                "EL Image at 0.1x Isc",
+                "I-V Curve at STC (Front)",
+                "I-V Curve at STC (Rear)",
+                "I-V Curve at LIC (Front)",
+                "IAM Measurement",
+                "IEC 60904-1-2 Measurement",
+                "IEC 61853-1 Measurement",
+                "Insulation Test",
+                "Visual Inspection",
+                "Wet Leakage Current Test"
+            ]
+            
+            filtered["priority_flag"] = filtered["procedure_result_id"].apply(
+                lambda x: 1 if x in priority_procedure_ids else 0
+            )
+            
+            filtered["procedure_definition"] = pd.Categorical(
+                filtered["procedure_definition"].str.strip(),
+                categories=custom_order,
+                ordered=True
+            )
+            
+            filtered = filtered.sort_values(["priority_flag", "last_action_date"], ascending=[False, True])
+            
+            grouped = filtered.groupby("procedure_definition")
+            
+            full = {}
+            for name, group in grouped:
+                full[name] = group.to_dict(orient='records')
+            
+            return full, filtered
+
+            
+        
+
         else:
             queryset = ProcedureResult.objects.filter(
             disposition__isnull=True,
             unit__disposition__complete=False,
-        ).exclude(
+            ).exclude(
             unit__disposition__name__iexact="in progress"
-        ).exclude(
+            ).exclude(
             work_order__project__disposition__complete=True
-        ).exclude(
+            ).exclude(
             test_sequence_definition__group__name__iexact="control"
-        ).annotate(
+            ).annotate(
             last_action_date=Coalesce(
                 Max('unit__procedureresult__stepresult__measurementresult__date_time'),
                 timezone.now()
             )
-        ).annotate(
-            done_to=Coalesce(
+            ).annotate(done_to=Coalesce(
                 Max(
                     'unit__procedureresult__linear_execution_group',
                     filter=Q(unit__procedureresult__disposition__isnull=False)
                 ),
-                Min('unit__procedureresult__linear_execution_group')
-            )
-        ).distinct()
-        if asset:
-            queryset = queryset.filter(
-                procedure_definition__asset_types__in=asset.asset_types.all(),
-                unit__location__id=asset.location.id,
-            )
-        if location_id:
-            queryset = queryset.filter(unit__location__id=location_id)
+                Min('unit__procedureresult__linear_execution_group'))).distinct()
+            if asset:
+                queryset = queryset.filter(
+                    procedure_definition__asset_types__in=asset.asset_types.all(),
+                    unit__location__id=asset.location.id,
+                )
+            if location_id:
+                queryset = queryset.filter(unit__location__id=location_id)
 
-        # If queryset is empty, return an empty response
-        if not queryset.exists():
-            return [], pd.DataFrame()
+            # If queryset is empty, return an empty response
+            if not queryset.exists():
+                return [], pd.DataFrame()
 
-        # Create DataFrame from queryset
-        master_data_frame = pd.DataFrame(list(queryset.values(
-            'unit__serial_number',
-            'test_sequence_definition__name',
-            'done_to',
-            'linear_execution_group',
-            'procedure_definition__name',
-            'work_order__project__customer__name',
-            'work_order__project__number',
-            'work_order__name',
-            'name',
-            'allow_skip',
-            'last_action_date',
-            'group__name',
-            'unit__location__name',
-        )))
+            # Create DataFrame from queryset
+            master_data_frame = pd.DataFrame(list(queryset.values(
+                'unit__serial_number',
+                'test_sequence_definition__name',
+                'done_to',
+                'linear_execution_group',
+                'procedure_definition__name',
+                'work_order__project__customer__name',
+                'work_order__project__number',
+                'work_order__name',
+                'name',
+                'allow_skip',
+                'last_action_date',
+                'group__name',
+                'unit__location__name',
+            )))
 
-        # Handle case where DataFrame is empty after values conversion
-        if master_data_frame.empty:
-            return {}, master_data_frame
+            # Handle case where DataFrame is empty after values conversion
+            if master_data_frame.empty:
+                return {}, master_data_frame
 
-        master_data_frame['last_action_days'] = (
-            (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
-        ).astype(int)
-        master_data_frame.dropna(inplace=True)
+            master_data_frame['last_action_days'] = (
+                (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
+            ).astype(int)
+            master_data_frame.dropna(inplace=True)
 
-        # Select everything in the current LEG or above
-        filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
+            # Select everything in the current LEG or above
+            filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
 
-        # Select only records where LEG <= next highest unskippable
-        gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
-        filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
-        filterframe = filterframe[filterframe.allow_skip == False]
-        filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
-        filterframe.set_index(['f_serial'], inplace=True)
-        filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
-        filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
+            # Select only records where LEG <= next highest unskippable
+            gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
+            filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
+            filterframe = filterframe[filterframe.allow_skip == False]
+            filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
+            filterframe.set_index(['f_serial'], inplace=True)
+            filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
+            filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
 
-        # Filter down to the specific group
-        if group:
-            filtered = filtered[filtered.group__name.str.lower() == group.lower()]
+            # Filter down to the specific group
+            if group:
+                filtered = filtered[filtered.group__name.str.lower() == group.lower()]
 
-        filtered = filtered[[
-            'unit__serial_number',
-            'test_sequence_definition__name',
-            'linear_execution_group',
-            'procedure_definition__name',
-            'work_order__project__customer__name',
-            'work_order__project__number',
-            'work_order__name',
-            'name',
-            'allow_skip',
-            'last_action_date',
-            'last_action_days',
-            'unit__location__name',
-        ]]
-        filtered.columns = [
-            'serial_number', 'test_sequence', 'linear_execution_group',
-            'procedure_definition', 'customer', 'project_number', 'work_order',
-            'characterization', 'allow_skip',
-            'last_action_date',
-            'last_action_days',
-            'location',
-        ]
-        filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
-        grouped = filtered.groupby('procedure_definition')
-        full = {}
-        for name, group in grouped:
-            full[name] = group.to_dict(orient='records')
-        # serializer = self.serializer_class(queryset, many=False, context=self.context)
-        # print(serializer.data)
-        return full, filtered
+            filtered = filtered[[
+                'unit__serial_number',
+                'test_sequence_definition__name',
+                'linear_execution_group',
+                'procedure_definition__name',
+                'work_order__project__customer__name',
+                'work_order__project__number',
+                'work_order__name',
+                'name',
+                'allow_skip',
+                'last_action_date',
+                'last_action_days',
+                'unit__location__name',
+            ]]
+            filtered.columns = [
+                'serial_number', 'test_sequence', 'linear_execution_group',
+                'procedure_definition', 'customer', 'project_number', 'work_order',
+                'characterization', 'allow_skip',
+                'last_action_date',
+                'last_action_days',
+                'location',
+            ]
+            filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
+            grouped = filtered.groupby('procedure_definition')
+            full = {}
+            for name, group in grouped:
+                full[name] = group.to_dict(orient='records')
+            # serializer = self.serializer_class(queryset, many=False, context=self.context)
+            # print(serializer.data)
+            return full, filtered
 
 
 
