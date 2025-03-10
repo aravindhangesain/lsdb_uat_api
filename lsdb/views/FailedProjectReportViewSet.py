@@ -39,7 +39,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(start_datetime__date__range=[start_date, end_date])
         else:
             queryset = queryset.filter(start_datetime__date__range=[eighteen_months_ago, today])
-        queryset = queryset.order_by('start_datetime')
+        queryset = queryset.order_by('-start_datetime')
         return queryset
     
     @action(detail=False, methods=['get'], permission_classes=[ConfiguredPermission])
