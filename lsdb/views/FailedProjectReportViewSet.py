@@ -39,6 +39,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(start_datetime__date__range=[start_date, end_date])
         else:
             queryset = queryset.filter(start_datetime__date__range=[eighteen_months_ago, today])
+        queryset = queryset.order_by('start_datetime')
         return queryset
     
     @action(detail=False, methods=['get'], permission_classes=[ConfiguredPermission])
@@ -48,15 +49,10 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
         azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
-                        'start_datetime','end_datetime','note_text','note_subject']
+                        'start_datetime','end_datetime','note_subject','note_text']
         data_for_csv = []
         for item in serializer.data:
             row = {field: item.get(field, '') for field in selected_fields}
-            if item.get('note_id'):
-                note_url = f"{base_url}{item['note_id']}"
-                row['note_url'] = f'=HYPERLINK("{note_url}", "{note_url}")'
-            else:
-                row['note_url'] = ""
             note_id = item.get('note_id')
             image_urls = []
             if note_id:
@@ -71,10 +67,17 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                         file_url = azure_file_base_url.format(azurefile_id)
                         image_urls.append(f'"{file_url}"')
             row['image_urls'] = ", ".join(image_urls) if image_urls else ""
+            if note_id:
+                note_url = f"{base_url}{note_id}"
+                row['flag_redirect_url'] = f'=HYPERLINK("{note_url}", "{note_url}")'
+            else:
+                row['flag_redirect_url'] = ""
             data_for_csv.append(row)
         df = pd.DataFrame(data_for_csv)
         html_pattern = re.compile(r'<.*?>')
         df = df.applymap(lambda x: re.sub(html_pattern, '', str(x)) if isinstance(x, str) else x)
+        desired_order = selected_fields[:selected_fields.index('note_text') + 1] + ['image_urls', 'flag_redirect_url'] + selected_fields[selected_fields.index('note_text') + 1:]
+        df = df[desired_order]
         csv_string = df.to_csv(index=False, encoding='utf-8', quoting=csv.QUOTE_ALL)
         response = HttpResponse(csv_string, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Failed_projects_Report.csv"'
