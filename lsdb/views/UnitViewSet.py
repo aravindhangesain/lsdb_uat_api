@@ -510,17 +510,25 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
 
         if not procedure:
             return Response({"error": f"ProcedureResult with id {procedure_result_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # if not status_value:
+        #     return Response({"error": f"Status field missing"}, status=status.HTTP_404_NOT_FOUND)
+             
 
-        # Create the OpsQueuePriority entry
-        OpsQueuePriority.objects.create(
-            procedure_result_id=procedure_result_id,
-            unit_id=procedure.unit_id,
-            created_date=dt.now(),
-            status=status_value
-        )
+        if status_value==True:
+            OpsQueuePriority.objects.create(
+                procedure_result_id=procedure_result_id,
+                unit_id=procedure.unit_id,
+                created_date=dt.now(),
+                status=status_value
+            )
 
-        return Response({"message": "Priority set successfully"}, status=status.HTTP_201_CREATED)
-
+            return Response({"message": "Priority set successfully"}, status=status.HTTP_201_CREATED)
+        else:
+            OpsQueuePriority.objects.filter(procedure_result_id=procedure_result_id).first().delete()
+            return Response({"message": "Priority Deleted successfully"})
+            
+            
 
 
     @transaction.atomic
