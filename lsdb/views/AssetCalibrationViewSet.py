@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 from lsdb.models import Asset, AssetCalibration
 from lsdb.serializers import AssetCalibrationSerializer
+from django.db import connection
+
 
 class AssetCalibrationViewSet(viewsets.ModelViewSet):
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
@@ -18,3 +20,9 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         )
         asset_calibration.asset = asset 
         asset_calibration.save(update_fields=['asset'])
+        if asset_calibration.asset_type:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO lsdb_asset_asset_types (asset_id, assettype_id) VALUES (%s, %s)",
+                    [asset.id, asset_calibration.asset_type.id]
+                )

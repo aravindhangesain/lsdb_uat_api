@@ -5,6 +5,7 @@ from django.utils.timezone import now
 
 class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     location_name = serializers.ReadOnlyField(source='location.name')
+    asset_type_name = serializers.ReadOnlyField(source='asset_type.name')
     next_calibration_date = serializers.SerializerMethodField()
     days_since_calibrated = serializers.SerializerMethodField()
     days_to_next_calibration = serializers.SerializerMethodField()
@@ -45,5 +46,8 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'schedule_for_calibration',
             'next_calibration_date',
             'days_since_calibrated',
-            'days_to_next_calibration'
+            'days_to_next_calibration',
+            'asset_type',
+            'asset_type_name',
+            'external_asset_required'
         ]

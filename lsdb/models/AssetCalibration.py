@@ -14,3 +14,5 @@ class AssetCalibration(models.Model):
     is_calibration_required = models.BooleanField(null=False)
     last_calibrated_date = models.DateTimeField(null=False, blank=False)
     schedule_for_calibration = models.IntegerField(null=False,blank=False)
+    external_asset_required= models.BooleanField(null=True,blank=True)
+    asset_type = models.ForeignKey('AssetType',on_delete=models.CASCADE, blank=False, null=True)
