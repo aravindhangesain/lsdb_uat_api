@@ -1,11 +1,12 @@
 from rest_framework import viewsets,status
 from datetime import datetime as dt  
 
-from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition,OpsQueuePriority,ProcedureResult
+from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition,OpsQueuePriority,ProcedureResult,Unit,TestSequenceDefinition
 from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer,DispositionSerializer
 from rest_framework.decorators import action
 from django.db import IntegrityError, transaction
 from rest_framework.response import Response
+from django.db import connection
 
 
 class ReportResultViewSet(viewsets.ModelViewSet):
@@ -81,31 +82,53 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         serializer=DispositionSerializer(dispositions,many=True,context={'request': request})
         return Response(serializer.data)
     
-    # @transaction.atomic
-    # @action(detail=False, methods=['post'])
-    # def set_priority(self, request):
-    #     # Fix the typo in 'procedure_result_id'
-    #     procedure_result_id = request.data.get('procedure_result_id')  
-    #     status_value = request.data.get('status')  
+    @action(detail=False,methods=["post","get"])
+    def get_unit_tsds(self, request):
+        work_order_id = request.query_params.get('work_order_id')
 
-    #     if procedure_result_id is None:
-    #         return Response({"error": "procedure_result_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not work_order_id:
+            return Response({"error": "work_order_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    #     # Fetch the procedure result
-    #     procedure = ProcedureResult.objects.filter(id=procedure_result_id).first()
+        
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT unit_id 
+                FROM lsdb_workorder_units 
+                WHERE workorder_id = %s
+            """, [work_order_id])
+            unit_ids = [row[0] for row in cursor.fetchall()]
+            if not unit_ids:
+                return Response({"No Unit Mapped with this work-order"},status=status.HTTP_200_OK)
+            
+            unit_tsd_list = []
+            if unit_ids:
+                for unit_id in unit_ids:
+                    test_sequence_definition_id = ProcedureResult.objects.filter(unit_id=unit_id).values_list('test_sequence_definition_id', flat=True).first()
 
-    #     if not procedure:
-    #         return Response({"error": f"ProcedureResult with id {procedure_result_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+                    serial_number=Unit.objects.filter(id=unit_id).values_list('serial_number',flat=True).first()
+                    test_sequence_definition_name=TestSequenceDefinition.objects.filter(id=test_sequence_definition_id).values_list('name',flat=True).first()
 
-    #     # Create the OpsQueuePriority entry
-    #     OpsQueuePriority.objects.create(
-    #         procedure_result_id=procedure_result_id,
-    #         unit_id=procedure.unit_id,
-    #         created_date=dt.now(),
-    #         status=status_value
-    #     )
+                    unit_tsd_list.append({
+                        "unit_id": unit_id,
+                        "serial_number":serial_number,
+                        "test_sequence_definition_id": test_sequence_definition_id,
+                        "test_sequence_definition_name":test_sequence_definition_name
+                       
+                    })
 
-    #     return Response({"message": "Priority set successfully"}, status=status.HTTP_201_CREATED)
+                return Response(unit_tsd_list, status=status.HTTP_200_OK)
+    
+    # @action(detail=False,methods=["post","get"])
+    # def get_unit_procedureresult_name(self, request):
+
+    #     serial_number = request.query_params.get('serial_number')
+
+    #     if serial_number:
 
 
 
+
+            
+                
+
+        
