@@ -1,7 +1,7 @@
 from rest_framework import viewsets,status
 from datetime import datetime as dt  
 
-from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition,OpsQueuePriority,ProcedureResult,Unit,TestSequenceDefinition
+from lsdb.models import ReportResult,ReportExecutionOrder,WorkOrder,ReportSequenceDefinition,Disposition,OpsQueuePriority,ProcedureResult,Unit,TestSequenceDefinition,UnitReportResult
 from lsdb.serializers import ReportResultSerilaizer,ReportExecutionOrderSerializer,DispositionSerializer
 from rest_framework.decorators import action
 from django.db import IntegrityError, transaction
@@ -17,7 +17,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         """
         Override get_queryset to filter results based on work_order_id.
         """
-        queryset = ReportResult.objects.all()
+        queryset = ReportResult.objects.all().order_by('id')
         work_order_id = self.request.query_params.get('work_order_id')
 
         if work_order_id:
@@ -58,16 +58,38 @@ class ReportResultViewSet(viewsets.ModelViewSet):
     def update_report_result(self, request):
         
         report_result_id=request.data.get('report_result_id')
+        data_ready_status=request.data.get('data_ready_status')
+        execution_number=request.data.get('execution_number')
         if report_result_id:
             try:
                 report_result = ReportResult.objects.get(id=report_result_id)
             except ReportResult.DoesNotExist:
                 return Response({"message": "ReportResult not found"}, status=status.HTTP_404_NOT_FOUND)
+            is_procedure=request.data.get('is_procedure')
+            if is_procedure:
+                data = request.data.copy()
+                patch_data = {
+                                "execution_number":execution_number,
+                                "data_ready_status":data_ready_status,
+                                "report_result_id":report_result_id,
+                                "serial_number": data.pop('serial_number', None),
+                                "is_procedure": data.pop('is_procedure', None)
+                            }
+            
+                serial_number=patch_data.get('serial_number')
+                procedureresult_name=patch_data.get('data_ready_status')
+                execution_number=patch_data.get('execution_number')
+    
+                unit_id=Unit.objects.filter(serial_number=serial_number).values_list('id',flat=True).first()
+                UnitReportResult.objects.create(procedureresult_name=procedureresult_name,report_result_id=report_result_id,unit_id=unit_id,execution_group_number=execution_number)
 
-            serializer = ReportResultSerilaizer(report_result, data=request.data, partial=True, context={"request": request})
-
+                
+                serializer = ReportResultSerilaizer(report_result, data=data, partial=True, context={"request": request})
+            else:
+                serializer = ReportResultSerilaizer(report_result, data=request.data, partial=True, context={"request": request})
             if serializer.is_valid():
                 serializer.save()
+            
                 return Response({"message": "ReportResult updated successfully", "updated_response": serializer.data}, status=status.HTTP_200_OK)
             
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

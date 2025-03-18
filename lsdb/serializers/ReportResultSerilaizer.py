@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lsdb.models import ReportResult,Disposition
+from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult
 
 
 class ReportResultSerilaizer(serializers.ModelSerializer):
@@ -14,6 +14,23 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
     report_writer_name=serializers.ReadOnlyField(source='report_writer.username')
     report_approver_name=serializers.ReadOnlyField(source='report_approver.username')
     username=serializers.ReadOnlyField(source='user.username')
+    hex_color=serializers.SerializerMethodField()
+
+    def get_hex_color(self, obj):
+        report_result=UnitReportResult.objects.filter(report_result_id=obj.id).first()
+        if report_result:
+            unit_id=report_result.unit_id
+            execution_order=report_result.execution_group_number
+
+            selected_procedures=ProcedureResult.objects.filter(unit_id=unit_id,linear_execution_group=execution_order)
+            if all(procedure.disposition_id in [2,10,20] for procedure in selected_procedures):
+                return '#4ef542'
+            else:
+                return '#f51111'
+        else:
+            return '#f5970a'
+
+
 
     class Meta:
         model=ReportResult
@@ -41,5 +58,6 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
             'status_disposition',
             'status_disposition_name',
             'report_execution_order_number',
-            'execution_group_name'
+            'execution_group_name',
+            'hex_color'
         ]
