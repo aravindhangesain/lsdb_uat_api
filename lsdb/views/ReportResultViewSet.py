@@ -118,12 +118,27 @@ class ReportResultViewSet(viewsets.ModelViewSet):
 
                 return Response(unit_tsd_list, status=status.HTTP_200_OK)
     
-    # @action(detail=False,methods=["post","get"])
-    # def get_unit_procedureresult_name(self, request):
+    @action(detail=False,methods=["post","get"])
+    def get_unit_procedureresult_name(self, request):
 
-    #     serial_number = request.query_params.get('serial_number')
+        serial_number = request.query_params.get('serial_number')
+        unit= Unit.objects.filter(serial_number=serial_number).first()
+        proceduresults=[]
+        if serial_number:
+            procedures=ProcedureResult.objects.filter(unit_id=unit.id).order_by('name', 'id').distinct('name')
+            if procedures:
+                for procedure in procedures:
+                    proceduresults.append({
+                        "procedure_execution_order":procedure.linear_execution_group,
+                        "name":procedure.name
+                    })
+                return Response(proceduresults,status=status.HTTP_200_OK)
+            else:
+                return Response({"No procedures for this unit"},status=status.HTTP_200_OK)
+        else:
+            return Response({"serial number is required"},status=status.HTTP_200_OK)
 
-    #     if serial_number:
+
 
 
 
