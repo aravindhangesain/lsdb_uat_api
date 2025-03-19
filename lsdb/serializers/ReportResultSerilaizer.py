@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult
+from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult,ModuleIntakeDetails,WorkOrder
 
 
 class ReportResultSerilaizer(serializers.ModelSerializer):
@@ -17,18 +17,38 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
     hex_color=serializers.SerializerMethodField()
 
     def get_hex_color(self, obj):
-        report_result=UnitReportResult.objects.filter(report_result_id=obj.id).first()
-        if report_result:
-            unit_id=report_result.unit_id
-            execution_order=report_result.execution_group_number
+        
+        report=ReportResult.objects.filter(id=obj.id).first()
 
-            selected_procedures=ProcedureResult.objects.filter(unit_id=unit_id,linear_execution_group=execution_order)
-            if all(procedure.disposition_id in [2,10,20] for procedure in selected_procedures):
+        if report.data_ready_status in ['Module Intake']:
+            work_order_id=report.work_order_id
+
+            project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
+            
+            module_intakes=ModuleIntakeDetails.objects.filter(projects_id=project_id)
+            if all(intake.steps in ['step 3'] for intake in module_intakes):
                 return '#4ef542'
             else:
                 return '#f51111'
-        else:
-            return '#f5970a'
+            
+        elif UnitReportResult.objects.filter(report_result_id=obj.id).exists():
+            report_result=UnitReportResult.objects.filter(report_result_id=obj.id).first()
+            if report_result:
+                unit_id=report_result.unit_id
+                execution_order=report_result.execution_group_number
+
+                selected_procedures=ProcedureResult.objects.filter(unit_id=unit_id,linear_execution_group=execution_order)
+                if all(procedure.disposition_id in [2,10,20] for procedure in selected_procedures):
+                    return '#4ef542'
+                else:
+                    return '#f51111'
+            else:
+                return '#f5970a'
+        elif report.data_ready_status in ['Factory Witness']:
+            return '#4ef542'
+        
+        return '#ff9704'
+        
 
 
 
@@ -59,5 +79,6 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
             'status_disposition_name',
             'report_execution_order_number',
             'execution_group_name',
+            'azurefile',
             'hex_color'
         ]

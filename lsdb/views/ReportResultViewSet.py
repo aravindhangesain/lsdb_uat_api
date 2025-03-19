@@ -60,11 +60,26 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         report_result_id=request.data.get('report_result_id')
         data_ready_status=request.data.get('data_ready_status')
         execution_number=request.data.get('execution_number')
+        work_order_id=request.data.get('work_order_id')
+
         if report_result_id:
             try:
                 report_result = ReportResult.objects.get(id=report_result_id)
             except ReportResult.DoesNotExist:
                 return Response({"message": "ReportResult not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            is_module=request.data.get('is_module')
+            if is_module:
+                data=request.data.copy()
+                patch_data = {
+                    "report_result_id":report_result_id,
+                    "data_ready_status":data_ready_status,
+                    "work_order_id":work_order_id,
+                    "is_module":data.pop('is_module',None)
+                }
+                serializer = ReportResultSerilaizer(report_result, data=data, partial=True, context={"request": request})
+
+
             is_procedure=request.data.get('is_procedure')
             if is_procedure:
                 data = request.data.copy()
