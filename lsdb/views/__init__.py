@@ -151,3 +151,4 @@ from .FinalProcedureViewSet import FinalProcedureViewSet as FinalProcedureViewSe
 from .UnitTypeTemplateViewSet import UnitTypeTemplateViewSet as UnitTypeTemplateViewSet
 from .UVIDandFlashReportViewSet import UVIDandFlashReportViewSet as UVIDandFlashReportViewSet
 from .AssetCalibrationViewSet import AssetCalibrationViewSet as AssetCalibrationViewSet
+from .GetAssetCalibrationDetailsViewSet import GetAssetCalibrationDetailsViewSet as GetAssetCalibrationDetailsViewSet

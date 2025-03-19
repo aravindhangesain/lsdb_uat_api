@@ -3,9 +3,7 @@ from lsdb.models import AssetCalibration
 from datetime import timedelta
 from django.utils.timezone import now
 
-class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
-    location_name = serializers.ReadOnlyField(source='location.name')
-    asset_type_name = serializers.ReadOnlyField(source='asset_type.name')
+class GetAssetCalibrationDetailsSerializer(serializers.HyperlinkedModelSerializer):
     next_calibration_date = serializers.SerializerMethodField()
     days_since_calibrated = serializers.SerializerMethodField()
     days_to_next_calibration = serializers.SerializerMethodField()
@@ -30,26 +28,10 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
         model = AssetCalibration
         fields =[
             'id',
-            'asset',
             'asset_number',
-            'asset_name',
-            'description',
-            'last_action_datetime',
-            'location',
-            'location_name',
-            'manufacturer',
-            'usage',
-            'model',
-            'serial_number',
-            'is_calibration_required',
             'last_calibrated_date',
             'schedule_for_calibration',
             'next_calibration_date',
             'days_since_calibrated',
-            'days_to_next_calibration',
-            'asset_type',
-            'asset_type_name',
-            'external_asset_required',
-            'azurefile',
-            'azurefile_id',
+            'days_to_next_calibration'
         ]

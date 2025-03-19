@@ -16,3 +16,4 @@ class AssetCalibration(models.Model):
     schedule_for_calibration = models.IntegerField(null=True,blank=True)
     external_asset_required= models.BooleanField(null=True,blank=True)
     asset_type = models.ForeignKey('AssetType',on_delete=models.CASCADE, blank=False, null=True)
+    azurefile = models.ForeignKey('AzureFile',on_delete=models.CASCADE, blank=False, null=True)
