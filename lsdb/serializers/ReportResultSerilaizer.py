@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult,ModuleIntakeDetails,WorkOrder
+from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult,ModuleIntakeDetails,WorkOrder,Project
+from django.contrib.auth import get_user_model
 
-
-class ReportResultSerilaizer(serializers.ModelSerializer):
+class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
     
     execution_group_name=serializers.ReadOnlyField(source='report_execution_order.execution_group_name')
     work_order_name=serializers.ReadOnlyField(source='work_order.name')
@@ -15,7 +15,19 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
     report_approver_name=serializers.ReadOnlyField(source='report_approver.username')
     username=serializers.ReadOnlyField(source='user.username')
     hex_color=serializers.SerializerMethodField()
+    project_number=serializers.SerializerMethodField()
 
+
+    User = get_user_model()
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', required=True)
+    
+    def get_project_number(self, obj):
+        work_order_id=obj.work_order_id
+        project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
+
+        project_number=Project.objects.filter(id=project_id).values_list('number',flat=True).first()
+        return project_number
+     
     def get_hex_color(self, obj):
         
         report=ReportResult.objects.filter(id=obj.id).first()
@@ -57,6 +69,7 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
         fields=[
             'id',
             'url',
+            'document_title',
             'issue_date',
             'due_date',
             'report_writer',
@@ -64,11 +77,12 @@ class ReportResultSerilaizer(serializers.ModelSerializer):
             'report_approver',
             'report_approver_name',
             'data_ready_status',
-            # 'status',
             'user',
+            'user_id',
             'username',
             'work_order_id',
             'work_order_name',
+            'project_number',
             'report_sequence_definition_id',
             'report_sequence_definition_name',
             'product_type_definition_id',

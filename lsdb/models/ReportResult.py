@@ -16,5 +16,6 @@ class ReportResult(models.Model):
     status_disposition=models.ForeignKey('Disposition', on_delete=models.CASCADE, blank=False, null=False)
     report_execution_order_number=models.FloatField()
     azurefile=models.ForeignKey('AzureFile', on_delete=models.CASCADE, blank=False, null=False)
+    document_title=models.CharField(max_length=256, blank=True, null=True)
 
 
