@@ -37,17 +37,23 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             unit_ids = [row[0] for row in cursor.fetchall()]
         queryset = queryset.filter(unit_id__in=unit_ids)
         if start_date and end_date:
+
             queryset = queryset.filter(start_datetime__date__range=[start_date, end_date])
+
+            return queryset
+            
+            
         else:
             queryset = queryset.filter(start_datetime__date__range=[eighteen_months_ago, today])
         queryset = queryset.order_by('-start_datetime')
+
         return queryset
     
-    @action(detail=False, methods=['post','get'],)
+    @action(detail=False, methods=['get'],)
     def download_csv(self, request):
         queryset1 = self.get_queryset()
-        pass_ids=request.data.get('procedure_ids',[])
-        
+        procedure_ids_param = request.query_params.get('procedure_ids', '')
+        pass_ids = [pid.strip() for pid in procedure_ids_param.split(',') if pid.strip().isdigit()]
         queryset2 = ProcedureResult.objects.filter(id__in=pass_ids)
         custom_queryset=queryset1.union(queryset2)
         serializer = FailedProjectReportSerializer(custom_queryset, many=True, context={'request': request})
