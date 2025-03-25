@@ -2,11 +2,8 @@ from requests import Response
 from rest_framework import viewsets
 from lsdb.models import ProcedureResult,Unit
 from lsdb.serializers.ProcedureResultSerializer import FailedProjectReportSerializer
-from datetime import timedelta
-from django.utils import timezone
 from django_filters import rest_framework as filters
 from rest_framework_tracking.mixins import LoggingMixin
-from lsdb.permissions import ConfiguredPermission
 import pandas as pd
 from rest_framework.decorators import action
 from django.http import HttpResponse
@@ -14,7 +11,7 @@ from django.db import connection
 import re
 import csv
 from rest_framework.response import Response
-from django.db import connection
+from django.db.models import Q
 
 class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = FailedProjectReportSerializer
@@ -22,11 +19,10 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        today = timezone.now().date()
-        eighteen_months_ago = today - timedelta(days=18 * 30)
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
-        queryset = ProcedureResult.objects.filter(disposition_id__in=[3, 8, 19]).distinct()
+        if not start_date or not end_date:
+            return ProcedureResult.objects.none()
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT un.unit_id 
@@ -35,27 +31,52 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 WHERE n.note_type_id = 3
             """)
             unit_ids = [row[0] for row in cursor.fetchall()]
-        queryset = queryset.filter(unit_id__in=unit_ids)
-        if start_date and end_date:
+        queryset1 = ProcedureResult.objects.filter(
+            disposition_id__in=[3, 8, 19],
+            unit_id__in=unit_ids,
+            start_datetime__date__range=[start_date, end_date]
+        ).distinct()
+        excluded_units = Unit.objects.filter(
+            Q(notes__subject__icontains="Quality issue") |
+            Q(notes__subject__icontains="Mishandling damage") |
+            Q(notes__subject__icontains="Pull Request")
+        ).values_list("id", flat=True)
+        queryset2 = ProcedureResult.objects.filter(
+            disposition_id=2
+        ).exclude(
+            unit_id__in=excluded_units
+        ).filter(
+            unit__notes__note_type_id=3,
+            start_datetime__date__range=[start_date, end_date]
+        )
+        combined_queryset = queryset1.union(queryset2).order_by("-start_datetime")
+        return combined_queryset
 
-            queryset = queryset.filter(start_datetime__date__range=[start_date, end_date])
-
-            return queryset
-            
-            
-        else:
-            queryset = queryset.filter(start_datetime__date__range=[eighteen_months_ago, today])
-        queryset = queryset.order_by('-start_datetime')
-
-        return queryset
-    
     @action(detail=False, methods=['get'],)
     def download_csv(self, request):
-        queryset1 = self.get_queryset()
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        unit_ids = []
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT un.unit_id 
+                FROM lsdb_unit_notes un 
+                JOIN lsdb_note n ON un.note_id = n.id 
+                WHERE n.note_type_id = 3
+            """)
+            unit_ids = [row[0] for row in cursor.fetchall()]
+        queryset1 = ProcedureResult.objects.filter(
+            disposition_id__in=[3, 8, 19],
+            unit_id__in=unit_ids,
+            start_datetime__date__range=[start_date, end_date]
+        ).distinct()
         procedure_ids_param = request.query_params.get('procedure_ids', '')
         pass_ids = [pid.strip() for pid in procedure_ids_param.split(',') if pid.strip().isdigit()]
-        queryset2 = ProcedureResult.objects.filter(id__in=pass_ids)
-        custom_queryset=queryset1.union(queryset2)
+        if pass_ids:
+            queryset2 = ProcedureResult.objects.filter(id__in=pass_ids)
+            custom_queryset = queryset1.union(queryset2)
+        else:
+            custom_queryset = queryset1.exclude(id__in=pass_ids) 
         serializer = FailedProjectReportSerializer(custom_queryset, many=True, context={'request': request})
         base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
         azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
@@ -94,31 +115,4 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="Failed_projects_Report.csv"'
         return response
     
-    @action(detail=False, methods=['get'])
-    def pass_report(self, request):
-        start_date = request.query_params.get('start_date')
-        end_date = request.query_params.get('end_date')
-
-        if not start_date or not end_date:
-            return Response({"error": "start_date and end_date are required"}, status=400)
-
-        excluded_units = Unit.objects.filter(
-            notes__subject__icontains="Quality issue"
-        ).values_list("id", flat=True) | Unit.objects.filter(
-            notes__subject__icontains="Mishandling damage"
-        ).values_list("id", flat=True) | Unit.objects.filter(
-            notes__subject__icontains="Pull Request"
-        ).values_list("id", flat=True)
-
-        results = ProcedureResult.objects.filter(
-            disposition_id=2
-        ).exclude(
-            unit_id__in=excluded_units
-        ).filter(
-            start_datetime__date__range=[start_date, end_date]
-        ).filter(unit__notes__note_type_id=3
-        ).order_by("-start_datetime")
-
-        serializer = FailedProjectReportSerializer(results, many=True,context={'request': request})
-        return Response(serializer.data)
-                    
+    
