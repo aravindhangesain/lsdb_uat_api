@@ -1,3 +1,4 @@
+from requests import Response
 from rest_framework import viewsets
 from lsdb.models import ProcedureResult,Unit
 from lsdb.serializers.ProcedureResultSerializer import FailedProjectReportSerializer
@@ -12,12 +13,12 @@ from django.http import HttpResponse
 from django.db import connection
 import re
 import csv
-
+from rest_framework.response import Response
+from django.db import connection
 
 class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = FailedProjectReportSerializer
     filter_backends = [filters.DjangoFilterBackend]
-    permission_classes = [ConfiguredPermission]
     pagination_class = None
 
     def get_queryset(self):
@@ -42,10 +43,14 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         queryset = queryset.order_by('-start_datetime')
         return queryset
     
-    @action(detail=False, methods=['get'], permission_classes=[ConfiguredPermission])
+    @action(detail=False, methods=['post','get'],)
     def download_csv(self, request):
-        queryset = self.get_queryset()
-        serializer = FailedProjectReportSerializer(queryset, many=True, context={'request': request})
+        queryset1 = self.get_queryset()
+        pass_ids=request.data.get('procedure_ids',[])
+        
+        queryset2 = ProcedureResult.objects.filter(id__in=pass_ids)
+        custom_queryset=queryset1.union(queryset2)
+        serializer = FailedProjectReportSerializer(custom_queryset, many=True, context={'request': request})
         base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
         azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
@@ -82,3 +87,32 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         response = HttpResponse(csv_string, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Failed_projects_Report.csv"'
         return response
+    
+    @action(detail=False, methods=['get'])
+    def pass_report(self, request):
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+
+        if not start_date or not end_date:
+            return Response({"error": "start_date and end_date are required"}, status=400)
+
+        excluded_units = Unit.objects.filter(
+            notes__subject__icontains="Quality issue"
+        ).values_list("id", flat=True) | Unit.objects.filter(
+            notes__subject__icontains="Mishandling damage"
+        ).values_list("id", flat=True) | Unit.objects.filter(
+            notes__subject__icontains="Pull Request"
+        ).values_list("id", flat=True)
+
+        results = ProcedureResult.objects.filter(
+            disposition_id=2
+        ).exclude(
+            unit_id__in=excluded_units
+        ).filter(
+            start_datetime__date__range=[start_date, end_date]
+        ).filter(unit__notes__note_type_id=3
+        ).order_by("-start_datetime")
+
+        serializer = FailedProjectReportSerializer(results, many=True,context={'request': request})
+        return Response(serializer.data)
+                    

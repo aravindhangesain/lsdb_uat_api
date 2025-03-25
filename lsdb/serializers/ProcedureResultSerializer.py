@@ -639,6 +639,9 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
                 for row in cursor.fetchall()
             ]
         return notes_data
+    
+    
+
 
     class Meta:
         model = ProcedureResult
@@ -666,6 +669,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'note_subject',
             'note_attachment_id',
             'notes',
+            
         ]
 
 
