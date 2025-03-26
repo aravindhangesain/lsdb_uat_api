@@ -39,7 +39,7 @@ class ManageResultViewSet(LoggingMixin, viewsets.ModelViewSet):
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
     queryset = StepResult.objects.all()
     serializer_class = StepResultSerializer
-    permission_classes = [ConfiguredPermission]
+    # permission_classes = [ConfiguredPermission]
 
     @action(detail=False, methods=['get',],
         serializer_class=DispositionCodeListSerializer,
