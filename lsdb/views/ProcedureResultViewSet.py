@@ -14,6 +14,8 @@ from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl import Workbook
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.permissions import AllowAny
+
 
 
 from rest_framework import viewsets
@@ -354,7 +356,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
     
 
-    @action(detail=False, methods=['post', 'get'])
+    @action(detail=False, methods=['post', 'get'],permission_classes=(AllowAny,))
     def valid_procedure(self, request):
         self.context = {'request': request}
         procedure_id = request.data.get('procedure_id')

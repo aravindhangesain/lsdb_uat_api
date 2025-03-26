@@ -22,7 +22,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
         if not start_date or not end_date:
-            return ProcedureResult.objects.none()
+            return ProcedureResult.objects.none() 
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT un.unit_id 
@@ -31,7 +31,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 WHERE n.note_type_id = 3
             """)
             unit_ids = [row[0] for row in cursor.fetchall()]
-        queryset1 = ProcedureResult.objects.filter(
+        other_results = ProcedureResult.objects.filter(
             disposition_id__in=[3, 8, 19],
             unit_id__in=unit_ids,
             start_datetime__date__range=[start_date, end_date]
@@ -41,7 +41,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             Q(notes__subject__icontains="Mishandling damage") |
             Q(notes__subject__icontains="Pull Request")
         ).values_list("id", flat=True)
-        queryset2 = ProcedureResult.objects.filter(
+        pass_reports = ProcedureResult.objects.filter(
             disposition_id=2
         ).exclude(
             unit_id__in=excluded_units
@@ -49,8 +49,19 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             unit__notes__note_type_id=3,
             start_datetime__date__range=[start_date, end_date]
         )
-        combined_queryset = queryset1.union(queryset2).order_by("-start_datetime")
-        return combined_queryset
+        return {
+            "pass_reports": pass_reports.order_by("-start_datetime"),
+            "other_results": other_results.order_by("-start_datetime")
+    }
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        pass_reports = queryset.get("pass_reports", ProcedureResult.objects.none())
+        other_results = queryset.get("other_results", ProcedureResult.objects.none())
+        return Response({
+            "pass_reports": FailedProjectReportSerializer(pass_reports, many=True, context={'request': request}).data,
+            "other_results": FailedProjectReportSerializer(other_results, many=True, context={'request': request}).data
+        })
 
     @action(detail=False, methods=['get'],)
     def download_csv(self, request):
