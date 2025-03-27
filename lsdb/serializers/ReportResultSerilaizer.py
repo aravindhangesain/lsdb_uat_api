@@ -16,7 +16,7 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
     username=serializers.ReadOnlyField(source='user.username')
     hex_color=serializers.SerializerMethodField()
     project_number=serializers.SerializerMethodField()
-
+    azurefile_download=serializers.SerializerMethodField()
 
     User = get_user_model()
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', required=True)
@@ -60,7 +60,15 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             return '#4ef542'
         
         return '#ff9704'
-        
+    
+    def get_azurefile_download(self, obj):
+        azurefile_id=obj.azurefile_id
+        if azurefile_id==None:
+            return None
+        azurefile_download="https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/"+str(azurefile_id)+"/download"
+        return azurefile_download
+    
+    
 
 
 
@@ -94,5 +102,6 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             'report_execution_order_number',
             'execution_group_name',
             'azurefile',
+            'azurefile_download',
             'hex_color'
         ]
