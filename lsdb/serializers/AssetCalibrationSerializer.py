@@ -9,6 +9,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     next_calibration_date = serializers.SerializerMethodField()
     days_since_calibrated = serializers.SerializerMethodField()
     days_to_next_calibration = serializers.SerializerMethodField()
+    azurefile_download=serializers.SerializerMethodField()
 
     def get_next_calibration_date(self, obj):
         if obj.last_calibrated_date and obj.schedule_for_calibration:
@@ -25,6 +26,15 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
         if next_calibration:
             return (next_calibration.date() - now().date()).days
         return None
+    
+    def get_azurefile_download(self, obj):
+        azurefile_id=obj.azurefile_id
+        if azurefile_id==None:
+            return None
+        azurefile_download="https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/"+str(azurefile_id)+"/download"
+        return azurefile_download
+    
+
 
     class Meta:
         model = AssetCalibration
@@ -52,4 +62,5 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'external_asset_required',
             'azurefile',
             'azurefile_id',
+            'azurefile_download',
         ]
