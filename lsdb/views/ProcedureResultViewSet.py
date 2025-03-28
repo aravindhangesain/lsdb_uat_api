@@ -643,7 +643,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
         start_datetime = request.query_params.get('start_datetime',0)
         end_datetime = request.query_params.get('end_datetime',0)
         # default to trailing 30 days
-        days = request.query_params.get('days',30)
+        days = request.query_params.get('days',120)
         facility = request.query_params.get('facility',None)
 
         if start_datetime == 0 and end_datetime == 0:
