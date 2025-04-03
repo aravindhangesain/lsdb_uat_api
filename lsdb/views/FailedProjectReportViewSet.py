@@ -8,6 +8,7 @@ import pandas as pd
 from rest_framework.decorators import action
 from django.http import HttpResponse
 from django.db import connection
+from itertools import chain
 import re
 import csv
 from rest_framework.response import Response
@@ -83,12 +84,9 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         ).distinct()
         procedure_ids_param = request.query_params.get('procedure_ids', '')
         pass_ids = [pid.strip() for pid in procedure_ids_param.split(',') if pid.strip().isdigit()]
-        if pass_ids:
-            queryset2 = ProcedureResult.objects.filter(id__in=pass_ids)
-            custom_queryset = queryset1.union(queryset2)
-        else:
-            custom_queryset = queryset1.exclude(id__in=pass_ids) 
-        serializer = FailedProjectReportSerializer(custom_queryset, many=True, context={'request': request})
+        queryset2 = ProcedureResult.objects.filter(id__in=pass_ids).order_by('start_datetime') if pass_ids else []
+        final_queryset = list(chain(queryset1, queryset2)) 
+        serializer = FailedProjectReportSerializer(final_queryset, many=True, context={'request': request})
         base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
         azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
