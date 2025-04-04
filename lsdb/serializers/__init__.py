@@ -183,3 +183,4 @@ from .UnitTypeTemplateSerializer import UnitTypeTemplateSerializer as UnitTypeTe
 from .UVIDandFlashReportSerializer import UVIDandFlashReportSerializer as UVIDandFlashReportSerializer
 from .AssetCalibrationSerializer import AssetCalibrationSerializer as AssetCalibrationSerializer
 from .GetAssetCalibrationDetailsSerializer import GetAssetCalibrationDetailsSerializer as GetAssetCalibrationDetailsSerializer
+from .HailTestSerializer import HailTestSerializer as HailTestSerializer

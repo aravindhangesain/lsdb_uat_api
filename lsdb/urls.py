@@ -114,6 +114,7 @@ from lsdb.views import UnitTypeTemplateViewSet
 from lsdb.views import UVIDandFlashReportViewSet
 from lsdb.views import AssetCalibrationViewSet
 from lsdb.views import GetAssetCalibrationDetailsViewSet
+from lsdb.views import HailTestViewSet
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)
@@ -227,6 +228,7 @@ router.register(r'unittypetemplate',UnitTypeTemplateViewSet,basename='unittypete
 router.register(r'uvid-flash-report',UVIDandFlashReportViewSet, basename = 'uvid-flash-report')
 router.register(r'assetcalibration',AssetCalibrationViewSet, basename = 'assetcalibration')
 router.register(r'getcalibrationdetails',GetAssetCalibrationDetailsViewSet,basename = 'getcalibrationdetails')
+router.register(r'hailtest',HailTestViewSet, basename = 'hailtest')
 
 
 # router.register(r'iv_el_inprogress',IVandEL_InProgressViewSet,basename = 'iv_el_inprogress')

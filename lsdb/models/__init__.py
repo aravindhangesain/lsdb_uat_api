@@ -134,3 +134,4 @@ from .UnitTypeTemplate import UnitTypeTemplate as UnitTypeTemplate
 from .AssetCalibration import AssetCalibration as AssetCalibration
 from .OpsQueuePriority import OpsQueuePriority as OpsQueuePriority
 from .UnitReportResult import UnitReportResult as UnitReportResult
+from .HailTest import HailTest as HailTest
