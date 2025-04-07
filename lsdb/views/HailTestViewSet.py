@@ -10,8 +10,8 @@ class HailTestViewSet(viewsets.ModelViewSet):
     queryset = HailTest.objects.all()
     serializer_class = HailTestSerializer
 
-    @action(detail=False, methods=['get'], url_path='by-serial/(?P<serial_number>[^/.]+)')
-    def get_by_serial(self, request, serial_number=None):
+    @action(detail=False, methods=['get'], url_path='gethailtestdetails/(?P<serial_number>[^/.]+)')
+    def get_hailtest_details(self, request, serial_number=None):
         try:
             unit = Unit.objects.get(serial_number=serial_number)
         except Unit.DoesNotExist:
@@ -22,7 +22,7 @@ class HailTestViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(hailtests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='create-from-serial')
+    @action(detail=False, methods=['post'], url_path='inserthailtestdetails')
     def create_from_serial_number(self, request):
         serial_number = request.query_params.get('serial_number')
         if not serial_number:
