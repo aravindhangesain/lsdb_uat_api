@@ -153,3 +153,4 @@ from .UVIDandFlashReportViewSet import UVIDandFlashReportViewSet as UVIDandFlash
 from .AssetCalibrationViewSet import AssetCalibrationViewSet as AssetCalibrationViewSet
 from .GetAssetCalibrationDetailsViewSet import GetAssetCalibrationDetailsViewSet as GetAssetCalibrationDetailsViewSet
 from .HailTestViewSet import HailTestViewSet as HailTestViewSet
+from .ProjectTemplateViewSet import ProjectTemplateViewSet as ProjectTemplateViewSet
