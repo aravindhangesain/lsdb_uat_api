@@ -184,3 +184,4 @@ from .UVIDandFlashReportSerializer import UVIDandFlashReportSerializer as UVIDan
 from .AssetCalibrationSerializer import AssetCalibrationSerializer as AssetCalibrationSerializer
 from .GetAssetCalibrationDetailsSerializer import GetAssetCalibrationDetailsSerializer as GetAssetCalibrationDetailsSerializer
 from .HailTestSerializer import HailTestSerializer as HailTestSerializer
+from .ProjectTemplateSerializer import ProjectTemplateSerializer as ProjectTemplateSerializer
