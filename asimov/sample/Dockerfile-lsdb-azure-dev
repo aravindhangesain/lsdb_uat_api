@@ -9,9 +9,9 @@ EXPOSE 8000
 WORKDIR /usr/src/HaveBlue
 
 # set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV REACT_APP_LSDB_BUILD 1.0.169
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV REACT_APP_LSDB_BUILD=1.0.169
 
 #DB Details
 # ENV DBNAME haveblueuatdb
@@ -20,7 +20,8 @@ ENV REACT_APP_LSDB_BUILD 1.0.169
 # ENV DBPASS Gesa@2023
 
 # install dependencies
-RUN pip install --upgrade pip
+
+RUN pip install --upgrade pip setuptools wheel
 COPY ./asimov/sample/requirements.txt /usr/src/HaveBlue/requirements.txt
 RUN pip install -r requirements.txt
 
