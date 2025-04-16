@@ -32,7 +32,7 @@ class UnitTypeViewSet(LoggingMixin, viewsets.ModelViewSet):
         largest_id = UnitTypeTemplate.objects.order_by('-id').values_list('id', flat=True).first() or 0
         UnitTypeTemplate.objects.create(
             unittype=created_unittype, 
-            template_name=f"Template_{largest_id + 1}-{created_unittype.model}"
+            name=created_unittype.model,
         )
 
     @transaction.atomic
