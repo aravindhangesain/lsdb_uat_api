@@ -19,17 +19,20 @@ class ProcedureflagupdateViewSet(viewsets.ModelViewSet):
             # Retrieve the specific ProcedureResult instance
             procedure_result = ProcedureResult.objects.get(id=procedure_result_id)
             
-            # Get related unit_id and procedure_definition_id
+            # Get related unit_id,procedure_definition_id and linear_execution_group
+
             unit_id = procedure_result.unit_id
             procedure_definition_id = procedure_result.procedure_definition_id
-            
+            linear_execution_group = procedure_result.linear_execution_group
+
             # Get all ProcedureResults with the same unit_id and procedure_definition_id
             related_results = ProcedureResult.objects.filter(
                 unit_id=unit_id,
-                procedure_definition_id=procedure_definition_id
+                procedure_definition_id=procedure_definition_id,
+                linear_execution_group=linear_execution_group
             )
             
-            # Update final_result to False in the ProcedureResultFinalResult table for all related results
+            # Update final_result to False in the ProcedureResultFinalResult table for all related results of same linear_execution_group and procedure_definition
             ProcedureResult_FinalResult.objects.filter(
                 procedure_result__in=related_results
             ).update(final_result=False)
