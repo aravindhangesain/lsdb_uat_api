@@ -3,7 +3,7 @@ import json
 from django.db import IntegrityError, transaction
 
 import requests
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_tracking.mixins import LoggingMixin
@@ -49,12 +49,20 @@ class WorkOrderViewSet(
     permission_classes = [ConfiguredPermission]
 
     def perform_create(self, serializer):
+        is_template = self.request.data.get('is_template')
+        template_name = self.request.data.get('template_name')
         created_workorder = serializer.save()
-        largest_id = WorkOrderTemplate.objects.order_by('-id').values_list('id', flat=True).first() or 0
-        WorkOrderTemplate.objects.create(
-            workorder=created_workorder, 
-            template_name=f"Template_{largest_id + 1}-{created_workorder.name}"
-        )
+        if is_template==True:
+            WorkOrderTemplate.objects.create(
+                workorder=created_workorder, 
+                template_name=template_name
+            )
+
+        else:
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+       
+
 
                 
 

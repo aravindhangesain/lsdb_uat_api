@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django_filters import rest_framework as filters
 import requests
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST)
@@ -27,7 +27,7 @@ from lsdb.models import ProcedureResult
 from lsdb.models import Project
 from lsdb.models import TestSequenceDefinition
 from lsdb.models import Unit
-from lsdb.models import WorkOrder,LocationLog
+from lsdb.models import WorkOrder,LocationLog,ProjectTemplate
 from lsdb.models import Customer
 from lsdb.permissions import ConfiguredPermission, IsAdminOrSelf
 from lsdb.serializers.GetActiveProjectsDataGridSerializer import GetActiveProjectsDataGridSerializer
@@ -72,6 +72,31 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
     filterset_class = ProjectFilter
     permission_classes = [ConfiguredPermission]
 
+    def create(self, request, *args, **kwargs):
+        # Serialize the incoming data
+        is_template = request.data.get('is_template', False)
+        template_name = request.data.get('template_name', None)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        
+        project = serializer.save()
+
+
+        if is_template==True:
+            ProjectTemplate.objects.create(
+                project=project,
+                template_name=template_name,
+            )
+
+            # Prepare the response
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            # Prepare the response
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
 
     @action(detail=False, methods=['get'],
         permission_classes=(ConfiguredPermission,),

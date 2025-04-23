@@ -5,7 +5,7 @@ from django.db import IntegrityError, transaction
 from django.http import HttpResponse
 from django.utils import timezone
 
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_tracking.mixins import LoggingMixin
@@ -28,13 +28,19 @@ class UnitTypeViewSet(LoggingMixin, viewsets.ModelViewSet):
     permission_classes = [ConfiguredPermission]
 
     def perform_create(self, serializer):
+        is_template = serializer.validated_data.get('is_template', False)
+        template_name=self.request.data.get('template_name')
         created_unittype = serializer.save()
         largest_id = UnitTypeTemplate.objects.order_by('-id').values_list('id', flat=True).first() or 0
-        UnitTypeTemplate.objects.create(
-            unittype=created_unittype, 
-            name=created_unittype.model,
-        )
-
+        if is_template== True:
+            UnitTypeTemplate.objects.create(
+                unittype=created_unittype, 
+                template_name=template_name,
+            )
+        else:
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
     @transaction.atomic
     @action(detail=True, methods=['get','post'],
         serializer_class=UnitTypeSerializer,
