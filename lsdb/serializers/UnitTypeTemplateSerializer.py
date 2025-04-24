@@ -8,7 +8,7 @@ class UnitTypeTemplateSerializer(serializers.HyperlinkedModelSerializer):
         model=UnitTypeTemplate
         fields=[
             'id',
-            'name',
+            'template_name',
             'url',
             'unittype_id',
             'unittype'
