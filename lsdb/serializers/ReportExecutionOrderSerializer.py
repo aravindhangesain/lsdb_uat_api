@@ -13,12 +13,20 @@ class ReportExecutionOrderSerializer(serializers.HyperlinkedModelSerializer):
     disposition_name=serializers.ReadOnlyField(source='report_sequence_definition.disposition.name')
     version=serializers.ReadOnlyField(source='report_sequence_definition.version')
     disposition_url=serializers.SerializerMethodField()
+    
+    azure_file_download_url=serializers.SerializerMethodField()
 
     def get_disposition_url(self, obj):
         if obj.report_sequence_definition and obj.report_sequence_definition.disposition:
             return f"https://lsdbhaveblueuat.azurewebsites.net/api/1.0/dispositions/{obj.report_sequence_definition.disposition.id}/"
         return None
-
+    
+    def get_azure_file_download_url(self, obj):
+        azurefile_id=obj.azure_file_id
+        if azurefile_id==None:
+            return None
+        azurefile_download_url="https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/"+str(azurefile_id)+"/download"
+        return azurefile_download_url
 
 
         
@@ -52,5 +60,7 @@ class ReportExecutionOrderSerializer(serializers.HyperlinkedModelSerializer):
             'disposition',
             'disposition_url',
             'disposition_name',
-            'version'
+            'version',
+            'azure_file',
+            'azure_file_download_url',
         ]

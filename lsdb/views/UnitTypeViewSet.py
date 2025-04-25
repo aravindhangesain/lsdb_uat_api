@@ -28,11 +28,11 @@ class UnitTypeViewSet(LoggingMixin, viewsets.ModelViewSet):
     permission_classes = [ConfiguredPermission]
 
     def perform_create(self, serializer):
-        is_template = serializer.validated_data.get('is_template', False)
+        is_template = self.request.data.get('is_template', False)
         template_name=self.request.data.get('template_name')
         created_unittype = serializer.save()
         largest_id = UnitTypeTemplate.objects.order_by('-id').values_list('id', flat=True).first() or 0
-        if is_template== True:
+        if is_template==True:
             UnitTypeTemplate.objects.create(
                 unittype=created_unittype, 
                 template_name=template_name,
