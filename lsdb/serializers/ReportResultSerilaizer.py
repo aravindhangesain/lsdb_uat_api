@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult,ModuleIntakeDetails,WorkOrder,Project
+from lsdb.models import ReportResult,Disposition,UnitReportResult,ProcedureResult,ModuleIntakeDetails,WorkOrder,Project,ProcedureDefinition
 from django.contrib.auth import get_user_model
 
 class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
@@ -42,24 +42,55 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
                 return '#4ef542'
             else:
                 return '#f51111'
-            
-        elif UnitReportResult.objects.filter(report_result_id=obj.id).exists():
-            report_result=UnitReportResult.objects.filter(report_result_id=obj.id).first()
-            if report_result:
-                unit_id=report_result.unit_id
-                execution_order=report_result.execution_group_number
 
-                selected_procedures=ProcedureResult.objects.filter(unit_id=unit_id,linear_execution_group=execution_order)
-                if all(procedure.disposition_id in [2,10,20] for procedure in selected_procedures):
-                    return '#4ef542'
-                else:
-                    return '#f51111'
-            else:
-                return '#f5970a'
         elif report.data_ready_status in ['Factory Witness']:
             return '#4ef542'
+           
+        else:
+            work_order_id = report.work_order_id
+            workorder = WorkOrder.objects.get(id=work_order_id)
+
+            workorder_units = workorder.units.all()
+
+            for unit in workorder_units:
+                unit_id = unit.id
+                procedure_def_name = obj.data_ready_status
+                procedure_def_id = ProcedureDefinition.objects.filter(
+                    name=procedure_def_name
+                ).values_list('id', flat=True).first()
+
+                procedure_results = ProcedureResult.objects.filter(
+                    unit_id=unit_id,
+                    procedure_definition_id=procedure_def_id
+                )
+
+                if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                    return '#f51111' # ❌ Return red if any unit failed
+
+            
+            return '#4ef542' # ✅ Only return green if all units passed
+
+
+
+
+
+
+            
+            # report_result=UnitReportResult.objects.filter(report_result_id=obj.id).first()
+            # if report_result:
+            #     unit_id=report_result.unit_id
+            #     execution_order=report_result.execution_group_number
+
+            #     selected_procedures=ProcedureResult.objects.filter(unit_id=unit_id,linear_execution_group=execution_order)
+            #     if all(procedure.disposition_id in [2,10,20] for procedure in selected_procedures):
+            #         return '#4ef542'
+            #     else:
+            #         return '#f51111'
+            # else:
+            #     return '#f5970a'
         
-        return '#ff9704'
+        
+        
     
     def get_azurefile_download(self, obj):
         azurefile_id=obj.azurefile_id

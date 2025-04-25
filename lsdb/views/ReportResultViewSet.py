@@ -41,12 +41,12 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             workorder=WorkOrder.objects.get(id=work_order_id)
             report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
             
-                
+            data_ready_status=ReportExecutionOrder.objects.filter(report_sequence_definition_id=report_definition).values_list('data_ready_status',flat=True).first()   
             
             ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
                                             report_execution_order_number=result.execution_group_number,
                                             product_type_definition=result.product_definition,
-                                            report_type_definition=result.report_definition,data_ready_status='Define'
+                                            report_type_definition=result.report_definition,data_ready_status=data_ready_status
                                         )
         
         queryset = ReportResult.objects.all()

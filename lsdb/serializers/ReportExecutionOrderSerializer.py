@@ -63,4 +63,5 @@ class ReportExecutionOrderSerializer(serializers.HyperlinkedModelSerializer):
             'version',
             'azure_file',
             'azure_file_download_url',
+            'data_ready_status',
         ]
