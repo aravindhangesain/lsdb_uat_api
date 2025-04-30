@@ -45,6 +45,8 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
 
         elif report.data_ready_status in ['Factory Witness']:
             return '#4ef542'
+        elif report.data_ready_status in ['Define']:
+            return '#faa405'
            
         else:
             work_order_id = report.work_order_id
@@ -55,6 +57,7 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             for unit in workorder_units:
                 unit_id = unit.id
                 procedure_def_name = obj.data_ready_status
+                print(procedure_def_name)
                 procedure_def_id = ProcedureDefinition.objects.filter(
                     name=procedure_def_name
                 ).values_list('id', flat=True).first()
@@ -65,10 +68,10 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
                 )
 
                 if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
-                    return '#f51111' # ❌ Return red if any unit failed
+                    return '#f51111'
 
             
-            return '#4ef542' # ✅ Only return green if all units passed
+            return '#4ef542'
 
 
 
