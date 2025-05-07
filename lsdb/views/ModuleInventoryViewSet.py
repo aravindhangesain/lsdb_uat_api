@@ -132,6 +132,55 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
             ])
 
         return response
+    
+    @action(detail=False, methods=['get'], url_path='download_active')
+    def download_active(self, request):
+        
+        
+
+        queryset1=ScannedPannels.objects.all()
+        units= Unit.objects.all()
+        queryset =queryset1.filter(module_intake__projects__disposition__complete=False)
+        
+
+        
+        unit_locations = {unit.serial_number: unit.location.name for unit in units}
+
+      
+        data = queryset.values(
+            'serial_number',
+            'module_intake__projects__number',
+            'module_intake__projects__customer__name',
+            'module_intake__bom',
+            'eol_disposition',
+            'arrival_date',
+            'project_closeout_date'
+        )
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="Active_Modules.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Serial Number', 'Project Number', 'Customer Name', 'Workorder',
+            'Location', 'EOL Disposition', 'Arrival Date', 'Project Closeout Date'
+        ])
+
+        for item in data:
+            serial_number = item['serial_number']
+            location = unit_locations.get(serial_number, "Unknown")
+            writer.writerow([
+                serial_number,
+                item['module_intake__projects__number'],
+                item['module_intake__projects__customer__name'],
+                item['module_intake__bom'],
+                location,
+                item['eol_disposition'],
+                item['arrival_date'],
+                item['project_closeout_date']
+            ])
+
+        return response
         
 
     @action(detail=False, methods=['get'], url_path='download_napa_to_davis')

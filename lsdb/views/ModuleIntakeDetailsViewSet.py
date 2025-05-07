@@ -6,7 +6,7 @@ from rest_framework import status
 
 class ModuleIntakeDetailsViewSet(viewsets.ModelViewSet):
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
-    queryset = ModuleIntakeDetails.objects.all()
+    queryset = ModuleIntakeDetails.objects.all().order_by('-intake_date')
     serializer_class = ModuleIntakeDetailsSerializer
         
     def get_serializer_context(self):
