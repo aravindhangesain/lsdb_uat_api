@@ -24,25 +24,19 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
         customer = self.request.query_params.get('customer', None)
         location = self.request.query_params.get('location', None)
         active = self.request.query_params.get('active', None)
-
         queryset = ScannedPannels.objects.all()
-
         if serial_number:
             queryset = queryset.filter(serial_number=serial_number)
-        
         if project_number:
             queryset = queryset.filter(module_intake__projects__number=project_number)
-        
         if customer:
             queryset = queryset.filter(module_intake__projects__customer__name__icontains=customer)
-
         if location:
             units = Unit.objects.filter(location__name__icontains=location).values_list('serial_number', flat=True)
             queryset = queryset.filter(serial_number__in=units)
-
         if active is not None and active.lower() == 'true':
             queryset = queryset.filter(module_intake__projects__disposition__complete=False)
-
+        queryset = queryset.order_by('-module_intake__intake_date')
         return queryset
 
     def get_serializer_class(self):
@@ -54,29 +48,22 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         serial_number = self.kwargs.get(self.lookup_field)
-
         location = request.data.get('location')
         disposition = request.data.get('eol_disposition')
         arrival_date = request.data.get('arrival_date')
         project_closeout_date = request.data.get('project_closeout_date')
-
         if not serial_number:
             return Response({"detail": "Serial number is required."}, status=status.HTTP_400_BAD_REQUEST)
-
         unit_updates = {}
         print(unit_updates)
         scanned_pannels_updates = {}
-
         if location is not None:
             unit_updates['location'] = location
             print(location)
-
         if disposition is not None:
             scanned_pannels_updates['eol_disposition_id'] = disposition
-
         if arrival_date is not None:
             scanned_pannels_updates['arrival_date'] = arrival_date
-
         if project_closeout_date is not None:
             scanned_pannels_updates['project_closeout_date'] = project_closeout_date
         try:
@@ -101,22 +88,17 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
         
     @action(detail=False, methods=['get'], url_path='download_all')
     def download_all(self, request):
-
         queryset = ScannedPannels.objects.all()
         units = Unit.objects.all()
         unit_locations = {unit.serial_number: unit.location.name for unit in units}
-
         data = queryset.values(
             'serial_number', 'module_intake__projects__number', 'module_intake__projects__customer__name', 'module_intake__bom',
             'eol_disposition', 'arrival_date', 'project_closeout_date'
         )
-
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="All_Modules.csv"'
-
         writer = csv.writer(response)
         writer.writerow(['Serial Number', 'Project Number', 'Customer Name', 'Workorder','Location','EOL Disposition', 'Arrival Date', 'Project Closeout Date'])
-
         for item in data:
             serial_number = item['serial_number']
             location = unit_locations.get(serial_number, "Unknown")
@@ -130,23 +112,14 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
                 item['arrival_date'],
                 item['project_closeout_date']
             ])
-
         return response
     
     @action(detail=False, methods=['get'], url_path='download_active')
     def download_active(self, request):
-        
-        
-
         queryset1=ScannedPannels.objects.all()
         units= Unit.objects.all()
         queryset =queryset1.filter(module_intake__projects__disposition__complete=False)
-        
-
-        
         unit_locations = {unit.serial_number: unit.location.name for unit in units}
-
-      
         data = queryset.values(
             'serial_number',
             'module_intake__projects__number',
@@ -156,16 +129,13 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
             'arrival_date',
             'project_closeout_date'
         )
-
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Active_Modules.csv"'
-
         writer = csv.writer(response)
         writer.writerow([
             'Serial Number', 'Project Number', 'Customer Name', 'Workorder',
             'Location', 'EOL Disposition', 'Arrival Date', 'Project Closeout Date'
         ])
-
         for item in data:
             serial_number = item['serial_number']
             location = unit_locations.get(serial_number, "Unknown")
@@ -179,10 +149,8 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
                 item['arrival_date'],
                 item['project_closeout_date']
             ])
-
         return response
         
-
     @action(detail=False, methods=['get'], url_path='download_napa_to_davis')
     def download_napa_to_davis(self, request):
         return self._download_location_csv('Napa to Davis')
@@ -196,18 +164,14 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
         unit_locations = {unit.serial_number: unit.location.name for unit in units}
         serial_numbers = list(unit_locations.keys())
         queryset = ScannedPannels.objects.filter(serial_number__in=serial_numbers)
-
         data = queryset.values(
             'serial_number', 'module_intake__projects__number', 'module_intake__projects__customer__name', 
             'module_intake__bom','eol_disposition', 'arrival_date', 'project_closeout_date'
         )
-
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename="modules_{location_filter.replace(" ", "_").lower()}.csv"'
-
         writer = csv.writer(response)
         writer.writerow(['Serial Number', 'Project Number', 'Customer Name', 'Workorder','Location','EOL Disposition', 'Arrival Date', 'Project Closeout Date'])
-
         for item in data:
             serial_number = item['serial_number']
             location = unit_locations.get(serial_number, "Unknown") 
@@ -221,5 +185,53 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
                 item['arrival_date'],
                 item['project_closeout_date']
             ])
+        return response
 
+    @action(detail=False, methods=['get'], url_path='download_csv')
+    def download_csv(self, request):
+        serial_number = request.query_params.get('serial_number')
+        project_number = request.query_params.get('project_number')
+        customer = request.query_params.get('customer')
+        location = request.query_params.get('location')
+        active = request.query_params.get('active')
+        queryset = ScannedPannels.objects.all()
+        if serial_number:
+            queryset = queryset.filter(serial_number=serial_number)
+        if project_number:
+            queryset = queryset.filter(module_intake__projects__number=project_number)
+        if customer:
+            queryset = queryset.filter(module_intake__projects__customer__name__icontains=customer)
+        if location:
+            units = Unit.objects.filter(location__name__icontains=location).values_list('serial_number', flat=True)
+            queryset = queryset.filter(serial_number__in=units)
+        if active is not None and active.lower() == 'true':
+            queryset = queryset.filter(module_intake__projects__disposition__complete=False)
+        units = Unit.objects.all()
+        unit_locations = {unit.serial_number: unit.location.name if unit.location else "Unknown" for unit in units}
+        data = queryset.values(
+            'serial_number',
+            'module_intake__projects__number',
+            'module_intake__projects__customer__name',
+            'module_intake__bom',
+            'eol_disposition',
+            'arrival_date',
+            'project_closeout_date'
+        )
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="Filtered_Modules.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Serial Number', 'Project Number', 'Customer Name', 'Workorder', 'Location', 'EOL Disposition', 'Arrival Date', 'Project Closeout Date'])
+        for item in data:
+            serial_number = item['serial_number']
+            location = unit_locations.get(serial_number, "Unknown") 
+            writer.writerow([
+                serial_number,
+                item['module_intake__projects__number'],
+                item['module_intake__projects__customer__name'],
+                item['module_intake__bom'],
+                location,
+                item['eol_disposition'],
+                item['arrival_date'],
+                item['project_closeout_date']
+            ])
         return response
