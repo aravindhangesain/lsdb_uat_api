@@ -19,7 +19,7 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_flash_values(self, obj):
         stepresult_id = StepResult.objects.filter(procedure_result_id=obj.id).values_list('id', flat=True).first()
-        measurementresults = MeasurementResult.objects.filter(step_result_id=stepresult_id,name__in=["Imp", "Isc", "Vmp", "Voc", "Pmp"])
+        measurementresults = MeasurementResult.objects.filter(step_result_id=stepresult_id,name__in=["Imp", "Isc", "Vmp", "Voc", "Pmp","Temperature", "Irradiance"])
         correction_factor = {}
         for measurementresult in measurementresults:
             if measurementresult.name is not None:

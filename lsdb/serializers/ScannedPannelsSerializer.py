@@ -50,6 +50,7 @@ class ModuleInventorySerializer(serializers.ModelSerializer):
     module_type = serializers.ReadOnlyField(source='module_intake.module_type')
     test_sequence_name=serializers.ReadOnlyField(source='test_sequence.name')
     intake_location=serializers.ReadOnlyField(source='module_intake.location.name')
+    arrival_date=serializers.ReadOnlyField(source='module_intake.received_date')
     
 
 

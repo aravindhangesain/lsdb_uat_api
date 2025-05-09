@@ -97,6 +97,8 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "Vmp": flash_values.get("Vmp", ""),
                 "Isc": flash_values.get("Isc", ""),
                 "Imp": flash_values.get("Imp", ""),
+                "Temperature": flash_values.get("Temperature", ""),
+                "Irradiance": flash_values.get("Irradiance", ""),
             })
         df = pd.DataFrame(filtered_data)
         for col in ["Flash Start DateTime", "Date Time"]:
@@ -146,6 +148,8 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "Vmp": flash_values.get("Vmp", ""),
                 "Isc": flash_values.get("Isc", ""),
                 "Imp": flash_values.get("Imp", ""),
+                "Temperature": flash_values.get("Temperature", ""),
+                "Irradiance": flash_values.get("Irradiance", ""),
             })
         df = pd.DataFrame(filtered_data)
         for col in ["Flash Start DateTime", "Date Time"]:
