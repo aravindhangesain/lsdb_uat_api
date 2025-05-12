@@ -185,3 +185,4 @@ from .AssetCalibrationSerializer import AssetCalibrationSerializer as AssetCalib
 from .GetAssetCalibrationDetailsSerializer import GetAssetCalibrationDetailsSerializer as GetAssetCalibrationDetailsSerializer
 from .HailTestSerializer import HailTestSerializer as HailTestSerializer
 from .ProjectTemplateSerializer import ProjectTemplateSerializer as ProjectTemplateSerializer
+from .XlfilereadSerializer import XlfilereadSerializer as XlfilereadSerializer

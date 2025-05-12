@@ -136,3 +136,4 @@ from .OpsQueuePriority import OpsQueuePriority as OpsQueuePriority
 from .UnitReportResult import UnitReportResult as UnitReportResult
 from .HailTest import HailTest as HailTest
 from .ProjectTemplate import ProjectTemplate as ProjectTemplate
+from .Xlfileread import xlfileread as xlfileread
