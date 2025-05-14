@@ -64,6 +64,7 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'name',
             'unit',
+            'unit_id',
             'unit_serial_number',
             'procedure_definition',
             'procedure_definition_name',
