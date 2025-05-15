@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lsdb.models import StepResult, UnitType
+from lsdb.models import ModuleProperty, StepResult, UnitType
 from lsdb.models import MeasurementResult
 from lsdb.models import ProcedureResult
 from lsdb.models import Unit
@@ -16,6 +16,10 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
     module_type_name = serializers.SerializerMethodField()
     date_time=serializers.SerializerMethodField()
     flash_values = serializers.SerializerMethodField()
+    module_nameplate = serializers.SerializerMethodField()
+
+    
+
 
     def get_flash_values(self, obj):
         stepresult_id = StepResult.objects.filter(procedure_result_id=obj.id).values_list('id', flat=True).first()
@@ -28,6 +32,43 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
                 else:
                     correction_factor[measurementresult.name] = None
         return correction_factor
+    
+    def get_module_nameplate(self,obj):
+        unit_id = obj.unit.id
+        unit = Unit.objects.get(id = unit_id)
+        unit_type = UnitType.objects.get(id=unit.unit_type_id)
+        module_property=ModuleProperty.objects.get(id=unit_type.module_property_id)
+        nameplate_values={
+            "Pmp": module_property.nameplate_pmax,
+            "Voc": module_property.voc,
+            "Vmp": module_property.vmp,
+            "Isc": module_property.isc,
+            "Imp": module_property.imp,
+        }
+
+        measured_flash=self.get_flash_values(obj)
+
+        measured_Imp=measured_flash.get("Imp")
+        measured_Isc=measured_flash.get("Isc")
+        measured_Vmp=measured_flash.get("Vmp")
+        measured_Voc=measured_flash.get("Voc")
+        measured_Pmp=measured_flash.get("Pmp")
+
+        deviation_percentage = {
+            "Imp": str(round(((measured_Imp / nameplate_values["Imp"]) * 100) - 100, 2)) + "%",
+            "Isc": str(round(((measured_Isc / nameplate_values["Isc"]) * 100) - 100, 2)) + "%",
+            "Vmp": str(round(((measured_Vmp / nameplate_values["Vmp"]) * 100) - 100, 2)) + "%",
+            "Voc": str(round(((measured_Voc / nameplate_values["Voc"]) * 100) - 100, 2)) + "%",
+            "Pmp": str(round(((measured_Pmp / nameplate_values["Pmp"]) * 100) - 100, 2)) + "%",
+}
+        print(deviation_percentage)
+
+        return deviation_percentage
+
+
+
+     
+
 
     def get_flash_start_datetime(self, obj):
         step_results = StepResult.objects.filter(procedure_result_id=obj)
@@ -81,4 +122,5 @@ class UVIDandFlashReportSerializer(serializers.HyperlinkedModelSerializer):
             'module_type_name',
             'date_time',
             'flash_values',
+            'module_nameplate'
         ]

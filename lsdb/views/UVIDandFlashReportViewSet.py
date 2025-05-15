@@ -62,6 +62,7 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
         filtered_data = []
         for item in data:
             flash_values = item.get("flash_values", {})
+            module_nameplate=item.get("module_nameplate",{})
             flash_start_datetime = item.get("flash_start_datetime")
             date_time = item.get("date_time")
             if isinstance(flash_start_datetime, str):
@@ -99,6 +100,13 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "Vmp(stc_nameplate)": module_property.vmp,
                 "Isc(stc_nameplate)": module_property.isc,
                 "Imp(stc_nameplate)": module_property.imp,
+                "Imp_deviation":module_nameplate.get("Imp"),
+                "Pmp_deviation":module_nameplate.get("Pmp"),
+                "Vmp_deviation":module_nameplate.get("Vmp"),
+                "Voc_deviation":module_nameplate.get("Voc"),
+                "Isc_deviation":module_nameplate.get("Isc")
+
+
             })
         df = pd.DataFrame(filtered_data)
         for col in ["Flash Start DateTime", "Date Time"]:
