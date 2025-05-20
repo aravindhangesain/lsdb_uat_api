@@ -117,6 +117,8 @@ from lsdb.views import GetAssetCalibrationDetailsViewSet
 from lsdb.views import HailTestViewSet
 from lsdb.views import ProjectTemplateViewSet
 from lsdb.views import XlfilereadViewSet
+from lsdb.views import VisualInspectionViewSet
+
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)
@@ -233,6 +235,8 @@ router.register(r'getcalibrationdetails',GetAssetCalibrationDetailsViewSet,basen
 router.register(r'hailtest',HailTestViewSet, basename = 'hailtest')
 router.register(r'projecttemplate',ProjectTemplateViewSet, basename = 'projecttemplate')
 router.register(r'xlfileread',XlfilereadViewSet)
+router.register(r'Visualnspection',VisualInspectionViewSet)
+
 
 
 # router.register(r'iv_el_inprogress',IVandEL_InProgressViewSet,basename = 'iv_el_inprogress')

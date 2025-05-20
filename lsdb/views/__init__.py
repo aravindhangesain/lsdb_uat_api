@@ -155,3 +155,4 @@ from .GetAssetCalibrationDetailsViewSet import GetAssetCalibrationDetailsViewSet
 from .HailTestViewSet import HailTestViewSet as HailTestViewSet
 from .ProjectTemplateViewSet import ProjectTemplateViewSet as ProjectTemplateViewSet
 from .XlfilereadViewSet import XlfilereadViewSet as XlfilereadViewSet
+from .VisualInspectionViewSet import VisualInspectionViewSet as VisualInspectionViewSet
