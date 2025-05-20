@@ -153,7 +153,7 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
         file_name = azurefile.name
 
         if not file_name:
-            return Response({'error': 'Missing `filename` in query params'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Missing `filename` in AzureFile record'}, status=status.HTTP_400_BAD_REQUEST)
 
         connect_str = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
         container_name = 'media'
@@ -222,24 +222,25 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                 }
 
                 new_values = {
-                    'Imp': row['Imp(measurement_result)'],
-                    'Isc': row['Isc(measurement_result)'],
-                    'Vmp': row['Vmp(measurement_result)'],
-                    'Voc': row['Voc(measurement_result)'],
-                    'Pmp': row['Pmp(measurement_result)'],
+                    key: None if pd.isnull(row[f"{key}(measurement_result)"]) else row[f"{key}(measurement_result)"]
+                    for key in ['Imp', 'Isc', 'Vmp', 'Voc', 'Pmp']
                 }
 
-                # Check if any values are different
+                # Check if any value has changed
                 any_changed = False
                 for key in existing_values:
                     old_val = existing_values[key]
                     new_val = new_values[key]
-                    if old_val is None or not math.isclose(old_val, new_val, rel_tol=1e-9):
-                        any_changed = True
-                        break
+                    if old_val != new_val:
+                        if old_val is None or new_val is None:
+                            any_changed = True
+                            break
+                        if not math.isclose(old_val, new_val, rel_tol=1e-9):
+                            any_changed = True
+                            break
 
                 if any_changed:
-                    # Save to OldMeasurementResult
+                    # Save old values
                     OldMeasurementResult.objects.create(
                         procedure_result=procedure_result,
                         imp=existing_values['Imp'],
@@ -250,14 +251,17 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                     )
                     old_saved_count += 1
 
-                    # Update only changed values
+                    # Update changed values
                     for key, new_val in new_values.items():
                         measurement = result_dict.get(key)
-                        if measurement and (measurement.result_double is None or not math.isclose(measurement.result_double, new_val, rel_tol=1e-9)):
-                            measurement.result_double = new_val
-                            measurement.reviewed_by_user_id = request.user.id
-                            measurement.save()
-                            updated_count += 1
+                        if measurement:
+                            old_val = measurement.result_double
+                            if old_val != new_val:
+                                if old_val is None or new_val is None or not math.isclose(old_val, new_val, rel_tol=1e-9):
+                                    measurement.result_double = new_val
+                                    measurement.reviewed_by_user_id = request.user.id
+                                    measurement.save()
+                                    updated_count += 1
 
             return Response({
                 'message': 'Correction factors uploaded and applied successfully.',
