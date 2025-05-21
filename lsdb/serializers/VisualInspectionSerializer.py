@@ -6,9 +6,11 @@ class VisualInspectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=VisualInspection
         fields=[
+            'id',
+            'url',
             'procedure_result',
             'procedure_definition',
             'calibration_date',
             'ambient_temperature',
-            'ambient_humidity',
+            'humidity',
         ]

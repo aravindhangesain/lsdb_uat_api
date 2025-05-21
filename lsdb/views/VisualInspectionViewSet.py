@@ -9,4 +9,3 @@ class VisualInspectionViewSet(LoggingMixin,viewsets.ModelViewSet):
     logging_method = ['POST','PUT','PATCH','DELETE']
     queryset = VisualInspection.objects.all()
     serializer_class = VisualInspectionSerializer
-    permission_classes=[ConfiguredPermission]
