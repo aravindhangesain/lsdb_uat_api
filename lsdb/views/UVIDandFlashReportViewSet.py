@@ -259,9 +259,11 @@ class UVIDandFlashReportViewSet(viewsets.ReadOnlyModelViewSet):
                             if old_val != new_val:
                                 if old_val is None or new_val is None or not math.isclose(old_val, new_val, rel_tol=1e-9):
                                     measurement.result_double = new_val
-                                    measurement.reviewed_by_user_id = request.user.id
+                                    # measurement.reviewed_by_user_id = request.user.id
                                     measurement.save()
                                     updated_count += 1
+                                    
+                    MeasurementResult.objects.filter(step_result__procedure_result=procedure_result).update(reviewed_by_user_id=request.user.id,review_datetime=datetime.now())
 
             return Response({
                 'message': 'Correction factors uploaded and applied successfully.',
