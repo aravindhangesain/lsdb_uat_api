@@ -139,3 +139,4 @@ from .ProjectTemplate import ProjectTemplate as ProjectTemplate
 from .Xlfileread import xlfileread as xlfileread
 from .OldMeasurementResult import OldMeasurementResult as OldMeasurementResult
 from .VisualInspection import VisualInspection as VisualInspection
+from .IAMFileRead import IAMFileRead as IAMFileRead
