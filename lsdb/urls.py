@@ -118,6 +118,7 @@ from lsdb.views import HailTestViewSet
 from lsdb.views import ProjectTemplateViewSet
 from lsdb.views import XlfilereadViewSet
 from lsdb.views import VisualInspectionViewSet
+from lsdb.views import IAMFileReadViewSet
 
 
 router = DefaultRouter()
@@ -236,6 +237,7 @@ router.register(r'hailtest',HailTestViewSet, basename = 'hailtest')
 router.register(r'projecttemplate',ProjectTemplateViewSet, basename = 'projecttemplate')
 router.register(r'xlfileread',XlfilereadViewSet)
 router.register(r'Visualnspection',VisualInspectionViewSet)
+router.register(r'iamfileread',IAMFileReadViewSet)
 
 
 

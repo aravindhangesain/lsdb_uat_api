@@ -187,3 +187,4 @@ from .HailTestSerializer import HailTestSerializer as HailTestSerializer
 from .ProjectTemplateSerializer import ProjectTemplateSerializer as ProjectTemplateSerializer
 from .XlfilereadSerializer import XlfilereadSerializer as XlfilereadSerializer
 from .VisualInspectionSerializer import VisualInspectionSerializer as VisualInspectionSerializer
+from .IAMFileReadSerializer import IAMFileReadSerializer as IAMFileReadSerializer
