@@ -5,7 +5,7 @@ import csv
 from django.http import HttpResponse
 from rest_framework.decorators import action
 from django.utils import timezone
-from lsdb.models import LocationLog,ScannedPannels,Unit
+from lsdb.models import Disposition, LocationLog,ScannedPannels,Unit
 from lsdb.serializers.ScannedPannelsSerializer import ModuleInventorySerializer,ModuleInventoryDetailSerializer
 
 
@@ -45,6 +45,40 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
             return ModuleInventoryDetailSerializer
         else:
             return ModuleInventorySerializer
+        
+    @action(detail=False, methods=['patch'])
+    def bulk_eol_disposition_update(self, request):
+        serial_numbers = request.data.get('serialNumber')
+        eol_disposition = request.data.get('disposition')
+        date = request.data.get('date')
+
+        if not serial_numbers:
+            return Response({"detail": "Serial numbers are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(serial_numbers, list):
+            return Response({"detail": "Serial numbers must be a list."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not eol_disposition and not date:
+            return Response({"detail": "At least one of 'disposition' or 'date' must be provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        for serial_number in serial_numbers:
+            scanned_pannels = ScannedPannels.objects.filter(serial_number=serial_number).first()
+            if scanned_pannels:
+                if eol_disposition is not None:
+                    ins=Disposition.objects.get(id=eol_disposition)
+                    scanned_pannels.eol_disposition = ins
+                if date is not None:
+                    scanned_pannels.project_closeout_date = date
+                scanned_pannels.save()
+            else:
+                return Response({"detail": f"Serial number {serial_number} not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"detail": "Update successful."}, status=status.HTTP_200_OK)
+
+
+
+        
+
 
     def update(self, request, *args, **kwargs):
         serial_number = self.kwargs.get(self.lookup_field)
