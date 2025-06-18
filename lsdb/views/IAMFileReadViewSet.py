@@ -23,7 +23,7 @@ class IAMFileReadViewSet(viewsets.ModelViewSet):
             return Response({"status": "error", "msg": "No file uploaded."}, status=400)
 
         try:
-            connect_str = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+...==;EndpointSuffix=core.windows.net'
+            connect_str = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
             container_name = 'testmedia1'
 
             blob_service_client = BlobServiceClient.from_connection_string(connect_str)
