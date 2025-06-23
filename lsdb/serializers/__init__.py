@@ -188,3 +188,4 @@ from .ProjectTemplateSerializer import ProjectTemplateSerializer as ProjectTempl
 from .XlfilereadSerializer import XlfilereadSerializer as XlfilereadSerializer
 from .VisualInspectionSerializer import VisualInspectionSerializer as VisualInspectionSerializer
 from .IAMFileReadSerializer import IAMFileReadSerializer as IAMFileReadSerializer
+from .ReportFileTemplateSerializer import ReportFileTemplateSerializer as ReportFileTemplateSerializer

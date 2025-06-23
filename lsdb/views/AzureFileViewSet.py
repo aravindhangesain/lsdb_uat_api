@@ -4,6 +4,7 @@ from django.http import FileResponse, HttpResponse
 from django_filters import rest_framework as filters
 
 from rest_framework import viewsets
+from pathlib import Path
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
@@ -68,6 +69,24 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
 
         response = HttpResponse(file_handle, content_type=content_type)
         response['Content-Disposition'] = 'attachment; filename={0}'.format(file)
+        return response
+
+    @action(detail=True, methods=['get'],
+            permission_classes=(ConfiguredPermission,))
+    def custom_download(self, request, pk=None):
+        queryset = AzureFile.objects.get(id=pk)
+        file = queryset.file
+        file_handle = file.open()
+        content_type = magic.from_buffer(file_handle.read(2048), mime=True)
+        file_handle.seek(0)
+        save_path = Path("C:/pvel/documents")
+        save_path.mkdir(parents=True, exist_ok=True)
+        local_filename = save_path / file.name
+        with open(local_filename, 'wb') as local_file:
+            local_file.write(file_handle.read())
+        file_handle.seek(0)
+        response = HttpResponse(file_handle, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{file.name}"'
         return response
 
     @action(detail=True, methods=['get'],

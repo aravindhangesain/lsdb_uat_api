@@ -157,3 +157,4 @@ from .ProjectTemplateViewSet import ProjectTemplateViewSet as ProjectTemplateVie
 from .XlfilereadViewSet import XlfilereadViewSet as XlfilereadViewSet
 from .VisualInspectionViewSet import VisualInspectionViewSet as VisualInspectionViewSet
 from .IAMFileReadViewSet import IAMFileReadViewSet as IAMFileReadViewSet
+from .ReportFileTemplateViewSet import ReportFileTemplateViewSet as ReportFileTemplateViewSet
