@@ -4,6 +4,7 @@ from lsdb.models import ReportFileTemplate
 AZURE_BLOB_BASE_URL = "https://haveblueazdev.blob.core.windows.net/reportmedia/"
 
 class ReportFileTemplateSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True)
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         if instance.file:
