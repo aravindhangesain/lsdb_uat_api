@@ -10,6 +10,8 @@ from azure.storage.blob import BlobServiceClient
 from docx import Document
 import magic
 import os
+import re
+import string
 
 class ReportFileTemplateViewSet(viewsets.ModelViewSet):
     queryset = ReportFileTemplate.objects.all()
@@ -18,12 +20,35 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def get_versioned_filename(base_name, extension, existing_names):
-        version = 1
+        def generate_alpha_suffixes():
+            for c in string.ascii_uppercase:
+                yield c
+
         new_name = f"{base_name}{extension}"
-        while new_name in existing_names:
-            new_name = f"{base_name}-v{version}{extension}"
-            version += 1
-        return new_name
+
+        if new_name not in existing_names:
+            return new_name
+
+        version_match = re.match(r"^(.*-v\d+)([A-Z]?)$", base_name)
+
+        if version_match:
+            base_part = version_match.group(1)  
+            existing_suffixes = {
+                name for name in existing_names
+                if name.startswith(base_part) and name.endswith(extension)
+            }
+
+            for suffix in generate_alpha_suffixes():
+                candidate = f"{base_part}{suffix}{extension}"
+                if candidate not in existing_suffixes:
+                    return candidate
+        else:
+            version = 1
+            while True:
+                candidate = f"{base_name}-v{version}{extension}"
+                if candidate not in existing_names:
+                    return candidate
+                version += 1
 
 
     @action(detail=False, methods=['post'])
