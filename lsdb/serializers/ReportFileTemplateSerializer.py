@@ -5,6 +5,9 @@ AZURE_BLOB_BASE_URL = "https://haveblueazdev.blob.core.windows.net/reportmedia/"
 
 class ReportFileTemplateSerializer(serializers.ModelSerializer):
     name = serializers.CharField(read_only=True)
+    datetime = serializers.DateTimeField(read_only=True)
+    username = serializers.ReadOnlyField(source='user.username')
+    
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         if instance.file:
@@ -21,6 +24,7 @@ class ReportFileTemplateSerializer(serializers.ModelSerializer):
             'name',
             'report',
             'workorder',
-            'user_id',
+            'user',
+            'username',
             'datetime'
         ]

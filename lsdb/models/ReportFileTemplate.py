@@ -5,5 +5,5 @@ class ReportFileTemplate(models.Model):
     workorder = models.ForeignKey("WorkOrder",on_delete=models.CASCADE,blank=False, null=False)
     file = models.FileField(blank=False, null=False)
     name=models.CharField(max_length=100,null=True,blank=True)
-    user_id= models.IntegerField(null=True,blank=True)
+    user= models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)
     datetime = models.DateTimeField(null=True,blank=True)
