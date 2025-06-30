@@ -17,6 +17,8 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
     hex_color=serializers.SerializerMethodField()
     project_number=serializers.SerializerMethodField()
     azurefile_download=serializers.SerializerMethodField()
+    reportexecution_azurefile=serializers.SerializerMethodField()
+    
     # azurefile_custom_download = serializers.SerializerMethodField()
 
     User = get_user_model()
@@ -103,6 +105,13 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
         azurefile_download="https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/"+str(azurefile_id)+"/download"
         return azurefile_download
     
+    def get_reportexecution_azurefile(self, obj):
+        # Safely traverse the relation chain
+        azurefile_id = obj.reportexecution_azurefile_id
+        if azurefile_id:
+            return f"https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{azurefile_id}/download"
+        return None
+    
     # def get_azurefile_custom_download(self, obj):
     #     azurefile_id=obj.azurefile_id
     #     if azurefile_id==None:
@@ -110,6 +119,10 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
     #     azurefile_download="https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/"+str(azurefile_id)+"/custom_download"
     #     return azurefile_download
     
+    
+
+
+
     
 
 
@@ -146,5 +159,6 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             'azurefile',
             'azurefile_download',
             'hex_color',
+            'reportexecution_azurefile'
             # 'azurefile_custom_download'
         ]
