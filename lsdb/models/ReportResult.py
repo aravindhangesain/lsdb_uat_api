@@ -17,6 +17,6 @@ class ReportResult(models.Model):
     report_execution_order_number=models.FloatField()
     azurefile=models.ForeignKey('AzureFile', on_delete=models.CASCADE, blank=False, null=False)
     document_title=models.CharField(max_length=256, blank=True, null=True)
-    reportexecution_azurefile_id=models.IntegerField(null=True,blank=True)
+    reportexecution_azurefile=models.ForeignKey('AzureFile',null=True,blank=True,on_delete=models.CASCADE,related_name='reportexecution_azurefile')
 
 

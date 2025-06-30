@@ -107,9 +107,9 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
     
     def get_reportexecution_azurefile(self, obj):
         # Safely traverse the relation chain
-        azurefile_id = obj.reportexecution_azurefile_id
-        if azurefile_id:
-            return f"https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{azurefile_id}/download"
+        int_var = obj.reportexecution_azurefile_id
+        if int_var:
+            return f"https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{int_var}/download"
         return None
     
     # def get_azurefile_custom_download(self, obj):

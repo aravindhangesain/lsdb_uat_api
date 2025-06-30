@@ -48,7 +48,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                                             report_execution_order_number=result.execution_group_number,
                                             product_type_definition=result.product_definition,
                                             report_type_definition=result.report_definition,
-                                            data_ready_status=result.data_ready_status,reportexecution_azurefile_id=result.azure_file.id
+                                            data_ready_status=result.data_ready_status,reportexecution_azurefile=result.azure_file
                                         )
         
         queryset = ReportResult.objects.all()
