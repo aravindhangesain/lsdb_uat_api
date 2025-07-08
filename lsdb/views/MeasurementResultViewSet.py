@@ -153,7 +153,7 @@ class MeasurementResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             if params.get('reviewed_by_user'):
                 result.reviewed_by_user = User.objects.get(username=params.get('reviewed_by_user'))
             # Special cases for hsitoric. KLUGE
-            if params.get('historic'):
+            if params.get('historic') and params.get('disposition') != 13:
                 # overrides for current user to be reviewer:
                 result.reviewed_by_user = request.user
                 result.review_datetime = timezone.now().isoformat()
@@ -180,7 +180,7 @@ class MeasurementResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                 # NOT a historic POST:
                 result.user = request.user
             # Everything else
-            result.date_time = timezone.now().isoformat()
+            result.date_time = params.get('date_time') if params.get('date_time') is not None else timezone.now()
             result.software_revision = params.get('software_revision', result.software_revision)
             result.result_double = params.get('result_double', result.result_double)
             result.result_datetime = params.get('result_datetime', result.result_datetime)
