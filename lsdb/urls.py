@@ -120,6 +120,7 @@ from lsdb.views import XlfilereadViewSet
 from lsdb.views import VisualInspectionViewSet
 from lsdb.views import IAMFileReadViewSet
 from lsdb.views import ReportFileTemplateViewSet
+from lsdb.views import ReportWriterAgendaViewSet
 
 
 router = DefaultRouter()
@@ -240,6 +241,7 @@ router.register(r'xlfileread',XlfilereadViewSet)
 router.register(r'Visualnspection',VisualInspectionViewSet)
 router.register(r'iamfileread',IAMFileReadViewSet)
 router.register(r'reportfiletemplate',ReportFileTemplateViewSet,basename = 'reportfiletemplate')
+router.register(r'reportwriteragenda',ReportWriterAgendaViewSet, basename='reportwriteragenda')
 
 
 
