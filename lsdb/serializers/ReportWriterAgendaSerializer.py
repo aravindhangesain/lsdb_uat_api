@@ -2,58 +2,95 @@ from rest_framework import serializers
 from lsdb.models import *
 
 class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
-    report_type = serializers.ReadOnlyField(source='report_result.report_type_definition.name')
-    project_number = serializers.ReadOnlyField(source='report_result.work_order.project.number')
-    customer_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.customer.name')
-    bom = serializers.ReadOnlyField(source='report_result.work_order.name')
-    project_manager_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.project_manager.username')
-    ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
-    writer_name = serializers.ReadOnlyField(source='writer.writer_name')
-    reviewer_name =serializers.ReadOnlyField(source='reviewer.reviewer_name')
-    data_ready_date = serializers.SerializerMethodField()
+    report_type_definition_name=serializers.ReadOnlyField(source='report_type_definition.name')
+    project_number=serializers.SerializerMethodField()
+    customer_name = serializers.ReadOnlyField(source = 'work_order.project.customer.name')
+    bom = serializers.ReadOnlyField(source='work_order.name')
+    project_manager_name = serializers.ReadOnlyField(source = 'work_order.project.project_manager.username')
+    ntp_date = serializers.ReadOnlyField(source='work_order.start_datetime')
     data_verification_date = serializers.SerializerMethodField()
     tech_writer_startdate = serializers.SerializerMethodField()
+    report_writer_name = serializers.ReadOnlyField(source='report_writer.writer_name')
+    report_reviewer_name =serializers.ReadOnlyField(source='report_reviewer.reviewer_name')
+    ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
+    project_type = serializers.SerializerMethodField()
+    pichina = serializers.SerializerMethodField()
+    priority = serializers.SerializerMethodField()
+    contractually_obligated_date = serializers.SerializerMethodField()
+    pqp_version = serializers.SerializerMethodField()
 
-    def get_data_ready_date(self,obj):
-        report_result_id = obj.report_result.id
-        report_result = ReportResult.objects.get(id = report_result_id)
-        if report_result:
-            return report_result.ready_datetime
-        
+    def get_project_number(self, obj):
+        work_order_id=obj.work_order_id
+        project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
+        project_number=Project.objects.filter(id=project_id).values_list('number',flat=True).first()
+        return project_number
+
     def get_data_verification_date(self,obj):
-        report_result_id = obj.report_result.id
-        report_result = ReportResult.objects.get(id = report_result_id)
-        if report_result:
-            return report_result.ready_datetime
+            return obj.ready_datetime
 
-
-    def get_tech_writer_startdate(self,obj):
-        report_file= ReportFileTemplate.objects.get(report = obj.report_result)
+    def get_tech_writer_startdate(self, obj):
+        report_file = ReportFileTemplate.objects.filter(report=obj.id).first()
         if report_file:
             return report_file.datetime
+        return None
+    
+    def get_project_type(self,obj):
+        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+        if report_writer:
+            return report_writer.project_type
+        else:
+            return None
+    
+    def get_pichina(self,obj):
+        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+        if report_writer:
+            return report_writer.pichina
+        else:
+            return None
+        
+    def get_priority(self,obj):
+        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+        if report_writer:
+            return report_writer.priority
+        else:
+            return None
+        
+        
+    def get_contractually_obligated_date(self,obj):
+        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+        if report_writer:
+            return report_writer.contractually_obligated_date
+        else:
+            return None
 
+    def get_pqp_version(self,obj):
+        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+        if report_writer:
+            return report_writer.pqp_version
+        else:
+            return None
+                               
     class Meta:
-        model = ReportWriterAgenda
+        model = ReportResult
         fields  = [
             'id',
             'url',
-            'project_type',
-            'report_type',
+            'report_type_definition_name',
             'project_number',
             'project_manager_name',
             'customer_name',
             'ntp_date',
             'bom',
-            'report_result',
+            'tech_writer_startdate',
+            'ready_datetime',
+            'data_verification_date',
+            'report_writer',
+            'report_writer_name',
+            'report_reviewer',
+            'report_reviewer_name',
+            'project_type',
             'pichina',
             'priority',
             'contractually_obligated_date',
-            'pqp_version',
-            'writer',
-            'writer_name',
-            'reviewer',
-            'reviewer_name',
-            'tech_writer_startdate',
-            'data_ready_date',
-            'data_verification_date'
+            'pqp_version'
         ]

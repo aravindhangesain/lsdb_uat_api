@@ -7,5 +7,3 @@ class ReportWriterAgenda(models.Model):
     priority = models.CharField(max_length=32,null=True,blank=True)
     contractually_obligated_date = models.DateTimeField(null=True,blank=True)
     pqp_version = models.CharField(max_length=32,null=True,blank=True)
-    writer= models.ForeignKey('ReportWriter',on_delete=models.CASCADE,null=True,blank=True)
-    reviewer= models.ForeignKey('ReportReviewer',on_delete=models.CASCADE,null=True,blank=True)
