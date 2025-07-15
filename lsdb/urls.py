@@ -121,6 +121,10 @@ from lsdb.views import VisualInspectionViewSet
 from lsdb.views import IAMFileReadViewSet
 from lsdb.views import ReportFileTemplateViewSet
 from lsdb.views import ReportWriterAgendaViewSet
+from lsdb.views import ReportApproverAgendaViewSet
+from lsdb.views import ReportApproverViewSet
+from lsdb.views import ReportReviewerViewSet
+from lsdb.views import ReportWriterViewSet
 
 
 router = DefaultRouter()
@@ -242,6 +246,10 @@ router.register(r'Visualnspection',VisualInspectionViewSet)
 router.register(r'iamfileread',IAMFileReadViewSet)
 router.register(r'reportfiletemplate',ReportFileTemplateViewSet,basename = 'reportfiletemplate')
 router.register(r'reportwriteragenda',ReportWriterAgendaViewSet, basename='reportwriteragenda')
+router.register(r'reportapproveragenda',ReportApproverAgendaViewSet,basename='reportapproveragenda')
+router.register(r'reportwriter',ReportWriterViewSet,basename='reportwriter')
+router.register(r'reportreviewer',ReportReviewerViewSet,basename='reportreviewer')
+router.register(r'reportapprover',ReportApproverViewSet,basename = 'reportapprover')
 
 
 

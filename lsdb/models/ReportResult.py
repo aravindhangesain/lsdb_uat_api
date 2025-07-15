@@ -7,7 +7,6 @@ class ReportResult(models.Model):
     report_writer=models.ForeignKey('auth.User', related_name ='writer',blank=False, null=False, on_delete=models.CASCADE)
     report_approver=models.ForeignKey('auth.User', related_name ='approver',blank=False, null=False, on_delete=models.CASCADE)
     data_ready_status=models.CharField(max_length=256, blank=True, null=True)
-    # status=models.BooleanField()
     user=models.ForeignKey('auth.User', blank=False, null=False, on_delete=models.CASCADE)
     work_order=models.ForeignKey('WorkOrder', on_delete=models.CASCADE, blank=False, null=False)
     report_sequence_definition=models.ForeignKey('ReportSequenceDefinition', on_delete=models.CASCADE, blank=False, null=False)
@@ -19,7 +18,6 @@ class ReportResult(models.Model):
     document_title=models.CharField(max_length=256, blank=True, null=True)
     reportexecution_azurefile=models.ForeignKey('AzureFile',null=True,blank=True,on_delete=models.CASCADE,related_name='reportexecution_azurefile')
     ready_datetime = models.DateTimeField(null=True,blank=True)
-    status = models.BooleanField(default=False)
-    color_code = models.CharField(max_length=120,null=True,balnk=True)
+    color_code = models.CharField(max_length=120,null=True,blank=True)
 
 

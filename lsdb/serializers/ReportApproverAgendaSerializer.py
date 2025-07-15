@@ -8,7 +8,6 @@ class ReportApproverAgendaSerializer(serializers.ModelSerializer):
     bom = serializers.ReadOnlyField(source='report_result.work_order.name')
     project_manager_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.project_manager.username')
     ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
-    tech_writer_startdate = serializers.SerializerMethodField()
 
     class Meta:
         model = ReportApproverAgenda
@@ -23,7 +22,6 @@ class ReportApproverAgendaSerializer(serializers.ModelSerializer):
             'bom',
             'report_result',
             'pichina',
-            'priority',
             'author',
             'status_pan',
             'contractually_obligated_date'
