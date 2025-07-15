@@ -18,5 +18,8 @@ class ReportResult(models.Model):
     azurefile=models.ForeignKey('AzureFile', on_delete=models.CASCADE, blank=False, null=False)
     document_title=models.CharField(max_length=256, blank=True, null=True)
     reportexecution_azurefile=models.ForeignKey('AzureFile',null=True,blank=True,on_delete=models.CASCADE,related_name='reportexecution_azurefile')
+    ready_datetime = models.DateTimeField(null=True,blank=True)
+    status = models.BooleanField(default=False)
+    color_code = models.CharField(max_length=120,null=True,balnk=True)
 
 
