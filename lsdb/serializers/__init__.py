@@ -190,3 +190,4 @@ from .VisualInspectionSerializer import VisualInspectionSerializer as VisualInsp
 from .IAMFileReadSerializer import IAMFileReadSerializer as IAMFileReadSerializer
 from .ReportFileTemplateSerializer import ReportFileTemplateSerializer as ReportFileTemplateSerializer
 from .ReportWriterAgendaSerializer import ReportWriterAgendaSerializer as ReportWriterAgendaSerializer
+from .ReportApproverAgendaSerializer import ReportApproverAgendaSerializer as ReportApproverAgendaSerializer

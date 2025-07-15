@@ -142,3 +142,4 @@ from .VisualInspection import VisualInspection as VisualInspection
 from .IAMFileRead import IAMFileRead as IAMFileRead
 from .ReportFileTemplate import ReportFileTemplate as ReportFileTemplate
 from .ReportWriterAgenda import ReportWriterAgenda as ReportWriterAgenda
+from .ReportApproverAgenda import ReportApproverAgenda as ReportApproverAgenda
