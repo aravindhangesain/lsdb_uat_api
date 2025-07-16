@@ -275,6 +275,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                     valid_definitions=ProcedureExecutionOrder.objects.filter(execution_group_name=procedure_exec_name,test_sequence_id=result.test_sequence_definition.id).values_list('procedure_definition_id',flat=True)
                     
                     procedure_results = ProcedureResult.objects.filter(
+                        name=procedure_exec_name,
                         work_order=result.work_order.id,
                         procedure_definition_id__in=valid_definitions,
                         test_sequence_definition_id=valid_report.test_sequence_definition.id
