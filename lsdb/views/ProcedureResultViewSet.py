@@ -24,7 +24,7 @@ from rest_framework.response import Response
 from rest_framework_tracking.mixins import LoggingMixin
 from rest_framework.status import (HTTP_400_BAD_REQUEST)
 
-from lsdb.models import Asset
+from lsdb.models import Asset, ProcedureExecutionOrder, ReportResult
 from lsdb.models import Disposition, DispositionCode
 from lsdb.models import Unit
 from lsdb.models import Note
@@ -265,6 +265,27 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             result.start_datetime = params.get('start_datetime', result.start_datetime)
             result.end_datetime = params.get('end_datetime', result.end_datetime)
             result.save()
+
+            if ReportResult.objects.filter(work_order_id=result.work_order.id,color_code='#f51111').exists():
+                valid_report=ReportResult.objects.filter(work_order_id=result.work_order.id,color_code='#f51111').exclude(data_ready_status__in=["Factory Witness","Define","Module Intake"]).first()
+
+                if valid_report:
+                    procedure_exec_name=valid_report.data_ready_status
+
+                    valid_definitions=ProcedureExecutionOrder.objects.filter(execution_group_name=procedure_exec_name,test_sequence_id=result.test_sequence_definition.id).values_list('procedure_definition_id',flat=True)
+                    
+                    procedure_results = ProcedureResult.objects.filter(
+                        work_order=result.work_order.id,
+                        procedure_definition_id__in=valid_definitions,
+                        test_sequence_definition_id=valid_report.test_sequence_definition.id
+                    )
+                    if all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                        datetime=timezone.now()
+                        valid_report.color_code='#4ef542'
+                        valid_report.ready_datetime=datetime
+
+                        valid_report.save()
+
 
         serializer = ProcedureResultSerializer(result, many=False, context=self.context)
         return Response(serializer.data)

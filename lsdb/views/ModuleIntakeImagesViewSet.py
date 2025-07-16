@@ -1,10 +1,11 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from lsdb.models import ModuleIntakeImages, ModuleIntakeDetails
+from lsdb.models import ModuleIntakeImages, ModuleIntakeDetails, ReportResult, WorkOrder
 from lsdb.serializers import ModuleIntakeImagesSerializer
 from azure.storage.blob import BlobServiceClient
 import uuid
+from django.utils import timezone
 
 class ModuleIntakeImagesViewSet(viewsets.ModelViewSet):
     queryset = ModuleIntakeImages.objects.all()
@@ -80,7 +81,23 @@ class ModuleIntakeImagesViewSet(viewsets.ModelViewSet):
             moduleintake.steps = 'step 3'
             moduleintake.is_complete = True
             moduleintake.save()
-            
+
+            project_id=moduleintake.projects.id
+            workorder=WorkOrder.objects.get(project_id=project_id)
+
+            if ReportResult.objects.filter(work_order_id=workorder.id).exists():
+
+                valid_intakes=ModuleIntakeDetails.objects.filter(project_id=project_id,bom=workorder.name)
+                if all("step 3" in intake.steps for intake in valid_intakes):
+                    datetime=timezone.now()
+
+                    report=ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").first()
+
+                    report.color_code='#4ef542'
+                    report.ready_datetime=datetime
+
+                    report.save()
+                    
             return Response({'status': 'success', 'path': azure_blob_url})
         except Exception as e:
             return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
