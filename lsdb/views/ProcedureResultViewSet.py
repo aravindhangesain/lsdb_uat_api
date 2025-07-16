@@ -276,7 +276,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                     
                     procedure_results = ProcedureResult.objects.filter(
                         name=procedure_exec_name,
-                        work_order=result.work_order.id,
+                        work_order=result.work_order,
                         procedure_definition_id__in=valid_definitions,
                         test_sequence_definition_id=valid_report.test_sequence_definition.id
                     )
