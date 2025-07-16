@@ -7,3 +7,4 @@ class ReportFileTemplate(models.Model):
     name=models.CharField(max_length=100,null=True,blank=True)
     user= models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)
     datetime = models.DateTimeField(null=True,blank=True)
+    version = models.CharField(max_length=150, null=True, blank=True)

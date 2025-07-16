@@ -49,6 +49,13 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
                     return candidate
                 version += 1
 
+    @staticmethod
+    def extract_version(filename: str):
+        match = re.search(r"-v(\d+[A-Z]?)", filename)
+        if match:
+            return f"v{match.group(1)}"
+        return "default"
+
     @action(detail=False, methods=['post'])
     def upload(self, request):
         file_obj = request.FILES.get('file')
@@ -77,7 +84,8 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
                 report=report,
                 workorder=workorder,
                 file=versioned_filename,  
-                name=versioned_filename,  
+                name=versioned_filename,
+                version=self.extract_version(versioned_filename), 
                 user=user,
                 datetime=timezone.now()
             )
