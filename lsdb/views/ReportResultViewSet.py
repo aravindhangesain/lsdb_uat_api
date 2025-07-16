@@ -72,6 +72,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                     procedure_def_name = report.data_ready_status
                     valid_procedure_definitions=ProcedureExecutionOrder.objects.filter(test_sequence_id=tsd_id,execution_group_name=procedure_def_name).values_list('procedure_definition_id',flat=True)
                     procedure_results = ProcedureResult.objects.filter(
+                            name=procedure_def_name,
                             unit_id=unit_id,
                             procedure_definition_id__in=valid_procedure_definitions
                         )
