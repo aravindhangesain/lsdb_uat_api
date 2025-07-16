@@ -9,7 +9,7 @@ class ReportApproverAgendaSerializer(serializers.ModelSerializer):
     bom = serializers.ReadOnlyField(source='report_result.work_order.name')
     project_manager_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.project_manager.username')
     ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
-    author_name = serializers.ReadOnlyField(soruce = 'author.username')
+    author_name = serializers.ReadOnlyField(source = 'author.username')
 
     class Meta:
         model = ReportApproverAgenda
