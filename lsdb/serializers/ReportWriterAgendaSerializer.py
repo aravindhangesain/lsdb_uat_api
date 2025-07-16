@@ -29,7 +29,7 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
             return obj.ready_datetime
 
     def get_tech_writer_startdate(self, obj):
-        report_file = ReportFileTemplate.objects.filter(report=obj.id).first()
+        report_file = ReportFileTemplate.objects.filter(report=obj,version="v1").first()
         if report_file:
             return report_file.datetime
         return None
