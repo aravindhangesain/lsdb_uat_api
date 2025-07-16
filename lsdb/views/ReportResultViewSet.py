@@ -34,18 +34,23 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             date_time=timezone.now()
             result_id=result.id
             color_code=self.color_code(result_id,work_order_id,tsd_id)
-            ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
-                                            report_execution_order_number=result.execution_group_number,
-                                            product_type_definition=result.product_definition,
-                                            report_type_definition=result.report_definition,
-                                            data_ready_status=result.data_ready_status,reportexecution_azurefile=result.azure_file,
-                                            hex_color=color_code,ready_datetime=date_time,test_sequence_definition_id=tsd_id)
+
+            if color_code and color_code is not None:
+                ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
+                                                report_execution_order_number=result.execution_group_number,
+                                                product_type_definition=result.product_definition,
+                                                report_type_definition=result.report_definition,
+                                                data_ready_status=result.data_ready_status,reportexecution_azurefile=result.azure_file,
+                                                hex_color=color_code,ready_datetime=date_time,test_sequence_definition_id=tsd_id)
+            else:
+                return Response({"message":"tsd_id not there in payload"}, status=status.HTTP_404_NOT_FOUND)
         queryset = ReportResult.objects.all()
         serializer = ReportResultSerilaizer(queryset,many=True, context={'request': request})
         return Response(serializer.data)
     
 
     def color_code(self, result_id,work_order_id,tsd_id):
+
         report=ReportExecutionOrder.objects.get(id=result_id)
         if report.data_ready_status in ['Module Intake']:
             project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
@@ -59,19 +64,22 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         elif report.data_ready_status in ['Define']:
             return '#FAA405'
         else:
-            workorder = WorkOrder.objects.get(id=work_order_id)
-            workorder_units = workorder.units.all()
-            for unit in workorder_units:
-                unit_id = unit.id
-                procedure_def_name = report.data_ready_status
-                valid_procedure_definitions=ProcedureExecutionOrder.objects.filter(test_sequence_id=tsd_id,execution_group_name=procedure_def_name).values_list('procedure_definition_id',flat=True)
-                procedure_results = ProcedureResult.objects.filter(
-                        unit_id=unit_id,
-                        procedure_definition_id__in=valid_procedure_definitions
-                    )
-                if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
-                        return '#F51111'
-            return '#4EF542'
+            if tsd_id:
+                workorder = WorkOrder.objects.get(id=work_order_id)
+                workorder_units = workorder.units.all()
+                for unit in workorder_units:
+                    unit_id = unit.id
+                    procedure_def_name = report.data_ready_status
+                    valid_procedure_definitions=ProcedureExecutionOrder.objects.filter(test_sequence_id=tsd_id,execution_group_name=procedure_def_name).values_list('procedure_definition_id',flat=True)
+                    procedure_results = ProcedureResult.objects.filter(
+                            unit_id=unit_id,
+                            procedure_definition_id__in=valid_procedure_definitions
+                        )
+                    if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                            return '#F51111'
+                return '#4EF542'
+            else:
+                return None
         
 
     @transaction.atomic
