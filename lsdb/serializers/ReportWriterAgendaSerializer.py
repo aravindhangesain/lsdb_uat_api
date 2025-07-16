@@ -34,40 +34,39 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
             return report_file.datetime
         return None
     
-    def get_project_type(self,obj):
-        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-        if report_writer:
+    def get_project_type(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
             return report_writer.project_type
-        else:
+        except ReportWriterAgenda.DoesNotExist:
             return None
     
-    def get_pichina(self,obj):
-        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-        if report_writer:
+    def get_pichina(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
             return report_writer.pichina
-        else:
+        except ReportWriterAgenda.DoesNotExist:
             return None
         
-    def get_priority(self,obj):
-        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-        if report_writer:
+    def get_priority(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
             return report_writer.priority
-        else:
-            return None
-        
-        
-    def get_contractually_obligated_date(self,obj):
-        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-        if report_writer:
-            return report_writer.contractually_obligated_date
-        else:
+        except ReportWriterAgenda.DoesNotExist:
             return None
 
-    def get_pqp_version(self,obj):
-        report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-        if report_writer:
+    def get_contractually_obligated_date(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+            return report_writer.contractually_obligated_date
+        except ReportWriterAgenda.DoesNotExist:
+            return None
+
+    def get_pqp_version(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
             return report_writer.pqp_version
-        else:
+        except ReportWriterAgenda.DoesNotExist:
             return None
                                
     class Meta:

@@ -19,3 +19,4 @@ class ReportResult(models.Model):
     reportexecution_azurefile=models.ForeignKey('AzureFile',null=True,blank=True,on_delete=models.CASCADE,related_name='reportexecution_azurefile')
     ready_datetime = models.DateTimeField(null=True,blank=True)
     hex_color = models.CharField(max_length=120,null=True,blank=True)
+    test_sequence_definition=models.ForeignKey('TestSequenceDefinition', on_delete=models.CASCADE, blank=False, null=False)
