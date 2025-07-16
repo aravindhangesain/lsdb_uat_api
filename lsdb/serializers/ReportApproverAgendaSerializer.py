@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from lsdb.models import *
 
-class ReportApproverAgendaSerializer(serializers.ModelSerializer):
+class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     report_type = serializers.ReadOnlyField(source='report_result.report_type_definition.name')
-    approver_name = serializers.ReadOnlyField(source='approver.name')
+    approver_name = serializers.ReadOnlyField(source='approver.approver_name')
     project_number = serializers.ReadOnlyField(source='report_result.work_order.project.number')
     customer_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.customer.name')
     bom = serializers.ReadOnlyField(source='report_result.work_order.name')
@@ -31,5 +31,6 @@ class ReportApproverAgendaSerializer(serializers.ModelSerializer):
             'contractually_obligated_date',
             'date_verified',
             'date_approved',
-            'date_delivered'
+            'date_delivered',
+            'date_entered'
         ]
