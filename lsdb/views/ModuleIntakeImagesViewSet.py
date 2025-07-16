@@ -85,7 +85,7 @@ class ModuleIntakeImagesViewSet(viewsets.ModelViewSet):
             project_id=moduleintake.projects.id
             workorder=WorkOrder.objects.get(project_id=project_id)
 
-            if ReportResult.objects.filter(work_order_id=workorder.id).exists():
+            if ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").exists():
 
                 valid_intakes=ModuleIntakeDetails.objects.filter(project_id=project_id,bom=workorder.name)
                 if all("step 3" in intake.steps for intake in valid_intakes):
@@ -93,7 +93,7 @@ class ModuleIntakeImagesViewSet(viewsets.ModelViewSet):
 
                     report=ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").first()
 
-                    report.color_code='#4ef542'
+                    report.hex_color='#4ef542'
                     report.ready_datetime=datetime
 
                     report.save()
