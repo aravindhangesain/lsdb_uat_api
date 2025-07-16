@@ -33,7 +33,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
             date_time=timezone.now()
             result_id=result.id
-            color_code=self.color_code(result_id,work_order_id)
+            color_code=self.color_code(result_id,work_order_id,tsd_id)
             ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
                                             report_execution_order_number=result.execution_group_number,
                                             product_type_definition=result.product_definition,
