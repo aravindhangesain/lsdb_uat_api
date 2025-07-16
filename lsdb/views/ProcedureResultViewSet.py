@@ -280,7 +280,10 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                         procedure_definition_id__in=valid_definitions,
                         test_sequence_definition_id=valid_report.test_sequence_definition.id
                     )
-                    if all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                    if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                        serializer = ProcedureResultSerializer(result, many=False, context=self.context)
+                        return Response(serializer.data)
+                    else:
                         datetime=timezone.now()
                         valid_report.hex_color='#4ef542'
                         valid_report.ready_datetime=datetime
