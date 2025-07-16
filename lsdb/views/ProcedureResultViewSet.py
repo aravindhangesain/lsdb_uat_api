@@ -266,8 +266,8 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             result.end_datetime = params.get('end_datetime', result.end_datetime)
             result.save()
 
-            if ReportResult.objects.filter(work_order_id=result.work_order.id,color_code='#f51111').exists():
-                valid_report=ReportResult.objects.filter(work_order_id=result.work_order.id,color_code='#f51111').exclude(data_ready_status__in=["Factory Witness","Define","Module Intake"]).first()
+            if ReportResult.objects.filter(work_order_id=result.work_order.id,hex_color='#f51111').exists():
+                valid_report=ReportResult.objects.filter(work_order_id=result.work_order.id,hex_color='#f51111').exclude(data_ready_status__in=["Factory Witness","Define","Module Intake"]).first()
 
                 if valid_report:
                     procedure_exec_name=valid_report.data_ready_status
@@ -281,7 +281,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                     )
                     if all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
                         datetime=timezone.now()
-                        valid_report.color_code='#4ef542'
+                        valid_report.hex_color='#4ef542'
                         valid_report.ready_datetime=datetime
 
                         valid_report.save()
