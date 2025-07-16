@@ -56,11 +56,11 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
             module_intakes=ModuleIntakeDetails.objects.filter(projects_id=project_id)
             if all(intake.steps in ['step 3'] for intake in module_intakes):
-                return '#4EF542'
+                return '#4ef542'
             else:
-                return '#F51111'
+                return '#f51111'
         elif report.data_ready_status in ['Factory Witness']:
-            return '#4EF542'
+            return '#4ef542'
         elif report.data_ready_status in ['Define']:
             return '#FAA405'
         else:
@@ -77,8 +77,8 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                             procedure_definition_id__in=valid_procedure_definitions
                         )
                     if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
-                            return '#F51111'
-                return '#4EF542'
+                            return '#f51111'
+                return '#4ef542'
             else:
                 return None
         
