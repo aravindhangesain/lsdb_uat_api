@@ -1,5 +1,5 @@
 from rest_framework import viewsets,status
-from lsdb.models import AzureFile, DispositionCode, ReportSequenceDefinition,ReportExecutionOrder,ProductTypeDefinition, ReportTypeDefinition
+from lsdb.models import AzureFile, DispositionCode, ReportSequenceDefinition,ReportExecutionOrder,ProductTypeDefinition, ReportTypeDefinition, TestSequenceDefinition
 from lsdb.serializers import ReportSequenceDefinitionSerializer,ReportExecutionOrderSerializer
 import json
 from rest_framework.response import Response
@@ -145,6 +145,7 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
 
                 report_definition = ReportTypeDefinition.objects.get(id=execution.get('report_definition_id'))
                 product_definition = ProductTypeDefinition.objects.get(id=execution.get('product_definition_id'))
+                test_definition=TestSequenceDefinition.objects.get(id=execution.get('test_definition_id'))
                 azure_id = execution.get('azure_file_id')
                 if azure_id:
                     azure_instance=AzureFile.objects.get(id=azure_id)
@@ -155,7 +156,7 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
                                                     report_definition=report_definition,
                                                     product_definition=product_definition,
                                                     execution_group_number=execution.get('execution_group_number'),
-                                                    test_definition_id=execution.get('test_definition_id'),
+                                                    test_definition_id=test_definition,
                                                     report_sequence_definition=report_sequence,azure_file=azure_instance,data_ready_status=execution.get('data_ready_status',None))
         serializer = ReportSequenceDefinitionSerializer(report_sequence, many=False, context=self.context)
         return Response(serializer.data)
