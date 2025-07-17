@@ -8,5 +8,5 @@ class ReportNotes(models.Model):
     user = models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)
     datetime = models.DateTimeField(null=True,blank=True)
     reviewer = models.ForeignKey('ReportReviewer',on_delete=models.CASCADE,null=True,blank=True)
-    labels = models.ManyToManyField('Label',blank=True,null=True)
-    tagged_pm = models.ManyToManyField('auth.User',related_name = 'reportnotetaggedpm',blank=True,null=True)
+    labels = models.ManyToManyField('Label',blank=True)
+    tagged_pm = models.ManyToManyField('auth.User',related_name = 'reportnotetaggedprojectmanager',blank=True)
