@@ -5,3 +5,6 @@ from lsdb.serializers import ReportNotesSerializer
 class ReportNotesViewSet(viewsets.ModelViewSet):
     queryset = ReportNotes.objects.all()
     serializer_class = ReportNotesSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

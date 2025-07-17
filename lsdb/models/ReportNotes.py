@@ -6,7 +6,7 @@ class ReportNotes(models.Model):
     comment = models.TextField(blank=True, null=True)
     type =  models.ForeignKey('NoteType',on_delete=models.CASCADE,null=True,blank=True)
     user = models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)
-    datetime = models.DateTimeField(null=True,blank=True)
+    datetime = models.DateTimeField(auto_now_add=True)
     reviewer = models.ForeignKey('ReportReviewer',on_delete=models.CASCADE,null=True,blank=True)
     labels = models.ManyToManyField('Label',blank=True)
     tagged_pm = models.ManyToManyField('auth.User',related_name = 'reportnotetaggedprojectmanager',blank=True)

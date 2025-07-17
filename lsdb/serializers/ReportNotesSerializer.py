@@ -5,6 +5,7 @@ class ReportNotesSerializer(serializers.HyperlinkedModelSerializer):
     user_name = serializers.ReadOnlyField(source='user.username')
     reviewer_name = serializers.ReadOnlyField(source='reviewer.reviewer_name')
 
+
     class Meta:
         model = ReportNotes
         fields = [
@@ -15,8 +16,8 @@ class ReportNotesSerializer(serializers.HyperlinkedModelSerializer):
             'comment',
             'type',
             'user',
-            'datetime',
             'user_name',
+            'datetime',
             'reviewer',
             'reviewer_name'
         ]
