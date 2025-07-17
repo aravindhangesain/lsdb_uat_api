@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from lsdb.models import ReportNotes
 
-class ReportNotesSerializer(serializers.HyperlinkedModelSerializer):
+class ReportNotesSerializer(serializers.ModelSerializer):
     user_name = serializers.ReadOnlyField(source='user.username')
     reviewer_name = serializers.ReadOnlyField(source='reviewer.reviewer_name')
 
