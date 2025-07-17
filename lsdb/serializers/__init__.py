@@ -194,3 +194,4 @@ from .ReportApproverAgendaSerializer import ReportApproverAgendaSerializer as Re
 from .ReportWriterSerializer import ReportWriterSerializer as ReportWriterSerializer
 from .ReportApproverSerializer import ReportApproverSerializer as ReportApproverSerializer
 from .ReportReviewerSerializer import ReportReviewerSerializer as ReportReviewerSerializer
+from .ReportNotesSerializer import ReportNotesSerializer as ReportNotesSerializer

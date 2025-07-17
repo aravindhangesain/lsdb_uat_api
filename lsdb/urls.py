@@ -125,6 +125,7 @@ from lsdb.views import ReportApproverAgendaViewSet
 from lsdb.views import ReportApproverViewSet
 from lsdb.views import ReportReviewerViewSet
 from lsdb.views import ReportWriterViewSet
+from lsdb.views import ReportNotesViewSet
 
 
 router = DefaultRouter()
@@ -250,6 +251,7 @@ router.register(r'reportapproveragenda',ReportApproverAgendaViewSet,basename='re
 router.register(r'reportwriter',ReportWriterViewSet,basename='reportwriter')
 router.register(r'reportreviewer',ReportReviewerViewSet,basename='reportreviewer')
 router.register(r'reportapprover',ReportApproverViewSet,basename = 'reportapprover')
+router.register(r'reportnotes',ReportNotesViewSet,basename='reportnotes')
 
 
 

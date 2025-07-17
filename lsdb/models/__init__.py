@@ -146,3 +146,4 @@ from .ReportApproverAgenda import ReportApproverAgenda as ReportApproverAgenda
 from .ReportReviewer import ReportReviewer as ReportReviewer
 from .ReportApprover import ReportApprover as ReportApprover
 from .ReportWriter import ReportWriter as ReportWriter
+from .ReportNotes import ReportNotes as ReportNotes
