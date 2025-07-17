@@ -155,6 +155,7 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
                                                     report_definition=report_definition,
                                                     product_definition=product_definition,
                                                     execution_group_number=execution.get('execution_group_number'),
+                                                    test_definition_id=execution.get('test_definition_id'),
                                                     report_sequence_definition=report_sequence,azure_file=azure_instance,data_ready_status=execution.get('data_ready_status',None))
         serializer = ReportSequenceDefinitionSerializer(report_sequence, many=False, context=self.context)
         return Response(serializer.data)

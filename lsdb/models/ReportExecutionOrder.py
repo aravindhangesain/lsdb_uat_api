@@ -9,3 +9,4 @@ class ReportExecutionOrder(models.Model):
     report_sequence_definition=models.ForeignKey('ReportSequenceDefinition', on_delete=models.CASCADE, blank=False, null=False)
     azure_file=models.ForeignKey('AzureFile', on_delete=models.CASCADE, blank=True, null=True)
     data_ready_status=models.CharField(max_length=256, blank=True, null=True)
+    test_definition=models.ForeignKey('TestSequenceDefinition', on_delete=models.CASCADE, blank=True, null=True)
