@@ -10,6 +10,16 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     project_manager_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.project_manager.username')
     ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
     author_name = serializers.ReadOnlyField(source = 'author.username')
+    report_version_number = serializers.SerializerMethodField()
+
+    def get_report_version_number(self,obj):
+        try:
+            report_id = obj.report_result.id
+            report_file = ReportFileTemplate.objects.filter(report=report_id).last()
+            return report_file.version
+        except:
+            return "Version not found"
+        
 
     class Meta:
         model = ReportApproverAgenda
@@ -32,5 +42,6 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'date_verified',
             'date_approved',
             'date_delivered',
-            'date_entered'
+            'date_entered',
+            'report_version_number'
         ]

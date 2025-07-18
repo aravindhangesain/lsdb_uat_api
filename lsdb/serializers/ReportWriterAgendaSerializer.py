@@ -12,7 +12,6 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
     tech_writer_startdate = serializers.SerializerMethodField()
     report_writer_name = serializers.ReadOnlyField(source='report_writer.writer_name')
     report_reviewer_name =serializers.ReadOnlyField(source='report_reviewer.reviewer_name')
-    ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
     project_type = serializers.SerializerMethodField()
     pichina = serializers.SerializerMethodField()
     priority = serializers.SerializerMethodField()

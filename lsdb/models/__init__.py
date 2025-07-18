@@ -149,3 +149,4 @@ from .ReportWriter import ReportWriter as ReportWriter
 from .ReportNotes import ReportNotes as ReportNotes
 from .ReportNoteLabels import ReportNoteLabels as ReportNoteLabels
 from .ReportNoteTaggedPM import ReportNoteTaggedPM as ReportNoteTaggedPM
+from .ReportApproverNote import ReportApproverNote as ReportApproverNote

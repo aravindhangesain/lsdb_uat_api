@@ -24,11 +24,18 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
     @transaction.atomic
-    @action(detail=False, methods=['post'])
-    def add_note(self, request):
+    @action(detail=True, methods=['post'])
+    def add_note(self, request,pk=None):
         self.context = {'request': request}
         params = request.data
-        reviewer = None
+        try:
+            existing_note = ReportNotes.objects.get(pk=pk)
+        except ReportNotes.DoesNotExist:
+            return Response({"error": f"Note with id {pk} not found."}, status=status.HTTP_404_NOT_FOUND)
+        if params.get('reviewer'):
+            reviewer = ReportReviewer.objects.get(id=params.get('reviewer'))
+            existing_note.reviewer = reviewer
+            existing_note.save()
         note_type = NoteType.objects.get(id=params.get('type'))
         report = ReportResult.objects.get(id=params.get('report'))
         reviewer = ReportReviewer.objects.get(id=params.get('reviewer'))
@@ -39,6 +46,7 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
             type=note_type,
             reviewer=reviewer,
             report=report,
+            parent_note=existing_note
         )
         if note_type.id == 3:
             for label_id in params.get('labels', []):
@@ -50,3 +58,10 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
             new_note.tagged_users.set(params.get('tagged_users', []))
         new_note.save()
         return Response({"status": "note added"}, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['get'])
+    def get_children(self, request, pk=None):
+        self.context = {'request': request}
+        notes = ReportNotes.objects.filter(parent_note__id=pk).order_by("datetime")
+        serializer = self.serializer_class(notes, many=True, context=self.context)
+        return Response(serializer.data)

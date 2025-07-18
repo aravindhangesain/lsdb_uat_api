@@ -164,3 +164,4 @@ from .ReportWriterViewSet import ReportWriterViewSet as ReportWriterViewSet
 from .ReportApproverViewSet import ReportApproverViewSet as ReportApproverViewSet
 from .ReportReviewerViewSet import ReportReviewerViewSet as ReportReviewerViewSet
 from .ReportNotesViewSet import ReportNotesViewSet as ReportNotesViewSet
+from .ReportApproverNoteViewSet import ReportApproverNoteViewSet as ReportApproverNoteViewSet

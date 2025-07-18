@@ -195,3 +195,4 @@ from .ReportWriterSerializer import ReportWriterSerializer as ReportWriterSerial
 from .ReportApproverSerializer import ReportApproverSerializer as ReportApproverSerializer
 from .ReportReviewerSerializer import ReportReviewerSerializer as ReportReviewerSerializer
 from .ReportNotesSerializer import ReportNotesSerializer as ReportNotesSerializer
+from .ReportApproverNoteSerializer import ReportApproverNoteSerializer as ReportApproverNoteSerializer
