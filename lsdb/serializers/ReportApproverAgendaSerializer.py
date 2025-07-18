@@ -34,6 +34,7 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'ntp_date',
             'bom',
             'report_result',
+            'report_result_id',
             'pichina',
             'author',
             'author_name',
