@@ -48,7 +48,7 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
             report=report,
             parent_note=existing_note
         )
-        if note_type.id == 3:
+        if note_type.id in [1,3]:
             for label_id in params.get('labels', []):
                 ReportNoteLabels.objects.create(reportnote=new_note, label_id=label_id)
             for user_id in params.get('tagged_users', []):
