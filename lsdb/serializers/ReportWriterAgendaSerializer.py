@@ -42,10 +42,16 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
     
     def get_pichina(self, obj):
         try:
-            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.pichina
-        except ReportWriterAgenda.DoesNotExist:
+            work_order = obj.work_order  
+            project = work_order.project
+            location_log = LocationLog.objects.filter(project=project).first()
+            if location_log and location_log.location_id in [6, 7, 8]:
+                return "yes"
+            else:
+                return "no"
+        except AttributeError:
             return None
+
         
     def get_priority(self, obj):
         try:
