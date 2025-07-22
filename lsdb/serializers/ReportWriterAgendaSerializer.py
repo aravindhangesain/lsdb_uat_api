@@ -17,12 +17,18 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
     priority = serializers.SerializerMethodField()
     contractually_obligated_date = serializers.SerializerMethodField()
     pqp_version = serializers.SerializerMethodField()
+    project_id = serializers.SerializerMethodField()
 
     def get_project_number(self, obj):
         work_order_id=obj.work_order_id
         project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
         project_number=Project.objects.filter(id=project_id).values_list('number',flat=True).first()
         return project_number
+    
+    def get_project_id(self, obj):
+        work_order_id = obj.work_order_id
+        project_id = WorkOrder.objects.filter(id=work_order_id).values_list('project_id', flat=True).first()
+        return project_id
 
     def get_data_verification_date(self,obj):
             return obj.ready_datetime
@@ -80,6 +86,7 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'url',
             'report_type_definition_name',
+            'project_id',
             'project_number',
             'project_manager_name',
             'customer_name',
