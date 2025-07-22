@@ -98,6 +98,18 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def get_children(self, request, pk=None):
         self.context = {'request': request}
+        first_note = ReportNotes.objects.filter(parent_note__id=pk).first()
+        version = None
+        if first_note:
+            report_id = first_note.report.id
+            report_file = ReportFileTemplate.objects.filter(report=report_id).last()
+            if report_file:
+                version = report_file.version
         notes = ReportNotes.objects.filter(parent_note__id=pk).order_by("datetime")
         serializer = self.serializer_class(notes, many=True, context=self.context)
-        return Response(serializer.data)
+        response_data = {
+            "version": {
+                "version": version},
+            "result": serializer.data
+        }
+        return Response(response_data)
