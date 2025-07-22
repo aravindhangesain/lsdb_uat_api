@@ -99,7 +99,7 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
                 name = report_file.name
             else:
                 version = "No version found"
-                name = "No name found"
+                name = "No file found"
         notes = ReportNotes.objects.filter(parent_note__id=pk).order_by("datetime")
         serializer = self.serializer_class(notes, many=True, context=self.context)
         response_data = {
