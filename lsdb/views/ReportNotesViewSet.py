@@ -97,6 +97,9 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
             if report_file:
                 version = report_file.version
                 name = report_file.name
+            else:
+                version = "No version found"
+                name = "No name found"
         notes = ReportNotes.objects.filter(parent_note__id=pk).order_by("datetime")
         serializer = self.serializer_class(notes, many=True, context=self.context)
         response_data = {
