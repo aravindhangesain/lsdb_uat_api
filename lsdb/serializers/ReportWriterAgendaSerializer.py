@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from lsdb.models import *
 
-class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
+class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_type_definition_name=serializers.ReadOnlyField(source='report_type_definition.name')
     project_number=serializers.SerializerMethodField()
     customer_name = serializers.ReadOnlyField(source = 'work_order.project.customer.name')
@@ -10,15 +10,16 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
     ntp_date = serializers.ReadOnlyField(source='work_order.start_datetime')
     data_verification_date = serializers.SerializerMethodField()
     tech_writer_startdate = serializers.SerializerMethodField()
-    report_writer_name = serializers.ReadOnlyField(source='report_writer.writer.username')
-    report_reviewer_name =serializers.ReadOnlyField(source='report_reviewer.reviewer.username')
+    report_writer_name = serializers.SerializerMethodField()
+    report_reviewer_name =serializers.SerializerMethodField()
     project_type = serializers.SerializerMethodField()
-    pichina = serializers.SerializerMethodField()
     priority = serializers.SerializerMethodField()
     contractually_obligated_date = serializers.SerializerMethodField()
     pqp_version = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
     customer_id = serializers.SerializerMethodField()
+    report_writer_id = serializers.SerializerMethodField()
+    report_reviewer_id = serializers.SerializerMethodField()
 
     def get_project_number(self, obj):
         work_order_id=obj.work_order_id
@@ -47,21 +48,10 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
     
     def get_project_type(self, obj):
         try:
-            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.project_type
-        except ReportWriterAgenda.DoesNotExist:
-            return None
-    
-    def get_pichina(self, obj):
-        try:
-            work_order = obj.work_order  
-            project = work_order.project
-            location_log = LocationLog.objects.filter(project=project).first()
-            if location_log and location_log.location_id in [6, 7, 8]:
-                return "yes"
-            else:
-                return "no"
-        except AttributeError:
+            project = Project.objects.filter(id=obj.work_order.project_id).first()
+            project_type = ProjectType.objects.get(project = project)
+            return project_type.project_type
+        except ProjectType.DoesNotExist:
             return None
 
         
@@ -85,6 +75,38 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
             return report_writer.pqp_version
         except ReportWriterAgenda.DoesNotExist:
             return None
+        
+    def get_report_writer_name(self,obj):
+        try:
+            report_type_id = obj.report_type_definition
+            report_type = ReportTeam.objects.get(report_type = report_type_id)
+            return report_type.writer.username
+        except ReportTeam.DoesNotExist:
+            return None
+    
+    def get_report_reviewer_name(self,obj):
+        try:
+            report_type_id = obj.report_type_definition
+            report_type = ReportTeam.objects.get(report_type = report_type_id)
+            return report_type.reviewer.username
+        except ReportTeam.DoesNotExist:
+            return None
+        
+    def get_report_writer_id(self,obj):
+        try:
+            report_type_id = obj.report_type_definition
+            report_type = ReportTeam.objects.filter(report_type = report_type_id).values_list('writer_id',flat=True).first()
+            return report_type
+        except ReportTeam.DoesNotExist:
+            return None
+    
+    def get_report_reviewer_id(self,obj):
+        try:
+            report_type_id = obj.report_type_definition
+            report_type = ReportTeam.objects.filter(report_type = report_type_id).values_list('reviewer_id',flat=True).first()
+            return report_type
+        except ReportTeam.DoesNotExist:
+            return None
                                
     class Meta:
         model = ReportResult
@@ -102,12 +124,11 @@ class ReportWriterAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'tech_writer_startdate',
             'ready_datetime',
             'data_verification_date',
-            'report_writer',
+            'report_writer_id',
             'report_writer_name',
-            'report_reviewer',
+            'report_reviewer_id',
             'report_reviewer_name',
             'project_type',
-            'pichina',
             'priority',
             'contractually_obligated_date',
             'pqp_version'
