@@ -78,10 +78,14 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
         template_name = request.data.get('template_name', None)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        
         project = serializer.save()
 
+        location=request.data.get('location')
+        print(location)
+        if location:
+            location_id = location.rstrip('/').split('/')[-1]
+            print(location_id)
+            LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
 
         if is_template==True:
             ProjectTemplate.objects.create(
@@ -93,6 +97,7 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
+
             # Prepare the response
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
