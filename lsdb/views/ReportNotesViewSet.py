@@ -32,19 +32,25 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
             existing_note = ReportNotes.objects.get(pk=pk)
         except ReportNotes.DoesNotExist:
             return Response({"error": f"Note with id {pk} not found."}, status=status.HTTP_404_NOT_FOUND)
-        if params.get('reviewer'):
-            reviewer = ReportReviewer.objects.get(id=params.get('reviewer'))
-            existing_note.reviewer = reviewer
+        reviewer = None
+        reviewer_id = params.get('reviewer')
+        try:
+            existing_note.reviewer_id = reviewer_id
             existing_note.save()
-        note_type = NoteType.objects.get(id=params.get('type'))
-        report = ReportResult.objects.get(id=params.get('report'))
-        reviewer = ReportReviewer.objects.get(id=params.get('reviewer'))
+        except ReportTeam.DoesNotExist:
+            reviewer = None
+        try:
+            note_type = NoteType.objects.get(id=params.get('type'))
+            report = ReportResult.objects.get(id=params.get('report'))
+        except (NoteType.DoesNotExist, ReportResult.DoesNotExist) as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        reviewer = params.get('reviewer')
         new_note = ReportNotes.objects.create(
             user=request.user,
             subject=params.get('subject'),
             comment=params.get('comment'),
             type=note_type,
-            reviewer=reviewer,
+            reviewer_id=reviewer,
             report=report,
             parent_note=existing_note
         )
@@ -66,13 +72,13 @@ class ReportNotesViewSet(viewsets.ModelViewSet):
         params = request.data
         note_type = NoteType.objects.get(id=params.get('type'))
         report = ReportResult.objects.get(id=params.get('report'))
-        reviewer = ReportReviewer.objects.get(id=params.get('reviewer'))
+        reviewer = params.get('reviewer')
         new_note = ReportNotes.objects.create(
             user=request.user,
             subject=params.get('subject'),
             comment=params.get('comment'),
             type=note_type,
-            reviewer=reviewer,
+            reviewer_id=reviewer,
             report=report
         )
         if note_type.id in [1, 3]:
