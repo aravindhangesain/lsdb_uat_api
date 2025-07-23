@@ -1,7 +1,7 @@
 from django.db import models
 
 class ReportApproverAgenda(models.Model):
-    approver = models.ForeignKey('ReportApprover',on_delete=models.CASCADE,null=True,blank=True)
+    approver = models.ForeignKey('ReportTeam',on_delete=models.CASCADE,null=True,blank=True)
     report_result = models.ForeignKey('ReportResult',on_delete=models.CASCADE,null=True,blank=True)
     pichina = models.CharField(max_length=32,null=True,blank=True)
     author = models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)

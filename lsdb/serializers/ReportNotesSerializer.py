@@ -3,7 +3,7 @@ from lsdb.models import ReportNotes
 
 class ReportNotesSerializer(serializers.ModelSerializer):
     user_name = serializers.ReadOnlyField(source='user.username')
-    reviewer_name = serializers.ReadOnlyField(source='reviewer.reviewer_name')
+    reviewer_name = serializers.ReadOnlyField(source='reviewer.reviewer.username')
 
 
     class Meta:

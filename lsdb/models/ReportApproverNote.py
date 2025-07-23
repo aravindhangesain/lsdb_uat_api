@@ -7,4 +7,4 @@ class ReportApproverNote(models.Model):
     type =  models.ForeignKey('NoteType',on_delete=models.CASCADE,null=True,blank=True)
     user = models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)
     datetime = models.DateTimeField(auto_now_add=True)
-    approver = models.ForeignKey('ReportApprover',on_delete=models.CASCADE,null=True,blank=True)
+    approver = models.ForeignKey('ReportTeam',on_delete=models.CASCADE,null=True,blank=True)

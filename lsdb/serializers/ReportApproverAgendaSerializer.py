@@ -3,7 +3,7 @@ from lsdb.models import *
 
 class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     report_type = serializers.ReadOnlyField(source='report_result.report_type_definition.name')
-    approver_name = serializers.ReadOnlyField(source='approver.approver_name')
+    approver_name = serializers.ReadOnlyField(source='approver.approver.username')
     project_number = serializers.ReadOnlyField(source='report_result.work_order.project.number')
     customer_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.customer.name')
     bom = serializers.ReadOnlyField(source='report_result.work_order.name')

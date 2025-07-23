@@ -4,8 +4,8 @@ from django.db import models
 class ReportResult(models.Model):
     issue_date=models.DateTimeField(blank=True, null=True)
     due_date=models.DateTimeField(blank=True, null=True)
-    report_writer=models.ForeignKey('ReportWriter',blank=True, null=True, on_delete=models.CASCADE)
-    report_reviewer=models.ForeignKey('ReportReviewer', blank=True, null=True, on_delete=models.CASCADE)
+    report_writer=models.ForeignKey('ReportTeam',blank=True, null=True, on_delete=models.CASCADE)
+    report_reviewer=models.ForeignKey('ReportTeam', related_name = 'report_reviewer',blank=True, null=True, on_delete=models.CASCADE)
     data_ready_status=models.CharField(max_length=256, blank=True, null=True)
     user=models.ForeignKey('auth.User', blank=False, null=False, on_delete=models.CASCADE)
     work_order=models.ForeignKey('WorkOrder', on_delete=models.CASCADE, blank=False, null=False)
