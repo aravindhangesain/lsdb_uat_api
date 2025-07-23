@@ -150,3 +150,4 @@ from .ReportNotes import ReportNotes as ReportNotes
 from .ReportNoteLabels import ReportNoteLabels as ReportNoteLabels
 from .ReportNoteTaggedPM import ReportNoteTaggedPM as ReportNoteTaggedPM
 from .ReportApproverNote import ReportApproverNote as ReportApproverNote
+from .ReportTeam import ReportTeam as ReportTeam

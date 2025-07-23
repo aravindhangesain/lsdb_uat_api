@@ -4,130 +4,7 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken import views as rest_framework_views
 
-from lsdb.views import ActionCompletionDefinitionViewSet
-from lsdb.views import ActionDefinitionViewSet
-from lsdb.views import ActionResultViewSet
-from lsdb.views import ApiRequestLogViewSet
-from lsdb.views import AssetCapacityViewSet
-from lsdb.views import AssetTypeViewSet
-from lsdb.views import AssetViewSet
-from lsdb.views import AvailableDefectViewSet
-from lsdb.views import AzureFileViewSet
-from lsdb.views import ModulePropertyViewSet
-from lsdb.views import ConditionDefinitionViewSet
-from lsdb.views import CrateViewSet
-from lsdb.views import CustomerViewSet
-from lsdb.views import DispositionCodeViewSet
-from lsdb.views import DispositionViewSet
-from lsdb.views import ExpectedUnitTypeViewSet
-from lsdb.views import FileFormatViewSet
-from lsdb.views import ForgotPasswordViewSet
-from lsdb.views import GroupTypeViewSet
-from lsdb.views import GroupViewSet
-from lsdb.views import LabelViewSet
-from lsdb.views import LimitComparisonModeViewSet
-from lsdb.views import LimitComparisonViewSet
-from lsdb.views import LimitViewSet
-from lsdb.views import LocationViewSet
-from lsdb.views import ManageResultViewSet
-from lsdb.views import MeasurementDefinitionViewSet
-from lsdb.views import MeasurementResultTypeViewSet
-from lsdb.views import MeasurementResultViewSet
-from lsdb.views import MeasurementTypeViewSet
-from lsdb.views import ModuleTechnologyViewSet
-from lsdb.views import NoteViewSet
-from lsdb.views import NoteTypeViewSet
-from lsdb.views import NoopViewSet
-from lsdb.views import OrganizationViewSet
-# from lsdb.views import OutOfFamilyLimitViewSet
-from lsdb.views import PermissionTypeViewSet
-from lsdb.views import PermissionViewSet
-from lsdb.views import PermittedViewViewSet
-from lsdb.views import PluginViewSet
-from lsdb.views import TestSequenceDefinitionViewSet
-from lsdb.views import ProjectViewSet
-from lsdb.views import PropertyViewSet
-from lsdb.views import ProcedureDefinitionViewSet
-from lsdb.views import ProcedureResultViewSet
-from lsdb.views import SignInViewSet
-from lsdb.views import SiPrefixViewSet
-from lsdb.views import StepDefinitionViewSet
-from lsdb.views import StepResultViewSet
-from lsdb.views import StepTypeViewSet
-from lsdb.views import TemplateViewSet
-from lsdb.views import UnitTypeFamilyViewSet
-from lsdb.views import UnitTypePropertyDataTypeViewSet
-from lsdb.views import UnitTypePropertyResultViewSet
-from lsdb.views import UnitTypePropertyTypeViewSet
-from lsdb.views import UnitTypeViewSet
-from lsdb.views import UnitViewSet
-from lsdb.views import UserProfileViewSet
-from lsdb.views import UserViewSet
-from lsdb.views import UserRegistrationStatusViewSet
-from lsdb.views import VisualizerViewSet
-from lsdb.views import WorkOrderViewSet
-from lsdb.views import GetNoteCountViewSet
-from lsdb.views import UpdateProjectDetailsViewSet
-from lsdb.views import ProjectModifiedDetailsViewSet
-from lsdb.views import FailedProjectReportViewSet
-from lsdb.views import verifyViewSet
-from lsdb.views import CountViewSet
-from lsdb.views import EngineeringAgendaViewSet
-from lsdb.views import ActiveProjectsReportViewSet
-from lsdb.views import DispositionBulkUpdateViewSet
-from lsdb.views import ProjectDispositionViewSet
-from lsdb.views import UpdateProjectforCustomerViewSet
-from lsdb.views import NewCrateIntakeViewSet
-from lsdb.views import CrateIntakeImagesViewSet
-from lsdb.views import ModuleIntakeViewSet
-from lsdb.views import GetModelTypeViewSet
-from lsdb.views import GetModuleDetailsViewSet
-from lsdb.views import ModuleIntakeDetailsViewSet
-from lsdb.views import ModuleIntakeGridViewSet
-from lsdb.views import CrateIntakeGridViewSet
-from lsdb.views import ModuleIntakeImagesViewSet
-from lsdb.views import ScannedPannelsViewSet
-from lsdb.views import TestTypeViewSet
-from lsdb.views import BulkInsertforScannedpanelsViewSet
-from lsdb.views import GetAllCrateDetailsViewSet
-from lsdb.views import GetAllModuleDetailsViewSet
-from lsdb.views import ModuleInventoryViewSet
-from lsdb.views import IntakeImagesInfoViewSet
-from lsdb.views import StepResultNotesViewSet
-from lsdb.views import CrateUpdateViewSet
-from lsdb.views import ModuleUpdateViewSet
-from lsdb.views import FlashTestViewSet
-from lsdb.views import ProcedureflagupdateViewSet
-from lsdb.views import LocationLogViewSet
-from lsdb.views import MeasurementCorrectionFactorViewSet
-from lsdb.views import CronStatusViewSet
-from lsdb.views import TemplateMasterViewSet
-from lsdb.views import TemplateDetailsViewSet
-from lsdb.views import ProductTypeDefinitionViewSet
-from lsdb.views import ReportTypeDefinitionViewSet
-from lsdb.views import ReportExecutionOrderViewSet
-from lsdb.views import ReportSequenceDefinitionViewSet
-from lsdb.views import ReportResultViewSet
-from lsdb.views import WorkOrderTemplateViewSet
-from lsdb.views import FinalProcedureViewSet
-from lsdb.views import UnitTypeTemplateViewSet
-from lsdb.views import UVIDandFlashReportViewSet
-from lsdb.views import AssetCalibrationViewSet
-from lsdb.views import GetAssetCalibrationDetailsViewSet
-from lsdb.views import HailTestViewSet
-from lsdb.views import ProjectTemplateViewSet
-from lsdb.views import XlfilereadViewSet
-from lsdb.views import VisualInspectionViewSet
-from lsdb.views import IAMFileReadViewSet
-from lsdb.views import ReportFileTemplateViewSet
-from lsdb.views import ReportWriterAgendaViewSet
-from lsdb.views import ReportApproverAgendaViewSet
-from lsdb.views import ReportApproverViewSet
-from lsdb.views import ReportReviewerViewSet
-from lsdb.views import ReportWriterViewSet
-from lsdb.views import ReportNotesViewSet
-from lsdb.views import ReportApproverNoteViewSet
-
+from lsdb.views import *
 
 router = DefaultRouter()
 # router.register(r'action_completion_definitions', ApiRequestLogViewSet)
@@ -254,6 +131,7 @@ router.register(r'reportreviewer',ReportReviewerViewSet,basename='reportreviewer
 router.register(r'reportapprover',ReportApproverViewSet,basename = 'reportapprover')
 router.register(r'reportnotes',ReportNotesViewSet,basename='reportnotes')
 router.register(r'reportapprovernotes',ReportApproverNoteViewSet, basename='reportapprovernotes')
+router.register(r'reportteam', ReportTeamViewSet, basename='reportteam')
 
 
 

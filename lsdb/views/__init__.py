@@ -165,3 +165,4 @@ from .ReportApproverViewSet import ReportApproverViewSet as ReportApproverViewSe
 from .ReportReviewerViewSet import ReportReviewerViewSet as ReportReviewerViewSet
 from .ReportNotesViewSet import ReportNotesViewSet as ReportNotesViewSet
 from .ReportApproverNoteViewSet import ReportApproverNoteViewSet as ReportApproverNoteViewSet
+from .ReportTeamViewSet import ReportTeamViewSet as ReportTeamViewSet

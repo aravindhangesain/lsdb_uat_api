@@ -196,3 +196,4 @@ from .ReportApproverSerializer import ReportApproverSerializer as ReportApprover
 from .ReportReviewerSerializer import ReportReviewerSerializer as ReportReviewerSerializer
 from .ReportNotesSerializer import ReportNotesSerializer as ReportNotesSerializer
 from .ReportApproverNoteSerializer import ReportApproverNoteSerializer as ReportApproverNoteSerializer
+from .ReportTeamSerializer import ReportTeamSerializer as ReportTeamSerializer
