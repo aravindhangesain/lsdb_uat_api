@@ -194,3 +194,4 @@ from .ReportApproverAgendaSerializer import ReportApproverAgendaSerializer as Re
 from .ReportNotesSerializer import ReportNotesSerializer as ReportNotesSerializer
 from .ReportApproverNoteSerializer import ReportApproverNoteSerializer as ReportApproverNoteSerializer
 from .ReportTeamSerializer import ReportTeamSerializer as ReportTeamSerializer
+from .IVandEL_InProgressSerializer import IVandEL_InProgressSerializer as IVandEL_InProgressSerializer

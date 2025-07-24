@@ -163,3 +163,4 @@ from .ReportApproverAgendaViewSet import ReportApproverAgendaViewSet as ReportAp
 from .ReportNotesViewSet import ReportNotesViewSet as ReportNotesViewSet
 from .ReportApproverNoteViewSet import ReportApproverNoteViewSet as ReportApproverNoteViewSet
 from .ReportTeamViewSet import ReportTeamViewSet as ReportTeamViewSet
+from .IVandEL_InProgressViewSet import IVandEL_InProgressViewSet as IVandEL_InProgressViewSet

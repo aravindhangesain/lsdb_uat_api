@@ -129,10 +129,8 @@ router.register(r'reportapproveragenda',ReportApproverAgendaViewSet,basename='re
 router.register(r'reportnotes',ReportNotesViewSet,basename='reportnotes')
 router.register(r'reportapprovernotes',ReportApproverNoteViewSet, basename='reportapprovernotes')
 router.register(r'reportteam', ReportTeamViewSet, basename='reportteam')
+router.register(r'iv_el_inprogress',IVandEL_InProgressViewSet,basename = 'iv_el_inprogress')
 
-
-
-# router.register(r'iv_el_inprogress',IVandEL_InProgressViewSet,basename = 'iv_el_inprogress')
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')
 # router.register(r'IAMTestFileUpload',IAMTestFileUploadViewSet, basename = 'IAMTestFileUpload')
 # router.register(r'upload',FileUploadViewSet,basename='upload')
