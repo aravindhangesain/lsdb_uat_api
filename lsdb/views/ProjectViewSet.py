@@ -26,7 +26,7 @@ from lsdb.models import PlexusImport
 from lsdb.models import ProcedureResult
 from lsdb.models import Project
 from lsdb.models import TestSequenceDefinition
-from lsdb.models import Unit
+from lsdb.models import Unit,ProjectType
 from lsdb.models import WorkOrder,LocationLog,ProjectTemplate
 from lsdb.models import Customer
 from lsdb.permissions import ConfiguredPermission, IsAdminOrSelf
@@ -80,12 +80,14 @@ class ProjectViewSet(DetailSerializerMixin, LoggingMixin, viewsets.ModelViewSet)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
 
+        project_type=request.data.get('project_type')
         location=request.data.get('location')
-        print(location)
+
         if location:
             location_id = location.rstrip('/').split('/')[-1]
-            print(location_id)
             LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
+        if project_type:
+            ProjectType.objects.create(project=project,project_type=project_type)
 
         if is_template==True:
             ProjectTemplate.objects.create(
