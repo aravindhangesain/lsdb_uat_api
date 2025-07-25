@@ -1,5 +1,9 @@
 from rest_framework import serializers
 from lsdb.models import *
+from urllib.parse import quote
+
+
+AZURE_BLOB_BASE_URL = "https://haveblueazdev.blob.core.windows.net/reportmedia/"
 
 class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_type_definition_name=serializers.ReadOnlyField(source='report_type_definition.name')
@@ -13,14 +17,25 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_writer_name = serializers.SerializerMethodField()
     report_reviewer_name =serializers.SerializerMethodField()
     project_type = serializers.SerializerMethodField()
-    priority = serializers.SerializerMethodField()
-    contractually_obligated_date = serializers.SerializerMethodField()
-    pqp_version = serializers.SerializerMethodField()
+    # priority = serializers.SerializerMethodField()
+    # contractually_obligated_date = serializers.SerializerMethodField()
+    # pqp_version = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
     customer_id = serializers.SerializerMethodField()
     report_writer_id = serializers.SerializerMethodField()
     report_reviewer_id = serializers.SerializerMethodField()
+    report_file  = serializers.SerializerMethodField()
 
+    def get_report_file(self, obj):
+        report_file = ReportFileTemplate.objects.filter(report=obj.id).order_by('-id').first()
+        if report_file and report_file.file:
+            filename = report_file.file.name
+            if filename.startswith("reportmedia/"):
+                filename = filename.replace("reportmedia/", "")
+            encoded_filename = quote(filename)
+            return AZURE_BLOB_BASE_URL + encoded_filename
+        return None
+    
     def get_project_number(self, obj):
         work_order_id=obj.work_order_id
         project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
@@ -41,9 +56,9 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             return obj.ready_datetime
 
     def get_tech_writer_startdate(self, obj):
-        report_file = ReportFileTemplate.objects.filter(report=obj,version="v1").first()
-        if report_file:
-            return report_file.datetime
+        report_id = ReportWriterAgenda.objects.filter(report_result=obj).first()
+        if report_id:
+            return report_id.tech_writer_start_date
         return None
     
     def get_project_type(self, obj):
@@ -55,26 +70,26 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             return None
 
         
-    def get_priority(self, obj):
-        try:
-            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.priority
-        except ReportWriterAgenda.DoesNotExist:
-            return None
+    # def get_priority(self, obj):
+    #     try:
+    #         report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+    #         return report_writer.priority
+    #     except ReportWriterAgenda.DoesNotExist:
+    #         return None
 
-    def get_contractually_obligated_date(self, obj):
-        try:
-            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.contractually_obligated_date
-        except ReportWriterAgenda.DoesNotExist:
-            return None
+    # def get_contractually_obligated_date(self, obj):
+    #     try:
+    #         report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+    #         return report_writer.contractually_obligated_date
+    #     except ReportWriterAgenda.DoesNotExist:
+    #         return None
 
-    def get_pqp_version(self, obj):
-        try:
-            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.pqp_version
-        except ReportWriterAgenda.DoesNotExist:
-            return None
+    # def get_pqp_version(self, obj):
+    #     try:
+    #         report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+    #         return report_writer.pqp_version
+    #     except ReportWriterAgenda.DoesNotExist:
+    #         return None
         
     def get_report_writer_name(self,obj):
         try:
@@ -107,6 +122,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             return report_type
         except ReportTeam.DoesNotExist:
             return None
+        
                                
     class Meta:
         model = ReportResult
@@ -120,6 +136,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'customer_id',
             'customer_name',
             'ntp_date',
+            'work_order',
             'bom',
             'tech_writer_startdate',
             'ready_datetime',
@@ -129,7 +146,8 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'report_reviewer_id',
             'report_reviewer_name',
             'project_type',
-            'priority',
-            'contractually_obligated_date',
-            'pqp_version'
+            # 'priority',
+            # 'contractually_obligated_date',
+            # 'pqp_version',
+            'report_file'
         ]
