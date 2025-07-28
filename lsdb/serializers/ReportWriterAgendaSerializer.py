@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from lsdb.models import *
 from urllib.parse import quote
+from datetime import timedelta
+
 
 
 AZURE_BLOB_BASE_URL = "https://haveblueazdev.blob.core.windows.net/reportmedia/"
@@ -17,9 +19,9 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_writer_name = serializers.SerializerMethodField()
     report_reviewer_name =serializers.SerializerMethodField()
     project_type = serializers.SerializerMethodField()
-    # priority = serializers.SerializerMethodField()
-    # contractually_obligated_date = serializers.SerializerMethodField()
-    # pqp_version = serializers.SerializerMethodField()
+    priority = serializers.SerializerMethodField()
+    contractually_obligated_date = serializers.SerializerMethodField()
+    pqp_version = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
     customer_id = serializers.SerializerMethodField()
     report_writer_id = serializers.SerializerMethodField()
@@ -70,26 +72,44 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             return None
 
         
-    # def get_priority(self, obj):
-    #     try:
-    #         report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-    #         return report_writer.priority
-    #     except ReportWriterAgenda.DoesNotExist:
-    #         return None
+    def get_priority(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+            return report_writer.priority
+        except ReportWriterAgenda.DoesNotExist:
+            return None
+        
+    def get_contractually_obligated_date(self, obj):
+        try:
+            report_writer, created = ReportWriterAgenda.objects.get_or_create(report_result=obj)
+            if report_writer.contractually_obligated_date:
+                return report_writer.contractually_obligated_date
+            report_type = obj.report_type
+            report_team = ReportTeam.objects.filter(report_type=report_type).first()
+            if not report_team or not report_team.contractually_obligated_date_formula:
+                return None
+            try:
+                days_to_add = int(report_team.contractually_obligated_date_formula)
+            except ValueError:
+                return None
+            work_order = obj.work_order  # assuming FK from ReportResult
+            ntp_date = getattr(work_order, "ntp_date", None)
+            if not ntp_date:
+                return None
+            calculated_date = ntp_date + timedelta(days=days_to_add)
+            report_writer.contractually_obligated_date = calculated_date
+            report_writer.save()
+            return calculated_date
+        except Exception as e:
+            return None
 
-    # def get_contractually_obligated_date(self, obj):
-    #     try:
-    #         report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-    #         return report_writer.contractually_obligated_date
-    #     except ReportWriterAgenda.DoesNotExist:
-    #         return None
 
-    # def get_pqp_version(self, obj):
-    #     try:
-    #         report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-    #         return report_writer.pqp_version
-    #     except ReportWriterAgenda.DoesNotExist:
-    #         return None
+    def get_pqp_version(self, obj):
+        try:
+            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
+            return report_writer.pqp_version
+        except ReportWriterAgenda.DoesNotExist:
+            return None
         
     def get_report_writer_name(self,obj):
         try:
@@ -146,8 +166,8 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'report_reviewer_id',
             'report_reviewer_name',
             'project_type',
-            # 'priority',
-            # 'contractually_obligated_date',
-            # 'pqp_version',
+            'priority',
+            'contractually_obligated_date',
+            'pqp_version',
             'report_file'
         ]
