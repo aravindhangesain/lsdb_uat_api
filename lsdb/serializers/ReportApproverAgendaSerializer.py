@@ -14,9 +14,17 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     approver_id = serializers.SerializerMethodField()
     author_id = serializers.SerializerMethodField()
     username = serializers.ReadOnlyField(source='user.username')
+    contractually_obligated_date = serializers.SerializerMethodField()
 
 
-
+    def get_contractually_obligated_date(self, obj):
+        try:
+            report_result_id = obj.report_result
+            report_writer_agenda = ReportWriterAgenda.objects.get(report_result=report_result_id)
+            return report_writer_agenda.contractually_obligated_date
+        except ReportWriterAgenda.DoesNotExist:
+            return None
+        
     def get_author_name(self,obj):
         try:
             report_type_id =  obj.report_result.report_type_definition
@@ -36,8 +44,8 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     def get_approver_id(self,obj):
         try:
             report_type_id = obj.report_result.report_type_definition
-            report_type = ReportTeam.objects.filter(report_type = report_type_id).values_list('approver_id',flat=True).first()
-            return report_type
+            report_type = ReportTeam.objects.get(report_type = report_type_id)
+            return report_type.approver.id
         except ReportTeam.DoesNotExist:
             return None
         
