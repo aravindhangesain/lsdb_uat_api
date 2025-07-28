@@ -11,3 +11,4 @@ class ReportApproverAgenda(models.Model):
     date_approved = models.DateTimeField(null=True,blank=True)
     date_delivered = models.DateTimeField(null=True,blank=True)
     date_entered = models.DateTimeField(null=True,blank=True)
+    flag=models.BooleanField()

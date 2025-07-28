@@ -67,6 +67,23 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 return Response({"error": "This user cannot be assigned for this task"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @transaction.atomic
+    @action(detail=False,methods=["post","get"]) 
+    def send_to_aprover_grid(self,request):
+
+        flag=request.data.get('flag')
+        report_result_id=request.data.get('report_result_id')
+
+        if flag and report_result_id is not None:
+            ReportApproverAgenda.objects.create(flag=flag,report_result_id=report_result_id)
+            return Response({"message": "Report Moved to approver grid"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+
+            
+
+
 
 
 
