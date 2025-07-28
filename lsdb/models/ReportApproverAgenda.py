@@ -12,3 +12,4 @@ class ReportApproverAgenda(models.Model):
     date_delivered = models.DateTimeField(null=True,blank=True)
     date_entered = models.DateTimeField(null=True,blank=True)
     flag=models.BooleanField()
+    user = models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)

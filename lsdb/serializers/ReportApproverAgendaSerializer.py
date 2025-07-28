@@ -13,6 +13,8 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     approver_name = serializers.SerializerMethodField()
     approver_id = serializers.SerializerMethodField()
     author_id = serializers.SerializerMethodField()
+    username = serializers.ReadOnlyField(source='user.username')
+
 
 
     def get_author_name(self,obj):
@@ -75,6 +77,8 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'author_name',
             'status_pan',
             'contractually_obligated_date',
+            'user',
+            'username',
             'date_verified',
             'date_approved',
             'date_delivered',
