@@ -49,10 +49,16 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
 
                     reportteam=ReportTeam.objects.get(report_type_id=reporttype_id)
 
-                    reportteam.reviewer=User.objects.get(id=request.data.get('reviewer_id'))
-                    reportteam.writer=User.objects.get(id=request.data.get('writer_id'))
-                    reportteam.save()
+                    reviewer_id = request.data.get('reviewer_id')
+                    writer_id = request.data.get('writer_id')
 
+                    if reviewer_id:
+                        reportteam.reviewer = User.objects.get(id=reviewer_id)
+
+                    if writer_id:
+                        reportteam.writer = User.objects.get(id=writer_id)
+
+                    reportteam.save()
                     return Response({"message": "updated successfully"}, status=status.HTTP_200_OK)
                 else:
                     return Response({"error": "reportresult_id is required"}, status=status.HTTP_400_BAD_REQUEST)
