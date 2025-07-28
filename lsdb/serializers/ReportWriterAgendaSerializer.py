@@ -2,7 +2,7 @@ from rest_framework import serializers
 from lsdb.models import *
 from urllib.parse import quote
 from datetime import timedelta
-
+from datetime import date
 
 
 AZURE_BLOB_BASE_URL = "https://haveblueazdev.blob.core.windows.net/reportmedia/"
@@ -75,7 +75,11 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     def get_priority(self, obj):
         try:
             report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.priority
+            if report_writer.contractually_obligated_date:
+                delta = report_writer.contractually_obligated_date.date() - date.today()
+                # priority = delta.days - 11
+                return delta.days
+            return None
         except ReportWriterAgenda.DoesNotExist:
             return None
         
@@ -84,16 +88,16 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             report_writer, created = ReportWriterAgenda.objects.get_or_create(report_result=obj)
             if report_writer.contractually_obligated_date:
                 return report_writer.contractually_obligated_date
-            report_type = obj.report_type
+            report_type = obj.report_type_definition
             report_team = ReportTeam.objects.filter(report_type=report_type).first()
-            if not report_team or not report_team.contractually_obligated_date_formula:
+            if not report_team or not report_team.obligated_date:
                 return None
             try:
-                days_to_add = int(report_team.contractually_obligated_date_formula)
+                days_to_add = int(report_team.obligated_date)
             except ValueError:
                 return None
-            work_order = obj.work_order  # assuming FK from ReportResult
-            ntp_date = getattr(work_order, "ntp_date", None)
+            work_order = obj.work_order 
+            ntp_date = getattr(work_order, "start_datetime", None)
             if not ntp_date:
                 return None
             calculated_date = ntp_date + timedelta(days=days_to_add)
@@ -106,10 +110,15 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
 
     def get_pqp_version(self, obj):
         try:
-            report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            return report_writer.pqp_version
-        except ReportWriterAgenda.DoesNotExist:
+            report_sequence_definition = obj.report_sequence_definition
+            report = ReportExecutionOrder.objects.filter(
+                report_sequence_definition=report_sequence_definition
+            ).first()
+            if report and report .test_definition:
+                return report .test_definition.version
             return None
+        except Exception as e:
+            return None 
         
     def get_report_writer_name(self,obj):
         try:
