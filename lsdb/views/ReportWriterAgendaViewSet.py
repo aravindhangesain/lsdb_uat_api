@@ -3,6 +3,8 @@ from lsdb.serializers import *
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.contrib.auth.models import User
+from django.db import transaction
 
 class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
     queryset = ReportResult.objects.filter(hex_color='#4ef542')
@@ -28,3 +30,38 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
         )
         serializer = TechWriterStartDateSerializer(agenda)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    @action(detail=False,methods=["post","get"])
+    def writer_reviewer_update(self, request):
+        if request.method=='POST':
+            user_id=request.user.id
+
+            if user_id in [142,103,153]:
+                
+                report_result_id=request.data.get('report_result_id')
+
+                if report_result_id and report_result_id is not None:
+                    
+                    reportresult=ReportResult.objects.get(id=report_result_id)
+
+                    reporttype_id=reportresult.report_type_definition.id
+
+                    reportteam=ReportTeam.objects.get(report_type_id=reporttype_id)
+
+                    reportteam.reviewer=User.objects.get(id=request.data.get('reviewer_id'))
+                    reportteam.writer=User.objects.get(id=request.data.get('writer_id'))
+                    reportteam.save()
+
+                    return Response({"message": "updated successfully"}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "reportresult_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            else:
+                return Response({"error": "This user cannot be assigned for this task"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
