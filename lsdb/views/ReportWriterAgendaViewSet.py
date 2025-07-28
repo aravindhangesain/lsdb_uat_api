@@ -5,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db import transaction
+from distutils.util import strtobool
+
 
 class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
     queryset = ReportResult.objects.filter(hex_color='#4ef542')
@@ -72,7 +74,8 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
     @action(detail=False,methods=["post","get"]) 
     def send_to_aprover_grid(self,request):
 
-        flag=request.data.get('flag')
+        flag_raw = request.data.get('flag')
+        flag = bool(strtobool(flag_raw)) if flag_raw is not None else None
         report_result_id=request.data.get('report_result_id')
 
         if flag and report_result_id is not None:
