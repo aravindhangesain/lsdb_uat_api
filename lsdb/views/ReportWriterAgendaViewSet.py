@@ -26,11 +26,13 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             report_result = ReportResult.objects.get(pk=pk)
         except ReportResult.DoesNotExist:
             return Response({"error": "ReportResult not found."}, status=status.HTTP_404_NOT_FOUND)
-        agenda = ReportWriterAgenda.objects.create(
-            report_result=report_result,
-            tech_writer_start_date=date_time,
-            user=user
-        )
+        try:
+            agenda = ReportWriterAgenda.objects.get(report_result=report_result)
+        except ReportWriterAgenda.DoesNotExist:
+            return Response({"error": "ReportWriterAgenda not found for the given ReportResult."},status=status.HTTP_404_NOT_FOUND)
+        agenda.tech_writer_start_date = date_time
+        agenda.user = user
+        agenda.save()
         serializer = TechWriterStartDateSerializer(agenda)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -83,8 +85,12 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             reportresult.is_approved=True
             reportresult.save()
 
+            reportwritertable=ReportWriterAgenda.objects.get(report_result_id=report_result_id)
+            reportwritertable.is_approved=True
+            reportwritertable.save()
+
             ReportApproverAgenda.objects.create(flag=True,report_result_id=report_result_id)
-            
+
             return Response({"message": "Report Moved to approver grid"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)

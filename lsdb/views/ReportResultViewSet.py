@@ -33,7 +33,8 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             report_definition=ReportSequenceDefinition.objects.get(id=report_sequence_definition_id)
             date_time=timezone.now()
             result_id=result.id
-            tsd_id=result.test_definition.id
+            tsd_id = result.test_definition.id if result.test_definition else None
+
             color_code=self.color_code(result_id,work_order_id,tsd_id)
 
             if color_code and color_code is not None:
@@ -42,7 +43,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                                                 product_type_definition=result.product_definition,
                                                 report_type_definition=result.report_definition,
                                                 data_ready_status=result.data_ready_status,reportexecution_azurefile=result.azure_file,
-                                                hex_color=color_code,ready_datetime=date_time,test_sequence_definition_id=result.test_definition.id)
+                                                hex_color=color_code,ready_datetime=date_time,test_sequence_definition_id=tsd_id)
             else:
                 return Response({"message":"tsd_id not there in payload"}, status=status.HTTP_404_NOT_FOUND)
         queryset = ReportResult.objects.all()

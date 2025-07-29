@@ -145,7 +145,8 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
 
                 report_definition = ReportTypeDefinition.objects.get(id=execution.get('report_definition_id'))
                 product_definition = ProductTypeDefinition.objects.get(id=execution.get('product_definition_id'))
-                test_definition=TestSequenceDefinition.objects.get(id=execution.get('test_definition_id'))
+                
+                test_definition = None if execution.get('test_definition_id') == 0 else TestSequenceDefinition.objects.get(id=execution.get('test_definition_id'))
                 azure_id = execution.get('azure_file_id')
                 if azure_id:
                     azure_instance=AzureFile.objects.get(id=azure_id)
