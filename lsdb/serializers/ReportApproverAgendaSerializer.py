@@ -50,10 +50,13 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             return None
         
     def get_approver_name(self,obj):
-        try:
+        try:            
             report_type_id = obj.report_result.report_type_definition
             report_type = ReportTeam.objects.get(report_type = report_type_id)
-            return report_type.approver.username
+            if report_type.is_projmanager is True:
+                return obj.report_result.work_order.project.project_manager.username
+            else:
+                return report_type.approver.username
         except ReportTeam.DoesNotExist:
             return None
 
