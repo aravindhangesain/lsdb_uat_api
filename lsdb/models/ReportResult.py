@@ -20,3 +20,4 @@ class ReportResult(models.Model):
     ready_datetime = models.DateTimeField(null=True,blank=True)
     hex_color = models.CharField(max_length=120,null=True,blank=True)
     test_sequence_definition=models.ForeignKey('TestSequenceDefinition', on_delete=models.CASCADE, blank=False, null=False)
+    is_approved=models.BooleanField(default=False)
