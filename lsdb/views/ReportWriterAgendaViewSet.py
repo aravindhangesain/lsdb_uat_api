@@ -10,7 +10,7 @@ from distutils.util import strtobool
 
 
 class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
-    queryset = ReportResult.objects.filter(hex_color='#4ef542')
+    queryset = ReportResult.objects.filter(hex_color='#4ef542',is_approved=False)
     serializer_class = ReportWriterAgendaSerializer
 
 
@@ -75,12 +75,16 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
     @action(detail=False,methods=["post","get"]) 
     def send_to_aprover_grid(self,request):
 
-        flag_raw = request.data.get('flag')
-        flag = bool(strtobool(flag_raw)) if flag_raw is not None else None
+        
         report_result_id=request.data.get('report_result_id')
 
-        if flag and report_result_id is not None:
-            ReportApproverAgenda.objects.create(flag=flag,report_result_id=report_result_id)
+        if report_result_id is not None:
+            reportresult=ReportResult.objects.get(id=report_result_id)
+            reportresult.is_approved=True
+            reportresult.save()
+
+            ReportApproverAgenda.objects.create(flag=True,report_result_id=report_result_id)
+            
             return Response({"message": "Report Moved to approver grid"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)

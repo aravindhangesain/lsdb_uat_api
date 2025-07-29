@@ -178,5 +178,6 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'priority',
             'contractually_obligated_date',
             'pqp_version',
-            'report_file'
+            'report_file',
+            'is_approved'
         ]
