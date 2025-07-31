@@ -74,3 +74,23 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             agenda.save()
             serializer = ReportApproverAgendaSerializer(agenda,context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+    @transaction.atomic
+    @action(detail=False,methods=["post","get"]) 
+    def send_to_delivered_grid(self,request):
+
+        
+        report_result_id=request.data.get('report_result_id')
+
+        if report_result_id is not None:
+            
+
+            reportwritertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id)
+            reportwritertable.flag=False
+            reportwritertable.save()
+
+            
+
+            return Response({"message": "Report Moved to delivered grid"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
