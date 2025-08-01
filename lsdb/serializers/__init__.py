@@ -196,3 +196,4 @@ from .ReportApproverNoteSerializer import ReportApproverNoteSerializer as Report
 from .ReportTeamSerializer import ReportTeamSerializer as ReportTeamSerializer
 from .IVandEL_InProgressSerializer import IVandEL_InProgressSerializer as IVandEL_InProgressSerializer
 from .TechWriterStartDateSerializer import TechWriterStartDateSerializer as TechWriterStartDateSerializer
+from .NewFlashTestSerializer import NewFlashTestSerializer as NewFlashTestSerializer

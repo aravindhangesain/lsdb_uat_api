@@ -166,3 +166,4 @@ from .ReportTeamViewSet import ReportTeamViewSet as ReportTeamViewSet
 from .IVandEL_InProgressViewSet import IVandEL_InProgressViewSet as IVandEL_InProgressViewSet
 from .ReportWriterAgendaHistoryViewSet import ReportWriterAgendaHistoryViewSet as ReportWriterAgendaHistoryViewSet
 from .DeliveredReportViewSet import DeliveredReportViewSet as DeliveredReportViewSet
+from .NewFlashTestViewSet import NewFlashTestViewSet as NewFlashTestViewSet
