@@ -149,3 +149,4 @@ from .ReportNoteTaggedPM import ReportNoteTaggedPM as ReportNoteTaggedPM
 from .ReportApproverNote import ReportApproverNote as ReportApproverNote
 from .ReportTeam import ReportTeam as ReportTeam
 from .ProjectType import ProjectType as ProjectType
+from .NewFlashTestDetails import NewFlashTestDetails as NewFlashTestDetails
