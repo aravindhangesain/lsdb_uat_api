@@ -75,11 +75,16 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     def get_priority(self, obj):
         try:
             report_writer = ReportWriterAgenda.objects.get(report_result=obj.id)
-            if report_writer.contractually_obligated_date:
-                delta = report_writer.contractually_obligated_date.date() - date.today()
-                # priority = delta.days - 11
-                return delta.days
-            return None
+            if not report_writer.contractually_obligated_date:
+                return None
+            agendas_with_date = ReportWriterAgenda.objects.filter(
+                contractually_obligated_date__isnull=False
+            ).order_by('contractually_obligated_date')
+            ranked_ids = {
+                agenda.report_result_id: rank + 1
+                for rank, agenda in enumerate(agendas_with_date)
+            }
+            return ranked_ids.get(obj.id)
         except ReportWriterAgenda.DoesNotExist:
             return None
         
