@@ -22,39 +22,48 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(matching_files, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    # @staticmethod
+    # def get_versioned_filename(base_name, extension, existing_names):
+    #     def generate_alpha_suffixes():
+    #         for c in string.ascii_uppercase:
+    #             yield c
+    #     new_name = f"{base_name}{extension}"
+    #     if new_name not in existing_names:
+    #         return new_name
+    #     version_match = re.match(r"^(.*-v\d+)([A-Z]?)$", base_name)
+    #     if version_match:
+    #         base_part = version_match.group(1)  
+    #         existing_suffixes = {
+    #             name for name in existing_names
+    #             if name.startswith(base_part) and name.endswith(extension)
+    #         }
+    #         for suffix in generate_alpha_suffixes():
+    #             candidate = f"{base_part}{suffix}{extension}"
+    #             if candidate not in existing_suffixes:
+    #                 return candidate
+    #     else:
+    #         version = 1
+    #         while True:
+    #             candidate = f"{base_name}-v{version}{extension}"
+    #             if candidate not in existing_names:
+    #                 return candidate
+    #             version += 1
+
     @staticmethod
     def get_versioned_filename(base_name, extension, existing_names):
-        def generate_alpha_suffixes():
-            for c in string.ascii_uppercase:
-                yield c
-        new_name = f"{base_name}{extension}"
-        if new_name not in existing_names:
-            return new_name
-        version_match = re.match(r"^(.*-v\d+)([A-Z]?)$", base_name)
-        if version_match:
-            base_part = version_match.group(1)  
-            existing_suffixes = {
-                name for name in existing_names
-                if name.startswith(base_part) and name.endswith(extension)
-            }
-            for suffix in generate_alpha_suffixes():
-                candidate = f"{base_part}{suffix}{extension}"
-                if candidate not in existing_suffixes:
-                    return candidate
-        else:
-            version = 1
-            while True:
-                candidate = f"{base_name}-v{version}{extension}"
-                if candidate not in existing_names:
-                    return candidate
-                version += 1
+        version = 0
+        while True:
+            candidate = f"{base_name}-v{version}{extension}"
+            if candidate not in existing_names:
+                return candidate
+            version += 1
 
     @staticmethod
     def extract_version(filename: str):
         match = re.search(r"-v(\d+[A-Z]?)", filename)
         if match:
             return f"v{match.group(1)}"
-        return "default"
+        return "V0"
 
     @action(detail=False, methods=['post'])
     def upload(self, request):
