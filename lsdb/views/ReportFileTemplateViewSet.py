@@ -51,9 +51,11 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def get_versioned_filename(base_name, extension, existing_names):
+        base_root = re.sub(r"-v\d+$", "", base_name)
+    
         version = 0
         while True:
-            candidate = f"{base_name}-v{version}{extension}"
+            candidate = f"{base_root}-v{version}{extension}"
             if candidate not in existing_names:
                 return candidate
             version += 1
