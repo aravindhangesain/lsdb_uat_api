@@ -4,8 +4,9 @@ from lsdb.serializers import *
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.contrib.auth.models import User
 from django.db import transaction
+from django.core.mail import EmailMessage
+
 
 class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
     queryset = ReportApproverAgenda.objects.filter(flag=True)
@@ -30,6 +31,58 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         if not created:
             agenda.date_verified = date_verified
             agenda.save()
+            try:
+                customer = report_result.work_order.project.customer.name
+                project_number = report_result.work_order.project.number
+                bom = report_result.work_order.name
+                try:
+                    report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
+                    report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
+                    report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
+                    report_approver = report_team.approver.get_full_name() if report_team.approver else "Not Assigned"
+                except ReportTeam.DoesNotExist:
+                    report_writer = report_reviewer = report_approver = "Not Assigned"
+                try:
+                    writer_agenda  = ReportWriterAgenda.objects.get(report_result=report_result)
+                    contractually_obligated_date = writer_agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if writer_agenda.contractually_obligated_date else "Not Set"
+                except ReportWriterAgenda.DoesNotExist:
+                    contractually_obligated_date = "Not Set"
+                recipients = []
+                if report_team.writer and report_team.writer.email:
+                    recipients.append(report_team.writer.email)
+                if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
+                    recipients.append(report_team.reviewer.email)
+                if report_team.approver and report_team.approver.email and report_team.approver.email not in recipients:
+                    recipients.append(report_team.approver.email)
+                email_body = f"""
+                <p>Hi Team,</p>
+                <p>The <strong>Approver Date Verification</strong> has been completed by <strong>{user.get_full_name() or user.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+                <p><strong>Details:</strong></p>
+                <table style="border-collapse: collapse;">
+                <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                <tr><td><strong>Verified Date:</strong></td><td>&nbsp;&nbsp;{date_verified}</td></tr>
+                <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
+                </table>
+                <p><strong>Regards,<br/>PVEL System</strong></p>
+                """
+                email = EmailMessage(
+                subject='[PVEL] Approver Date Verification Completed',
+                body=email_body,
+                from_email='support@pvel.com',
+                to=recipients
+                )
+                email.content_subtype = "html"
+                email.send(fail_silently=False)
+            except Exception as e:
+                return Response({
+                    "error": "Date verified and saved, but failed to send email.",
+                    "details": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             serializer = ReportApproverAgendaSerializer(agenda,context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
     
