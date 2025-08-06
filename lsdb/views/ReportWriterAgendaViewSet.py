@@ -5,8 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.core.mail import send_mail
-from django.conf import settings
+from django.core.mail import EmailMessage
+
 
 
 class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
@@ -79,7 +79,6 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 </table>
                 <p><strong>Regards,<br>PVEL System</strong></p>
                 """
-            from django.core.mail import EmailMessage
             email = EmailMessage(
             subject='[PVEL] Tech Writer Start Date Set',
             body=email_body,
@@ -145,6 +144,11 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
                 report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
                 report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                try:
+                    agenda = ReportWriterAgenda.objects.get(report_result=reportresult)
+                    contractually_obligated_date = agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if agenda.contractually_obligated_date else "Not Set"
+                except ReportWriterAgenda.DoesNotExist:
+                    contractually_obligated_date = "Not Set"
                 email_body = f"""
                 <p>Hi Team,</p>
                 <p>The <strong>ReportResult</strong> with ID <strong>{report_result_id}</strong> has been moved to the <strong>Approver Grid</strong>.</p>
@@ -156,6 +160,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                     <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                     <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                    <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
                 <p><strong>Regards,<br>PVEL System</strong></p>
                 """
@@ -163,14 +168,14 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 for user in [writer_user, reviewer_user, approver_user]:
                     if user and user.email:
                         recipient_list.append(user.email)
-                recipient_list = list(set(recipient_list))
-                send_mail(
-                    subject='[PVEL] Report Moved to Approver Grid',
-                    from_email='support@pvel.com',
-                    recipient_list=recipient_list,
-                    html_message=email_body,
-                    fail_silently=False,
+                email = EmailMessage(
+                subject='[PVEL] Report Moved to Approver Grid',
+                body=email_body,
+                from_email='support@pvel.com',
+                to=recipient_list,
                 )
+                email.content_subtype = "html"
+                email.send(fail_silently=False)
             except Exception as e:
                 return Response({
                     "message": "Report moved, but failed to send email.",
