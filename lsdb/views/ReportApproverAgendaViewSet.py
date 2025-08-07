@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import transaction
 from django.core.mail import EmailMessage
+import csv
+from django.http import HttpResponse
 
 
 class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
@@ -270,3 +272,53 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             return Response({"message": "Report Moved to delivered grid"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=False, methods=["get"],url_path='download_report_approver_agenda')
+    def download_report_approver_agenda(self, request):
+        queryset = ReportApproverAgenda.objects.filter(flag=True)
+        if not queryset.exists():
+            return Response({"detail": "No data to export."}, status=status.HTTP_204_NO_CONTENT)
+        serializer = ReportApproverAgendaSerializer(queryset, many=True,context={'request': request})
+      
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="ReportApproverAgenda.csv"'
+        writer = csv.writer(response)
+        headers = [
+            'Approver Name',
+            'Report Type',
+            'Report',
+            'Customer Name',
+            'Project Number',
+            'Report Version Number',
+            'BOM Type',
+            'Project Manager',
+            'Author Name',
+            'NTP Date',
+            'Contractually Obligated Date',
+            'Date Entered',
+            'Date Verified',
+            'Date Approved',
+            'Date Delivered'
+            ]   
+        writer.writerow(headers)
+        for item in serializer.data:
+            writer.writerow([
+                item.get('approver_name'),
+                item.get('report_type_definition_name'),
+                item.get('report_result_id'),
+                item.get('customer_name'),
+                item.get('project_number'),
+                item.get('report_version_number'),
+                item.get('bom'),
+                item.get('project_manager_name'),
+                item.get('author_name'),
+                item.get('ntp_date'),
+                item.get('contractually_obligated_date'),
+                item.get('date_entered'),
+                item.get('date_verified'),
+                item.get('date_approved'),
+                item.get('date_delivered'),
+            ])
+
+        return  response
+        

@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.core.mail import EmailMessage
+import csv
+from django.http import HttpResponse
 
 
 
@@ -184,3 +186,49 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             return Response({"message": "Report Moved to approver grid"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=False, methods=["get"],url_path='download_report_writer_agenda')
+    def download_report_writer_agenda(self, request):
+        queryset = ReportResult.objects.filter(hex_color='#4ef542',is_approved=False)
+        if not queryset.exists():
+            return Response({"detail": "No data to export."}, status=status.HTTP_204_NO_CONTENT)
+        serializer = ReportWriterAgendaSerializer(queryset, many=True,context={'request': request})
+      
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="ReportWriterAgenda.csv"'
+        writer = csv.writer(response)
+        headers = [
+            'Report Type',
+            'Project Number',
+            'Customer Name',
+            'Project Manager',
+            'NTP Date',
+            'BOM Type',
+            'priority',
+            'contractually_obligated_date',
+            'Data Verification Date',
+            'PQP Version',
+            'Tech Writer Start Date',
+            'Report Writer Name',
+            'Reviewer Name'
+            ]   
+        writer.writerow(headers)
+        for item in serializer.data:
+            writer.writerow([
+                item.get('report_type_definition_name'),
+                item.get('project_number'),
+                item.get('customer_name'),
+                item.get('project_manager_name'),
+                item.get('ntp_date'),
+                item.get('bom'),
+                item.get('priority'),
+                item.get('contractually_obligated_date'),
+                item.get('data_verification_date'),
+                item.get('pqp_version'),
+                item.get('tech_writer_startdate'),
+                item.get('report_writer_name'),
+                item.get('report_reviewer_name'),
+            ])
+
+        return  response
+    
