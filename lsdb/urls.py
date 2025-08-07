@@ -134,6 +134,7 @@ router.register(r'writer_history',ReportWriterAgendaHistoryViewSet,basename='wri
 router.register(r'delivered_report',DeliveredReportViewSet,basename='delivered_report')
 router.register(r'newflashtest',NewFlashTestViewSet,basename='newflashtest')
 router.register(r'flashtestdetails',NewFlashTestDetailsViewSet , basename = 'flashtestdetails')
+router.register(r'projecttypedetails',ProjectTypeDetailsViewSet, basename='projecttypedetails')
 
 
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')

@@ -198,3 +198,4 @@ from .IVandEL_InProgressSerializer import IVandEL_InProgressSerializer as IVandE
 from .TechWriterStartDateSerializer import TechWriterStartDateSerializer as TechWriterStartDateSerializer
 from .NewFlashTestSerializer import NewFlashTestSerializer as NewFlashTestSerializer
 from .NewFlashTestDetailsSerializer import NewFlashTestDetailsSerializer as NewFlashTestDetailsSerializer
+from .ProjectTypeDetailsSerializer import ProjectTypeDetailsSerializer as ProjectTypeDetailsSerializer
