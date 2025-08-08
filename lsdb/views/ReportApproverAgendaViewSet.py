@@ -279,12 +279,22 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         report_result_id=request.data.get('report_result_id')
         if report_result_id:
             reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id)
-            reportapprovertable.delete()
+            reportapprovertable.flag=False
+            reportapprovertable.save()
+
             reportresult=ReportResult.objects.get(id=report_result_id)
             reportresult.is_approved=False
-            return Response({"message": "Report Moved to delivered grid"}, status=status.HTTP_200_OK)
+            reportresult.save()
+            reportwriteragenda=ReportWriterAgenda.objects.get(report_result_id=report_result_id)
+            reportwriteragenda.is_approved=False
+            reportwriteragenda.save()
+            return Response({"message": "Report Moved to Writer grid"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # @transaction.atomic
+    # @action(detail=False,methods=["post","get"]) 
+    # def rejected_reports_history(self,request):
         
     @action(detail=False, methods=["get"],url_path='download_report_approver_agenda')
     def download_report_approver_agenda(self, request):
