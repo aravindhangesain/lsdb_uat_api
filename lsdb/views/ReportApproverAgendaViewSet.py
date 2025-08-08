@@ -28,7 +28,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             report_result = ReportResult.objects.get(pk=pk)
         except ReportResult.DoesNotExist:
             return Response({"error": "ReportResult not found."}, status=status.HTTP_404_NOT_FOUND)
-        agenda = ReportApproverAgenda.objects.filter(report_result=report_result).first()
+        agenda = ReportApproverAgenda.objects.filter(report_result=report_result,flag=True).first()
 
         if agenda:
             agenda.date_verified = date_verified
@@ -110,7 +110,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             report_result = ReportResult.objects.get(pk=pk)
         except ReportResult.DoesNotExist:
             return Response({"error": "ReportResult not found."}, status=status.HTTP_404_NOT_FOUND)
-        agenda = ReportApproverAgenda.objects.filter(report_result=report_result).first()
+        agenda = ReportApproverAgenda.objects.filter(report_result=report_result,flag=True).first()
 
         if agenda:
             agenda.date_approved = date_approved
@@ -192,7 +192,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             report_result = ReportResult.objects.get(pk=pk)
         except ReportResult.DoesNotExist:
             return Response({"error": "ReportResult not found."}, status=status.HTTP_404_NOT_FOUND)
-        agenda = ReportApproverAgenda.objects.filter(report_result=report_result).first()
+        agenda = ReportApproverAgenda.objects.filter(report_result=report_result,flag=True).first()
 
         if agenda:
             agenda.date_delivered = date_delivered
