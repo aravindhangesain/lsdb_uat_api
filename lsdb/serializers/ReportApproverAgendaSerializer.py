@@ -98,5 +98,7 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'date_delivered',
             'date_entered',
             'report_version_number',
-            'flag'
+            'flag',
+            'comments',
+            'comment_flag'
         ]

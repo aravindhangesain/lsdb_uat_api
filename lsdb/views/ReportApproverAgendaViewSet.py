@@ -265,9 +265,12 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
     @action(detail=False,methods=["post","get"]) 
     def send_to_delivered_grid(self,request):
         report_result_id=request.data.get('report_result_id')
+        comments = request.data.get('comments')
         if report_result_id is not None:
-            reportwritertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id)
+            reportwritertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id,flag=True)
             reportwritertable.flag=False
+            reportwritertable.comments = comments
+            reportwritertable.comment_flag = 'Approved'
             reportwritertable.save()
             return Response({"message": "Report Moved to delivered grid"}, status=status.HTTP_200_OK)
         else:
@@ -277,11 +280,13 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
     @action(detail=False,methods=["post","get"]) 
     def reject(self,request):
         report_result_id=request.data.get('report_result_id')
+        comments = request.data.get('comments')
         if report_result_id:
-            reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id)
+            reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id, flag=True)
             reportapprovertable.flag=False
+            reportapprovertable.comments = comments
+            reportapprovertable.comment_flag = 'Rejected'
             reportapprovertable.save()
-
             reportresult=ReportResult.objects.get(id=report_result_id)
             reportresult.is_approved=False
             reportresult.save()
