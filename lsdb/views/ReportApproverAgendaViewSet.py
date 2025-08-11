@@ -67,7 +67,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 recipients.append(report_team.approver.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Date Verification</strong> has been completed by <strong>{user.get_full_name() or user.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Date Verification</strong> has been completed by <strong>{report_approver.get_full_name() or report_approver.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -149,7 +149,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 recipients.append(report_team.approver.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Date</strong> has been Approved by <strong>{user.get_full_name() or user.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Date</strong> has been Approved by <strong>{report_approver.get_full_name() or report_approver.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
