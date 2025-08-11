@@ -231,7 +231,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 recipients.append(report_team.approver.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Ready For Delivery:</strong><strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Ready For Delivery-</strong><strong>ReportResult ID: {report_result.id}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
