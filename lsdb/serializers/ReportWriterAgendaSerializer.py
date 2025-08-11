@@ -111,6 +111,31 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             return calculated_date
         except Exception as e:
             return None
+        
+
+    # def get_contractually_obligated_date(self, obj):
+    #     try:
+    #         report_writer, created = ReportWriterAgenda.objects.get_or_create(report_result=obj)
+    #         if report_writer.contractually_obligated_date:
+    #             return report_writer.contractually_obligated_date
+    #         report_type = obj.report_type_definition
+    #         report_team = ReportTeam.objects.filter(report_type=report_type).first()
+    #         work_order = obj.work_order
+    #         ntp_date = getattr(work_order, "start_datetime", None)
+    #         if ntp_date:
+    #             try:
+    #                 days_to_add = int(report_team.obligated_date) if (report_team and report_team.obligated_date) else 0
+    #             except ValueError:
+    #                 days_to_add = 0
+    #             base_date = ntp_date
+    #         else:
+    #                 base_date = timezone.now().date()
+    #                 days_to_add = 180
+    #         calculated_date = base_date + timedelta(days=days_to_add)
+    #         report_writer.contractually_obligated_date = calculated_date
+    #         report_writer.save()
+    #     except Exception as e:
+    #         return None
 
 
     def get_pqp_version(self, obj):

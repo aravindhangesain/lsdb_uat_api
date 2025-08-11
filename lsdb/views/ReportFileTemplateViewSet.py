@@ -5,6 +5,7 @@ from lsdb.models import ReportFileTemplate, ReportResult, WorkOrder
 from lsdb.serializers import ReportFileTemplateSerializer
 from rest_framework.response import Response
 from azure.storage.blob import BlobServiceClient
+from django.core.exceptions import ValidationError
 import os
 import re
 import string
@@ -50,9 +51,28 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
     #             version += 1
 
     @staticmethod
-    def get_versioned_filename(base_name, extension, existing_names):
+    def get_versioned_filename(base_name, extension, existing_names, allowed_base_name=None):
+        """
+        Generate a versioned filename with the format base-vX.ext.
+        Only allows one base name for all versions of a ReportResult.
+        
+        :param base_name: The uploaded file's name without extension.
+        :param extension: File extension, including the dot (.xlsx, .pdf, etc.).
+        :param existing_names: List of existing file names for this report result.
+        :param allowed_base_name: The base name already assigned for this report result.
+        :return: Versioned filename string.
+        """
+
+        # Extract base_root without version suffix
         base_root = re.sub(r"-v\d+$", "", base_name)
-    
+
+        # Validation: Ensure new upload matches the already allowed base name (if exists)
+        if allowed_base_name and base_root != allowed_base_name:
+            raise ValidationError(
+                f"File name must start with the base name '{allowed_base_name}'. "
+                f"You uploaded '{base_root}'."
+            )
+
         version = 0
         while True:
             candidate = f"{base_root}-v{version}{extension}"
@@ -80,17 +100,31 @@ class ReportFileTemplateViewSet(viewsets.ModelViewSet):
                 return Response({"status": "error", "msg": "Authentication credentials were not provided."},status=status.HTTP_401_UNAUTHORIZED)
             original_filename = file_obj.name  
             base_name, extension = os.path.splitext(original_filename)
+            report = ReportResult.objects.get(pk=report_id)
+            workorder = WorkOrder.objects.get(pk=workorder_id)
+            existing_files = ReportFileTemplate.objects.filter(report=report).order_by("datetime")
+            allowed_base_name = None
+            if existing_files.exists():
+                first_file_name = existing_files.first().name
+                allowed_base_name = re.sub(r"-v\d+$", "", os.path.splitext(first_file_name)[0])
+            if allowed_base_name and re.sub(r"-v\d+$", "", base_name) != allowed_base_name:
+                return Response(
+                    {
+                        "status": "error",
+                        "msg": f"File name must start with '{allowed_base_name}'. "
+                            f"You uploaded '{base_name}'."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             connect_str = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
             container_name = 'reportmedia'
             blob_service_client = BlobServiceClient.from_connection_string(connect_str)
             container_client = blob_service_client.get_container_client(container_name)
             existing_blob_names = [blob.name for blob in container_client.list_blobs()]
-            versioned_filename = self.get_versioned_filename(base_name, extension, existing_blob_names)
+            versioned_filename = self.get_versioned_filename(base_name, extension, existing_blob_names,allowed_base_name=allowed_base_name)
             blob_client = container_client.get_blob_client(versioned_filename)
             file_obj.seek(0)
             blob_client.upload_blob(file_obj, overwrite=True)
-            report = ReportResult.objects.get(pk=report_id)
-            workorder = WorkOrder.objects.get(pk=workorder_id)
             report_file = ReportFileTemplate.objects.create(
                 report=report,
                 workorder=workorder,

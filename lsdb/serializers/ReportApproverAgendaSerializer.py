@@ -45,7 +45,10 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
         try:
             report_type_id = obj.report_result.report_type_definition
             report_type = ReportTeam.objects.get(report_type = report_type_id)
-            return report_type.approver.id
+            if report_type.is_projmanager is True:
+                return obj.report_result.work_order.project.project_manager.id
+            else:
+                return report_type.approver.id
         except ReportTeam.DoesNotExist:
             return None
         
