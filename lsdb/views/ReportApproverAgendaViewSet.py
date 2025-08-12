@@ -308,7 +308,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         seen_emails.add(usr.email)
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The<strong>ReportResult ID: {report_result.id}</strong> has been approved.</p>
+                <p>The <strong>ReportResult ID: {report_result.id}</strong> has been approved.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -376,7 +376,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         seen_emails.add(usr.email)
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The<strong>ReportResult ID: {report_result.id}</strong> has been rejected.</p>
+                <p>The <strong>ReportResult ID: {report_result.id}</strong> has been rejected.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
