@@ -46,31 +46,36 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
+            writer_user = reviewer_user = approver_user = None
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
-                report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
-                report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
-                if report_team.approver:
-                    report_approver = report_approver.get_full_name()
-                else:
-                    report_approver = report_result.work_order.project.project_manager.username
+                writer_user = report_team.writer
+                reviewer_user = report_team.reviewer
+                approver_user = report_team.approver or report_result.work_order.project.project_manager
             except ReportTeam.DoesNotExist:
-                report_writer = report_reviewer = report_approver = "Not Assigned"
+                writer_user = reviewer_user = approver_user = None
+            report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+            report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+            report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
             try:
-                writer_agenda  = ReportWriterAgenda.objects.get(report_result=report_result)
-                contractually_obligated_date = writer_agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if writer_agenda.contractually_obligated_date else "Not Set"
+                writer_agenda = ReportWriterAgenda.objects.get(report_result=report_result)
+                contractually_obligated_date = (
+                    writer_agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S')
+                    if writer_agenda.contractually_obligated_date else "Not Set"
+                )
             except ReportWriterAgenda.DoesNotExist:
                 contractually_obligated_date = "Not Set"
-            recipients = []
-            if report_team.writer and report_team.writer.email:
-                recipients.append(report_team.writer.email)
-            if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
-                recipients.append(report_team.reviewer.email)
-            if report_approver and report_approver.email and report_approver.email not in recipients:
-                recipients.append(report_team.approver.email)
+            recipient_list = []
+            seen_emails = set()
+            for usr in [writer_user, reviewer_user, approver_user]:
+                if usr and usr.email and usr.email not in seen_emails:
+                    recipient_list.append(usr.email)
+                    seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Date Verification</strong> has been completed by <strong>{report_approver.get_full_name() or report_approver.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Date Verification</strong> has been completed by
+            <strong>{approver_user.get_full_name() or approver_user.username}</strong>
+            for <strong>ReportResult ID: {report_result.id}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -85,10 +90,10 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             <p><strong>Regards,<br/>PVEL System</strong></p>
             """
             email = EmailMessage(
-            subject='[PVEL] Date Verification Completed',
-            body=email_body,
-            from_email='support@pvel.com',
-            to=recipients
+                subject='[PVEL] Date Verification Completed',
+                body=email_body,
+                from_email='support@pvel.com',
+                to=recipient_list
             )
             email.content_subtype = "html"
             email.send(fail_silently=False)
@@ -114,7 +119,6 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         except ReportResult.DoesNotExist:
             return Response({"error": "ReportResult not found."}, status=status.HTTP_404_NOT_FOUND)
         agenda = ReportApproverAgenda.objects.filter(report_result=report_result,flag=True).first()
-
         if agenda:
             agenda.date_approved = date_approved
             agenda.approved_comment = approved_comment
@@ -133,47 +137,46 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             bom = report_result.work_order.name
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
-                report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
-                report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
-                if report_team.approver:
-                    report_approver = report_approver.get_full_name()
-                else:
-                    report_approver = report_result.work_order.project.project_manager.username
+                writer_user = report_team.writer
+                reviewer_user = report_team.reviewer
+                approver_user = report_team.approver or report_result.work_order.project.project_manager
             except ReportTeam.DoesNotExist:
-                report_writer = report_reviewer = report_approver = "Not Assigned"
+                writer_user = reviewer_user = approver_user = None
+            report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+            report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+            report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
             try:
-                writer_agenda  = ReportWriterAgenda.objects.get(report_result=report_result)
+                writer_agenda = ReportWriterAgenda.objects.get(report_result=report_result)
                 contractually_obligated_date = writer_agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if writer_agenda.contractually_obligated_date else "Not Set"
             except ReportWriterAgenda.DoesNotExist:
                 contractually_obligated_date = "Not Set"
-            recipients = []
-            if report_team.writer and report_team.writer.email:
-                recipients.append(report_team.writer.email)
-            if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
-                recipients.append(report_team.reviewer.email)
-            if report_approver and report_approver.email and report_approver.email not in recipients:
-                recipients.append(report_team.approver.email)
+            recipient_list = []
+            seen_emails = set()
+            for usr in [writer_user, reviewer_user, approver_user]:
+                if usr and usr.email and usr.email not in seen_emails:
+                    recipient_list.append(usr.email)
+                    seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Date</strong> has been Approved by <strong>{report_approver.get_full_name() or report_approver.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Date</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
-            <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
-            <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
-            <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
-            <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
-            <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
-            <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-            <tr><td><strong>Approved Date:</strong></td><td>&nbsp;&nbsp;{date_approved}</td></tr>
-            <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
+                <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                <tr><td><strong>Approved Date:</strong></td><td>&nbsp;&nbsp;{date_approved}</td></tr>
+                <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
             <p><strong>Regards,<br/>PVEL System</strong></p>
             """
             email = EmailMessage(
-            subject='[PVEL] Date Approved By Approver',
-            body=email_body,
-            from_email='support@pvel.com',
-            to=recipients
+                subject='[PVEL] Date Approved By Approver',
+                body=email_body,
+                from_email='support@pvel.com',
+                to=recipient_list
             )
             email.content_subtype = "html"
             email.send(fail_silently=False)
@@ -199,7 +202,6 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         except ReportResult.DoesNotExist:
             return Response({"error": "ReportResult not found."}, status=status.HTTP_404_NOT_FOUND)
         agenda = ReportApproverAgenda.objects.filter(report_result=report_result,flag=True).first()
-
         if agenda:
             agenda.date_delivered = date_delivered
             agenda.delivered_comment = delivered_comment
@@ -218,26 +220,28 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             bom = report_result.work_order.name
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
-                report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
-                report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
-                if report_team.approver:
-                    report_approver = report_approver.get_full_name()
-                else:
-                    report_approver = report_result.work_order.project.project_manager.username
+                writer_user = report_team.writer
+                reviewer_user = report_team.reviewer
+                approver_user = report_team.approver or report_result.work_order.project.project_manager
             except ReportTeam.DoesNotExist:
-                report_writer = report_reviewer = report_approver = "Not Assigned"
+                writer_user = reviewer_user = approver_user = None
+            report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+            report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+            report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
             try:
-                writer_agenda  = ReportWriterAgenda.objects.get(report_result=report_result)
-                contractually_obligated_date = writer_agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if writer_agenda.contractually_obligated_date else "Not Set"
+                writer_agenda = ReportWriterAgenda.objects.get(report_result=report_result)
+                contractually_obligated_date = (
+                    writer_agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S')
+                    if writer_agenda.contractually_obligated_date else "Not Set"
+                )
             except ReportWriterAgenda.DoesNotExist:
                 contractually_obligated_date = "Not Set"
-            recipients = []
-            if report_team.writer and report_team.writer.email:
-                recipients.append(report_team.writer.email)
-            if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
-                recipients.append(report_team.reviewer.email)
-            if report_approver and report_approver.email and report_approver.email not in recipients:
-                recipients.append(report_team.approver.email)
+            recipient_list = []
+            seen_emails = set()
+            for usr in [writer_user, reviewer_user, approver_user]:
+                if usr and usr.email and usr.email not in seen_emails:
+                    recipient_list.append(usr.email)
+                    seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
             <p>The <strong>Ready For Delivery-</strong><strong>ReportResult ID: {report_result.id}</strong>.</p>
@@ -255,16 +259,16 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             <p><strong>Regards,<br/>PVEL System</strong></p>
             """
             email = EmailMessage(
-            subject='[PVEL] Ready for Delivery',
-            body=email_body,
-            from_email='support@pvel.com',
-            to=recipients
+                subject='[PVEL] Ready for Delivery',
+                body=email_body,
+                from_email='support@pvel.com',
+                to=recipient_list
             )
             email.content_subtype = "html"
             email.send(fail_silently=False)
         except Exception as e:
             return Response({
-                "error": "Date verified and saved, but failed to send email.",
+                "error": "Date delivered saved, but failed to send email.",
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = ReportApproverAgendaSerializer(agenda,context={'request': request})
