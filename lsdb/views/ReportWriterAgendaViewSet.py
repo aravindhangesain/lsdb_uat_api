@@ -53,7 +53,10 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 approver_user = report_team.approver
-                report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                if approver_user:
+                    report_approver = approver_user.get_full_name()
+                else:
+                    report_approver = report_result.work_order.project.project_manager.username
             except ReportTeam.DoesNotExist:
                 report_approver = "Not Assigned"
             try:
@@ -145,7 +148,10 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     writer_user = reviewer_user = approver_user = None
                 report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
                 report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
-                report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                if approver_user:
+                    report_approver = approver_user.get_full_name()
+                else:
+                    report_approver = reportresult.work_order.project.project_manager.username
                 try:
                     agenda = ReportWriterAgenda.objects.get(report_result=reportresult)
                     contractually_obligated_date = agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if agenda.contractually_obligated_date else "Not Set"

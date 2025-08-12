@@ -50,7 +50,10 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
                 report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
-                report_approver = report_team.approver.get_full_name() if report_team.approver else "Not Assigned"
+                if report_team.approver:
+                    report_approver = report_approver.get_full_name()
+                else:
+                    report_approver = report_result.work_order.project.project_manager.username
             except ReportTeam.DoesNotExist:
                 report_writer = report_reviewer = report_approver = "Not Assigned"
             try:
@@ -63,7 +66,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 recipients.append(report_team.writer.email)
             if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
                 recipients.append(report_team.reviewer.email)
-            if report_team.approver and report_team.approver.email and report_team.approver.email not in recipients:
+            if report_approver and report_approver.email and report_approver.email not in recipients:
                 recipients.append(report_team.approver.email)
             email_body = f"""
             <p>Hi Team,</p>
@@ -132,7 +135,10 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
                 report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
-                report_approver = report_team.approver.get_full_name() if report_team.approver else "Not Assigned"
+                if report_team.approver:
+                    report_approver = report_approver.get_full_name()
+                else:
+                    report_approver = report_result.work_order.project.project_manager.username
             except ReportTeam.DoesNotExist:
                 report_writer = report_reviewer = report_approver = "Not Assigned"
             try:
@@ -145,7 +151,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 recipients.append(report_team.writer.email)
             if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
                 recipients.append(report_team.reviewer.email)
-            if report_team.approver and report_team.approver.email and report_team.approver.email not in recipients:
+            if report_approver and report_approver.email and report_approver.email not in recipients:
                 recipients.append(report_team.approver.email)
             email_body = f"""
             <p>Hi Team,</p>
@@ -214,7 +220,10 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 report_writer = report_team.writer.get_full_name() if report_team.writer else "Not Assigned"
                 report_reviewer = report_team.reviewer.get_full_name() if report_team.reviewer else "Not Assigned"
-                report_approver = report_team.approver.get_full_name() if report_team.approver else "Not Assigned"
+                if report_team.approver:
+                    report_approver = report_approver.get_full_name()
+                else:
+                    report_approver = report_result.work_order.project.project_manager.username
             except ReportTeam.DoesNotExist:
                 report_writer = report_reviewer = report_approver = "Not Assigned"
             try:
@@ -227,7 +236,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 recipients.append(report_team.writer.email)
             if report_team.reviewer and report_team.reviewer.email and report_team.reviewer.email not in recipients:
                 recipients.append(report_team.reviewer.email)
-            if report_team.approver and report_team.approver.email and report_team.approver.email not in recipients:
+            if report_approver and report_approver.email and report_approver.email not in recipients:
                 recipients.append(report_team.approver.email)
             email_body = f"""
             <p>Hi Team,</p>
