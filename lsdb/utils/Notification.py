@@ -102,23 +102,27 @@ class Notification(Thread):
             user = kwargs['user']
             subject = kwargs['subject']
             plaintext = get_template('txt_error.txt')
-            # html = get_template(kwargs['template'] + '.html')
+            
             body = kwargs.pop('body')
-            # print(body)
+            
             html = DjangoTemplate.Engine.from_string(None, body)
-            # msg_data = DjangoContext({"first_name": user.first_name, **kwargs})
+            
             msg_data = {"first_name": user.first_name, **kwargs}
-            # print(msg_data)
-            # This parameter handling is a KLUGE that needs fixing
-            # Sender needs to build full url for magic_links
-            # msg_data['items'] = kwargs.get('items',None)
-            # msg_data['MFR'] = kwargs.get('MFR',None)
+
+            # NEW: render subject using the same context (so {{ serial_number }}, {{ project_number }}, etc. work)
+            try:
+                subject_template = DjangoTemplate.Template(subject)
+                subject = subject_template.render(DjangoTemplate.Context(msg_data))
+                subject = " ".join(subject.split())  # keep it to a single clean line
+            except Exception:
+                pass
+
             text_content = plaintext.render(msg_data)
             html_content = html.render(DjangoTemplate.Context(msg_data))
         # short circuit for disabled users:
 
         msg = EmailMultiAlternatives(subject,
-                                     text_content, 'support@pvel.com', [user.username])
+                                    text_content, 'support@pvel.com', [user.username])
         msg.attach_alternative(html_content, "text/html")
 
         attachments = kwargs.get("attachments", None)
@@ -141,6 +145,7 @@ class Notification(Thread):
             )
         else:
             pass # don't actually send to disabled users
+
 
     def send(self):
         # still only doing email:
