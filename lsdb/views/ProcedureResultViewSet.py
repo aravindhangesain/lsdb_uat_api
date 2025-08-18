@@ -305,15 +305,6 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                             report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
                             report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
                             report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
-                            try:
-                                agenda = ReportWriterAgenda.objects.get(report_result=valid_report)
-                                contractually_obligated_date = (
-                                    agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S')
-                                    if agenda.contractually_obligated_date
-                                    else "Not Set"
-                                )
-                            except ReportWriterAgenda.DoesNotExist:
-                                contractually_obligated_date = "Not Set"
                             recipient_list = []
                             seen_emails = set()
                             for usr in [writer_user, reviewer_user, approver_user]:
@@ -322,7 +313,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                                     seen_emails.add(usr.email)
                             email_body = f"""
                                 <p>Hi Team,</p>
-                                <p>This Report has been moved to Writer's Agenda </p>
+                                <p>This Report has been moved to Writer's Agenda.</p>
                                 <p><strong>Details:</strong></p>
                                 <table style="border-collapse: collapse;">
                                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>

@@ -89,7 +89,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
 
                     email_body = f"""
                         <p>Hi Team,</p>
-                        <p>All <strong>Module Intake</strong> steps are now completed (<strong>step 3</strong>)
+                        <p> <strong>Module Intake</strong> steps are now completed.
                         for <strong>Project {project_number}</strong>.</p>
                         <p><strong>Details:</strong></p>
                         <table style="border-collapse: collapse;">
