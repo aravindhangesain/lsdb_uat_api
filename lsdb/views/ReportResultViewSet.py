@@ -65,11 +65,8 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                     report_type_definition=report.report_definition,
                     report_execution_order_number=report.execution_group_number
                 ).order_by('-id').first()
-                if report_result:
-                    self.send_module_intake_mail(report_result.id)
-                    return '#4ef542'
-                else:
-                    return '#f51111'
+                self.send_module_intake_mail(report_result.id)
+                return '#4ef542'
             else:
                 return '#f51111'
         elif report.data_ready_status in ['Factory Witness']:
