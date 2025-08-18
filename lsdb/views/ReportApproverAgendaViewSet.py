@@ -412,7 +412,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
     def download_report_approver_agenda(self, request):
         queryset = ReportApproverAgenda.objects.filter(flag=True)
         if not queryset.exists():
-            return Response({"detail": "No data to export."}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"detail": "No data to export."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ReportApproverAgendaSerializer(queryset, many=True,context={'request': request})
       
         response = HttpResponse(content_type='text/csv')

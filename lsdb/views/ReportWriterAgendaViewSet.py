@@ -194,7 +194,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
     def download_report_writer_agenda(self, request):
         queryset = ReportResult.objects.filter(hex_color='#4ef542',is_approved=False)
         if not queryset.exists():
-            return Response({"detail": "No data to export."}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"detail": "No data to export."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ReportWriterAgendaSerializer(queryset, many=True,context={'request': request})
       
         response = HttpResponse(content_type='text/csv')
