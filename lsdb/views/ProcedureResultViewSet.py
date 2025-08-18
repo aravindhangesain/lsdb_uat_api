@@ -15,7 +15,7 @@ from openpyxl import Workbook
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import AllowAny
-
+from django.core.mail import EmailMessage
 
 
 from rest_framework import viewsets
@@ -32,6 +32,7 @@ from lsdb.models import MeasurementResult
 from lsdb.models import ProcedureResult,FinalProcedure
 from lsdb.models import StepResult,LocationLog
 from lsdb.models import StepDefinition
+from lsdb.models import *
 
 from lsdb.serializers import DispositionCodeListSerializer
 from lsdb.serializers import NoteSerializer
@@ -287,8 +288,66 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                         datetime=timezone.now()
                         valid_report.hex_color='#4ef542'
                         valid_report.ready_datetime=datetime
-
+                        valid_report.is_approved = False
                         valid_report.save()
+                        try:
+                            customer = valid_report.work_order.project.customer.name
+                            project_number = valid_report.work_order.project.number
+                            bom = valid_report.work_order.name
+                            date_time = valid_report.ready_datetime
+                            try:
+                                report_team = ReportTeam.objects.get(report_type=valid_report.report_type_definition)
+                                writer_user = report_team.writer
+                                reviewer_user = report_team.reviewer
+                                approver_user = report_team.approver or valid_report.work_order.project.project_manager
+                            except ReportTeam.DoesNotExist:
+                                writer_user = reviewer_user = approver_user = None
+                            report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+                            report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+                            report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                            try:
+                                agenda = ReportWriterAgenda.objects.get(report_result=valid_report)
+                                contractually_obligated_date = (
+                                    agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S')
+                                    if agenda.contractually_obligated_date
+                                    else "Not Set"
+                                )
+                            except ReportWriterAgenda.DoesNotExist:
+                                contractually_obligated_date = "Not Set"
+                            recipient_list = []
+                            seen_emails = set()
+                            for usr in [writer_user, reviewer_user, approver_user]:
+                                if usr and usr.email and usr.email not in seen_emails:
+                                    recipient_list.append(usr.email)
+                                    seen_emails.add(usr.email)
+                            email_body = f"""
+                                <p>Hi Team,</p>
+                                <p>This Report has been moved to Writer's Agenda </p>
+                                <p><strong>Details:</strong></p>
+                                <table style="border-collapse: collapse;">
+                                <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                                <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                                <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                                <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                                <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                                <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                                <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
+                                </table>
+                                <p><strong>Regards,<br>PVEL System</strong></p>
+                            """
+                            email = EmailMessage(
+                                subject='[PVEL] Tech Writer Start Date Set',
+                                body=email_body,
+                                from_email='support@pvel.com',
+                                to=recipient_list,
+                            )
+                            email.content_subtype = "html"
+                            email.send(fail_silently=False)
+                        except Exception as e:
+                            return Response(
+                                {"error": "Date saved, but failed to send email.", "details": str(e)},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                            )
 
 
         serializer = ProcedureResultSerializer(result, many=False, context=self.context)
