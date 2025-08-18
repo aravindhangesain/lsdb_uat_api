@@ -3,7 +3,7 @@ from lsdb.models import *
 
 class ReportApproverNoteSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='user.username')
-    approver_name = serializers.ReadOnlyField(source='approver.approver.username')
+    approver_name = serializers.ReadOnlyField(source='approver.username')
     
     class Meta:
         model = ReportApproverNote
