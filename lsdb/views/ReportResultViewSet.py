@@ -7,6 +7,9 @@ from django.db import transaction
 from rest_framework.response import Response
 from django.db import connection
 from django.utils import timezone
+from lsdb.models import *
+from django.core.mail import EmailMessage
+
 
 class ReportResultViewSet(viewsets.ModelViewSet):
     serializer_class = ReportResultSerilaizer
@@ -52,13 +55,21 @@ class ReportResultViewSet(viewsets.ModelViewSet):
     
 
     def color_code(self, result_id,work_order_id,tsd_id):
-
         report=ReportExecutionOrder.objects.get(id=result_id)
         if report.data_ready_status in ['Module Intake']:
             project_id=WorkOrder.objects.filter(id=work_order_id).values_list('project_id',flat=True).first()
             module_intakes=ModuleIntakeDetails.objects.filter(projects_id=project_id)
             if all(intake.steps in ['step 3'] for intake in module_intakes):
-                return '#4ef542'
+                report_result = ReportResult.objects.filter(
+                    work_order_id=work_order_id,
+                    report_type_definition=report.report_definition,
+                    report_execution_order_number=report.execution_group_number
+                ).order_by('-id').first()
+                if report_result:
+                    self.send_module_intake_mail(report_result.id)
+                    return '#4ef542'
+                else:
+                    return '#f51111'
             else:
                 return '#f51111'
         elif report.data_ready_status in ['Factory Witness']:
@@ -83,7 +94,60 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                 return '#4ef542'
             else:
                 return None
-        
+            
+    def send_module_intake_mail(self, report_result_id):
+        try:
+            report_result = ReportResult.objects.get(id=report_result_id)
+            customer = report_result.work_order.project.customer.name
+            project_number = report_result.work_order.project.number
+            bom = report_result.work_order.name
+
+            try:
+                report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
+                writer_user = report_team.writer
+                reviewer_user = report_team.reviewer
+                approver_user = report_team.approver or report_result.work_order.project.project_manager
+            except ReportTeam.DoesNotExist:
+                writer_user = reviewer_user = approver_user = None
+
+            report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+            report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+            report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+
+            recipient_list, seen_emails = [], set()
+            for usr in [writer_user, reviewer_user, approver_user]:
+                if usr and usr.email and usr.email not in seen_emails:
+                    recipient_list.append(usr.email)
+                    seen_emails.add(usr.email)
+
+            email_body = f"""
+                <p>Hi Team,</p>
+                <p>All <strong>Module Intake</strong> steps are completed. 
+                for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+                <p><strong>Details:</strong></p>
+                <table style="border-collapse: collapse;">
+                <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                </table>
+                <p><strong>Regards,<br>PVEL System</strong></p>
+            """
+
+            email = EmailMessage(
+                subject=f'[PVEL] Module Intake Completed - ReportResult {report_result.id}',
+                body=email_body,
+                from_email='support@pvel.com',
+                to=recipient_list,
+            )
+            email.content_subtype = "html"
+            email.send(fail_silently=False)
+
+        except Exception as e:
+            print(f"Email sending failed for ReportResult {report_result_id}: {e}")
+            
 
     @transaction.atomic
     @action(detail=False,methods=["patch","get"], url_path="update_report_result")
