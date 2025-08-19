@@ -76,9 +76,9 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Data Verification</strong> has been completed by
+            <p>The Report<strong>Data Verification</strong> has been completed by
             <strong>{approver_user.get_full_name() or approver_user.username}</strong>
-            for <strong>Report: {report_file.name}</strong>.</p>
+            for <strong>File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -165,7 +165,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Data</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>Report: {report_file.name}</strong>.</p>
+            <p>The Report<strong>Data</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -255,7 +255,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Ready For Delivery-</strong><strong>ReportResult: {report_file.name}</strong>.</p>
+            <p>The Report<strong>Ready For Delivery-</strong><strong>File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -323,16 +323,17 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         seen_emails.add(usr.email)
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>ReportResult: {report_file.name}</strong> has been approved.</p>
+                <p>The <strong>Report</strong> has been approved.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
+                <tr><td><strong>File Name:</strong> {report_file.name}</td></tr>
+                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
                 <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
                 <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
                 <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                 </table>
                 <p><strong>Regards,<br/>PVEL System</strong></p>
                 """
@@ -395,16 +396,17 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         seen_emails.add(usr.email)
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>Report: {report_file.name}</strong> has been rejected.</p>
+                <p>The <strong>Report</strong> has been rejected.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
+                <tr><td><strong>File Name:</strong> {report_file.name}</td></tr>
+                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
                 <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
                 <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
                 <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                 </table>
                 <p><strong>Regards,<br/>PVEL System</strong></p>
                 """

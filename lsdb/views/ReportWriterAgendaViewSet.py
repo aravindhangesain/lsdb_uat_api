@@ -67,7 +67,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong> for <strong>Report: {report_file.name}</strong>.</p>
+                <p>The Report<strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong><strong>File Name: {report_file.name}</strong>.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -160,7 +160,8 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     contractually_obligated_date = "Not Set"
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>Report:</strong><strong>{report_file.name}</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
+                <p>The <strong>Report</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
+                <p><strong>File Name:</strong> {report_file.name}</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                     <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
