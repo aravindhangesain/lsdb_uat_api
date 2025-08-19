@@ -38,6 +38,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
+            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
@@ -65,7 +66,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+                <p>The <strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong> for <strong>Report: {report_file.name}</strong>.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -74,13 +75,14 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_result.report_type_definition.name}</td></tr>
                 <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
                 <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
                 <p><strong>Regards,<br>PVEL System</strong></p>
             """
             email = EmailMessage(
-                subject='[PVEL] Tech Writer Start Date Set',
+                subject=f'[PVEL] Tech Writer Start Date Set - Project {project_number}',
                 body=email_body,
                 from_email='support@pvel.com',
                 to=recipient_list,
@@ -137,6 +139,8 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 customer = reportresult.work_order.project.customer.name
                 project_number = reportresult.work_order.project.number
                 bom = reportresult.work_order.name
+                report_file = ReportFileTemplate.objects.filter(report_result=reportresult).last()
+
                 try:
                     report_team = ReportTeam.objects.get(report_type=reportresult.report_type_definition)
                     writer_user = report_team.writer
@@ -154,7 +158,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     contractually_obligated_date = "Not Set"
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>ReportResult</strong> with ID <strong>{report_result_id}</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
+                <p>The <strong>Report:</strong><strong>{report_file.name}</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                     <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -163,6 +167,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                     <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                     <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                    <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{reportresult.report_type_definition.name}</td></tr>
                     <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
                 <p><strong>Regards,<br>PVEL System</strong></p>
@@ -174,7 +179,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                         recipient_list.append(usr.email)
                         seen_emails.add(usr.email)
                 email = EmailMessage(
-                subject='[PVEL] Report Moved to Approver Grid',
+                subject=f'[PVEL] Report Moved to Approver Grid - Project {project_number}',
                 body=email_body,
                 from_email='support@pvel.com',
                 to=recipient_list,

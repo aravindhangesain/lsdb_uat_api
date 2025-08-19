@@ -6,6 +6,7 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     project_number = serializers.ReadOnlyField(source='report_result.work_order.project.number')
     customer_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.customer.name')
     bom = serializers.ReadOnlyField(source='report_result.work_order.name')
+    work_order_id = serializers.ReadOnlyField(source='report_result.work_order.id')
     project_manager_name = serializers.ReadOnlyField(source = 'report_result.work_order.project.project_manager.username')
     ntp_date = serializers.ReadOnlyField(source='report_result.work_order.start_datetime')
     author_name = serializers.SerializerMethodField()
@@ -84,6 +85,7 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'customer_name',    
             'ntp_date',
             'bom',
+            'work_order_id',
             'report_result',
             'report_result_id',
             'pichina',

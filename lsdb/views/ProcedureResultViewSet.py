@@ -327,7 +327,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                                 <p><strong>Regards,<br>PVEL System</strong></p>
                             """
                             email = EmailMessage(
-                                subject='[PVEL] Report Moved to Writer\'s Agenda',
+                                subject=f'[PVEL] Report Moved to Writer\'s Agenda - Project {project_number}',
                                 body=email_body,
                                 from_email='support@pvel.com',
                                 to=recipient_list,

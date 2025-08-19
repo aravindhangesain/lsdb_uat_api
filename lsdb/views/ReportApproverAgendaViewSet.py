@@ -20,7 +20,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         date_verified = request.data.get("date_verified")
         verified_comment = request.data.get("verified_comment")
         if not date_verified:
-            return Response({"error": "Approver Date Verification is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Approver Data Verification is required."}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         if not user or not user.is_authenticated:
             return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -47,6 +47,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
             writer_user = reviewer_user = approver_user = None
+            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
@@ -73,9 +75,9 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Date Verification</strong> has been completed by
+            <p>The <strong>Data Verification</strong> has been completed by
             <strong>{approver_user.get_full_name() or approver_user.username}</strong>
-            for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+            for <strong>Report: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -84,13 +86,14 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
             <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
             <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+            <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_result.report_type_definition.name}</td></tr>
             <tr><td><strong>Verified Date:</strong></td><td>&nbsp;&nbsp;{date_verified}</td></tr>
             <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
             <p><strong>Regards,<br/>PVEL System</strong></p>
             """
             email = EmailMessage(
-                subject='[PVEL] Date Verification Completed',
+                subject=f'[PVEL] Data Verification Completed - Project {project_number}',
                 body=email_body,
                 from_email='support@pvel.com',
                 to=recipient_list
@@ -99,7 +102,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             email.send(fail_silently=False)
         except Exception as e:
             return Response({
-                "error": "Date verified and saved, but failed to send email.",
+                "error": "Data verified and saved, but failed to send email.",
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = ReportApproverAgendaSerializer(agenda,context={'request': request})
@@ -110,7 +113,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         date_approved = request.data.get("date_approved")
         approved_comment = request.data.get("approved_comment")
         if not date_approved:
-            return Response({"error": "Date Approved Verification is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Data Approved Verification is required."}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         if not user or not user.is_authenticated:
             return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -135,6 +138,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
+            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
@@ -158,7 +163,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Date</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Data</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>Report: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -167,13 +172,14 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_result.report_type_definition.name}</td></tr>
                 <tr><td><strong>Approved Date:</strong></td><td>&nbsp;&nbsp;{date_approved}</td></tr>
                 <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
             <p><strong>Regards,<br/>PVEL System</strong></p>
             """
             email = EmailMessage(
-                subject='[PVEL] Date Approved By Approver',
+                subject=f'[PVEL] Data Approved By Approver - Project {project_number}',
                 body=email_body,
                 from_email='support@pvel.com',
                 to=recipient_list
@@ -182,7 +188,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             email.send(fail_silently=False)
         except Exception as e:
             return Response({
-                "error": "Date verified and saved, but failed to send email.",
+                "error": "Data verified and saved, but failed to send email.",
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = ReportApproverAgendaSerializer(agenda,context={'request': request})
@@ -193,7 +199,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         date_delivered = request.data.get("date_delivered")
         delivered_comment = request.data.get("delivered_comment")
         if not date_delivered:
-            return Response({"error": "Date Delivered is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Data Delivered is required."}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         if not user or not user.is_authenticated:
             return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -218,6 +224,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
+            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
@@ -244,7 +252,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The <strong>Ready For Delivery-</strong><strong>ReportResult ID: {report_result.id}</strong>.</p>
+            <p>The <strong>Ready For Delivery-</strong><strong>ReportResult: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -253,13 +261,14 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
             <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
             <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+            <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_result.report_type_definition.name}</td></tr>
             <tr><td><strong>Delivered Date:</strong></td><td>&nbsp;&nbsp;{date_delivered}</td></tr>
             <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
             <p><strong>Regards,<br/>PVEL System</strong></p>
             """
             email = EmailMessage(
-                subject='[PVEL] Ready for Delivery',
+                subject=f'[PVEL] Ready for Delivery - Project {project_number}',
                 body=email_body,
                 from_email='support@pvel.com',
                 to=recipient_list
@@ -290,6 +299,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 customer = report_result.work_order.project.customer.name
                 project_number = report_result.work_order.project.number
                 bom = report_result.work_order.name
+                report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+
                 try:
                     report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                     writer_user = report_team.writer
@@ -308,7 +319,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         seen_emails.add(usr.email)
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>ReportResult ID: {report_result.id}</strong> has been approved.</p>
+                <p>The <strong>ReportResult: {report_file.name}</strong> has been approved.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -317,11 +328,12 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_result.report_type_definition.name}</td></tr>
                 </table>
                 <p><strong>Regards,<br/>PVEL System</strong></p>
                 """
                 email = EmailMessage(
-                    subject='[PVEL]Status of the Report(Approved)',
+                    subject=f'[PVEL]Status of the Report(Approved) - Project {project_number}',
                     body=email_body,
                     from_email='support@pvel.com',
                     to=recipient_list
@@ -358,6 +370,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 customer = report_result.work_order.project.customer.name
                 project_number = report_result.work_order.project.number
                 bom = report_result.work_order.name
+                report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
                 try:
                     report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                     writer_user = report_team.writer
@@ -376,7 +389,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         seen_emails.add(usr.email)
                 email_body = f"""
                 <p>Hi Team,</p>
-                <p>The <strong>ReportResult ID: {report_result.id}</strong> has been rejected.</p>
+                <p>The <strong>Report: {report_file.name}</strong> has been rejected.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -389,7 +402,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 <p><strong>Regards,<br/>PVEL System</strong></p>
                 """
                 email = EmailMessage(
-                    subject='[PVEL]Status of the Report(Rejected)',
+                    subject=f'[PVEL]Status of the Report(Rejected) - Project {project_number}',
                     body=email_body,
                     from_email='support@pvel.com',
                     to=recipient_list
