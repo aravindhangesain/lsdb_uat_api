@@ -38,7 +38,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
-            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+            report_file = ReportFileTemplate.objects.filter(report=report_result).last()
             report_type = report_result.report_type_definition.name
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
@@ -140,7 +140,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 customer = reportresult.work_order.project.customer.name
                 project_number = reportresult.work_order.project.number
                 bom = reportresult.work_order.name
-                report_file = ReportFileTemplate.objects.filter(report_result=reportresult).last()
+                report_file = ReportFileTemplate.objects.filter(report=reportresult).last()
                 report_type = reportresult.report_type_definition.name
 
                 try:

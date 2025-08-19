@@ -47,7 +47,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
             writer_user = reviewer_user = approver_user = None
-            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+            report_file = ReportFileTemplate.objects.filter(report=report_result).last()
             report_type = report_result.report_type_definition.name
 
             try:
@@ -139,7 +139,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
-            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+            report_file = ReportFileTemplate.objects.filter(report=report_result).last()
             report_type = report_result.report_type_definition.name
 
             try:
@@ -226,7 +226,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             customer = report_result.work_order.project.customer.name
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
-            report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+            report_file = ReportFileTemplate.objects.filter(report=report_result).last()
             report_type = report_result.report_type_definition.name
 
             try:
@@ -302,7 +302,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 customer = report_result.work_order.project.customer.name
                 project_number = report_result.work_order.project.number
                 bom = report_result.work_order.name
-                report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+                report_file = ReportFileTemplate.objects.filter(report=report_result).last()
                 report_type = report_result.report_type_definition.name
 
                 try:
@@ -374,7 +374,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 customer = report_result.work_order.project.customer.name
                 project_number = report_result.work_order.project.number
                 bom = report_result.work_order.name
-                report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+                report_file = ReportFileTemplate.objects.filter(report=report_result).last()
                 report_type = report_result.report_type_definition.name
 
                 try:
