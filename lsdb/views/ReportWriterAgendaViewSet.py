@@ -39,6 +39,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
             project_number = report_result.work_order.project.number
             bom = report_result.work_order.name
             report_file = ReportFileTemplate.objects.filter(report_result=report_result).last()
+            report_type = report_result.report_type_definition.name
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
@@ -75,7 +76,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_result.report_type_definition.name}</td></tr>
+                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                 <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
                 <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
@@ -140,6 +141,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 project_number = reportresult.work_order.project.number
                 bom = reportresult.work_order.name
                 report_file = ReportFileTemplate.objects.filter(report_result=reportresult).last()
+                report_type = reportresult.report_type_definition.name
 
                 try:
                     report_team = ReportTeam.objects.get(report_type=reportresult.report_type_definition)
@@ -167,7 +169,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
                     <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                     <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
-                    <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{reportresult.report_type_definition.name}</td></tr>
+                    <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                     <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
                 <p><strong>Regards,<br>PVEL System</strong></p>
