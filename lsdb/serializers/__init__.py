@@ -199,3 +199,4 @@ from .TechWriterStartDateSerializer import TechWriterStartDateSerializer as Tech
 from .NewFlashTestSerializer import NewFlashTestSerializer as NewFlashTestSerializer
 from .NewFlashTestDetailsSerializer import NewFlashTestDetailsSerializer as NewFlashTestDetailsSerializer
 from .ProjectTypeDetailsSerializer import ProjectTypeDetailsSerializer as ProjectTypeDetailsSerializer
+from .AssetHistorySerializer import AssetHistorySerializer as AssetHistorySerializer
