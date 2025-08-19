@@ -67,7 +67,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
                 <p>Hi Team,</p>
-                <p>The Report<strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong><strong>File Name: {report_file.name}</strong>.</p>
+                <p>The Report<strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong><strong> File Name: {report_file.name}</strong>.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>

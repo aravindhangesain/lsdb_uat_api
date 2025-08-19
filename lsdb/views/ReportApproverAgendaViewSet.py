@@ -255,7 +255,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     seen_emails.add(usr.email)
             email_body = f"""
             <p>Hi Team,</p>
-            <p>The Report<strong>Ready For Delivery-</strong><strong>File Name: {report_file.name}</strong>.</p>
+            <p>The Report<strong>Ready For Delivery-</strong><strong> File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
