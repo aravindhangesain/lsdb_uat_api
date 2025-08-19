@@ -1,5 +1,10 @@
 from rest_framework import serializers
 from lsdb.models import *
+from urllib.parse import quote
+
+
+AZURE_BLOB_BASE_URL = "https://haveblueazdev.blob.core.windows.net/reportmedia/"
+
 
 class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     report_type = serializers.ReadOnlyField(source='report_result.report_type_definition.name')
@@ -16,6 +21,7 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     author_id = serializers.SerializerMethodField()
     username = serializers.ReadOnlyField(source='user.username')
     contractually_obligated_date = serializers.SerializerMethodField()
+    report_file = serializers.SerializerMethodField()
 
 
     def get_contractually_obligated_date(self, obj):
@@ -71,6 +77,16 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             return report_file.version
         except:
             return "Version not found"
+    
+    def get_report_file(self, obj):
+        report_file = ReportFileTemplate.objects.filter(report=obj.id).order_by('-id').first()
+        if report_file and report_file.file:
+            filename = report_file.file.name
+            if filename.startswith("reportmedia/"):
+                filename = filename.replace("reportmedia/", "")
+            encoded_filename = quote(filename)
+            return AZURE_BLOB_BASE_URL + encoded_filename
+        return None
         
 
     class Meta:
@@ -102,5 +118,6 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'report_version_number',
             'flag',
             'comments',
-            'comment_flag'
+            'comment_flag',
+            'report_file'
         ]
