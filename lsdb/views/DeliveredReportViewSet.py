@@ -18,7 +18,7 @@ class DeliveredReportViewSet(viewsets.ReadOnlyModelViewSet):
         report_result_id=request.data.get('report_result_id')
         comments = request.data.get('comments')
         if report_result_id:
-            reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id, history_flag=False)
+            reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id, history_flag=True)
             reportapprovertable.flag=False
             reportapprovertable.history_flag=False
             reportapprovertable.comments = comments
@@ -55,7 +55,7 @@ class DeliveredReportViewSet(viewsets.ReadOnlyModelViewSet):
                         recipient_list.append(usr.email)
                         seen_emails.add(usr.email)
                 email_body = f"""
-                <p>Hi Team,</p>
+                <p><strong>Hi Team,</strong></p>
                 <p>The <strong>Report</strong> has been rejected.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
@@ -68,7 +68,7 @@ class DeliveredReportViewSet(viewsets.ReadOnlyModelViewSet):
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                 </table>
-                <p><strong>Regards,<br/>PVEL System</strong></p>
+                <p><strong>Regards,</strong><br>PVEL System</p>
                 """
                 email = EmailMessage(
                     subject=f'[PVEL]Status of the Report(Rejected) - Project {project_number}',
