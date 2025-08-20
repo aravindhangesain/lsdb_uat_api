@@ -312,8 +312,8 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                                     recipient_list.append(usr.email)
                                     seen_emails.add(usr.email)
                             email_body = f"""
-                                <p>Hi Team,</p>
-                                <p>This Report has been moved to Writer's Agenda.</p>
+                                <p><strong>Hi Team,</strong></p>
+                                <p>The procedure has been completed, and the report has been moved to the Writer’s Agenda - Project Number: {project_number}.</p>
                                 <p><strong>Details:</strong></p>
                                 <table style="border-collapse: collapse;">
                                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -324,7 +324,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                                 <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
                                 </table>
-                                <p><strong>Regards,<br>PVEL System</strong></p>
+                                <p><strong>Regards,</strong><br>PVEL System</p>
                             """
                             email = EmailMessage(
                                 subject=f'[PVEL] Report Moved to Writer\'s Agenda - Project {project_number}',

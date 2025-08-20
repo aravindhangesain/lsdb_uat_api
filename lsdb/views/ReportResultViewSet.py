@@ -88,9 +88,8 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                             seen_emails.add(usr.email)
 
                     email_body = f"""
-                        <p>Hi Team,</p>
-                        <p> <strong>Module Intake</strong> steps are now completed.
-                        for <strong>Project {project_number}</strong>.</p>
+                        <p><strong>Hi Team,</strong></p>
+                        <p> <strong>Module Intake</strong> steps are now completed for <strong>Project {project_number}</strong>. This Report has been moved to Report Writer's Agenda.</p>
                         <p><strong>Details:</strong></p>
                         <table style="border-collapse: collapse;">
                         <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -100,7 +99,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                         <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                         <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                         </table>
-                        <p><strong>Regards,<br>PVEL System</strong></p>
+                        <p><strong>Regards,</strong><br>PVEL System</p>
                     """
 
                     email = EmailMessage(
