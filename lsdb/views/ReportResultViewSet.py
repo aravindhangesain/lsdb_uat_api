@@ -118,9 +118,9 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
 
-                return '#4EF542'  
+                return '#4ef542'  
             else:
-                return '#F51111'
+                return '#f51111'
 
         elif report.data_ready_status in ['Factory Witness']:
             return '#4ef542'

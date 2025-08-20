@@ -16,5 +16,6 @@ class ReportApproverAgenda(models.Model):
     delivered_comment = models.TextField(null=True, blank=True)
     comments  = models.TextField(null=True,blank=True)
     flag=models.BooleanField()
+    history_flag = models.BooleanField(default=False)
     user = models.ForeignKey('auth.User',on_delete=models.CASCADE,null=True,blank=True)
     comment_flag = models.CharField(max_length=32,null=True,blank=True)

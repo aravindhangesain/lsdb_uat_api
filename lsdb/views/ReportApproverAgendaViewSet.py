@@ -75,8 +75,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     recipient_list.append(usr.email)
                     seen_emails.add(usr.email)
             email_body = f"""
-            <p>Hi Team,</p>
-            <p>The Report<strong>Data Verification</strong> has been completed by
+            <p><strong>Hi Team,</strong></p>
+            <p>The <strong>Data Verification</strong> has been completed by
             <strong>{approver_user.get_full_name() or approver_user.username}</strong>
             for <strong>File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
@@ -91,7 +91,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             <tr><td><strong>Verified Date:</strong></td><td>&nbsp;&nbsp;{date_verified}</td></tr>
             <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
-            <p><strong>Regards,<br/>PVEL System</strong></p>
+            <p><strong>Regards,</strong><br>PVEL System</p>
             """
             email = EmailMessage(
                 subject=f'[PVEL] Data Verification Completed - Project {project_number}',
@@ -164,8 +164,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     recipient_list.append(usr.email)
                     seen_emails.add(usr.email)
             email_body = f"""
-            <p>Hi Team,</p>
-            <p>The Report<strong>Data</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>File Name: {report_file.name}</strong>.</p>
+            <p><strong>Hi Team,</strong></p>
+            <p>The <strong>Report Data</strong> has been Approved by <strong>{approver_user.get_full_name() or approver_user.username}</strong> for <strong>File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -178,7 +178,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Approved Date:</strong></td><td>&nbsp;&nbsp;{date_approved}</td></tr>
                 <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
-            <p><strong>Regards,<br/>PVEL System</strong></p>
+            <p><strong>Regards,</strong><br>PVEL System</p>
             """
             email = EmailMessage(
                 subject=f'[PVEL] Data Approved By Approver - Project {project_number}',
@@ -254,8 +254,8 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     recipient_list.append(usr.email)
                     seen_emails.add(usr.email)
             email_body = f"""
-            <p>Hi Team,</p>
-            <p>The Report<strong>Ready For Delivery-</strong><strong> File Name: {report_file.name}</strong>.</p>
+            <p><strong>Hi Team,</strong></p>
+            <p>The Report is <strong>Ready For Delivery-</strong><strong> File Name: {report_file.name}</strong>.</p>
             <p><strong>Details:</strong></p>
             <table style="border-collapse: collapse;">
             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -268,7 +268,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             <tr><td><strong>Delivered Date:</strong></td><td>&nbsp;&nbsp;{date_delivered}</td></tr>
             <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
             </table>
-            <p><strong>Regards,<br/>PVEL System</strong></p>
+            <p><strong>Regards,</strong><br>PVEL System</p>
             """
             email = EmailMessage(
                 subject=f'[PVEL] Ready for Delivery - Project {project_number}',
@@ -294,6 +294,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         if report_result_id is not None:
             reportwritertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id,flag=True)
             reportwritertable.flag=False
+            reportwritertable.history_flag=True
             reportwritertable.comments = comments
             reportwritertable.comment_flag = 'Approved'
             reportwritertable.save()
@@ -322,7 +323,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                         recipient_list.append(usr.email)
                         seen_emails.add(usr.email)
                 email_body = f"""
-                <p>Hi Team,</p>
+                <p><strong>Hi Team,</strong></p>
                 <p>The <strong>Report</strong> has been approved.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
@@ -335,7 +336,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
                 <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
                 </table>
-                <p><strong>Regards,<br/>PVEL System</strong></p>
+                <p><strong>Regards,</strong><br>PVEL System</p>
                 """
                 email = EmailMessage(
                     subject=f'[PVEL]Status of the Report(Approved) - Project {project_number}',
@@ -353,78 +354,78 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
         
-    @transaction.atomic
-    @action(detail=False,methods=["post","get"]) 
-    def reject(self,request):
-        report_result_id=request.data.get('report_result_id')
-        comments = request.data.get('comments')
-        if report_result_id:
-            reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id, flag=True)
-            reportapprovertable.flag=False
-            reportapprovertable.comments = comments
-            reportapprovertable.comment_flag = 'Rejected'
-            reportapprovertable.save()
-            reportresult=ReportResult.objects.get(id=report_result_id)
-            reportresult.is_approved=False
-            reportresult.save()
-            reportwriteragenda=ReportWriterAgenda.objects.get(report_result_id=report_result_id)
-            reportwriteragenda.is_approved=False
-            reportwriteragenda.save()
-            try:
-                report_result = ReportResult.objects.get(id=report_result_id)
-                customer = report_result.work_order.project.customer.name
-                project_number = report_result.work_order.project.number
-                bom = report_result.work_order.name
-                report_file = ReportFileTemplate.objects.filter(report=report_result).last()
-                report_type = report_result.report_type_definition.name
+    # @transaction.atomic
+    # @action(detail=False,methods=["post","get"]) 
+    # def reject(self,request):
+    #     report_result_id=request.data.get('report_result_id')
+    #     comments = request.data.get('comments')
+    #     if report_result_id:
+    #         reportapprovertable=ReportApproverAgenda.objects.get(report_result_id=report_result_id, flag=True)
+    #         reportapprovertable.flag=False
+    #         reportapprovertable.comments = comments
+    #         reportapprovertable.comment_flag = 'Rejected'
+    #         reportapprovertable.save()
+    #         reportresult=ReportResult.objects.get(id=report_result_id)
+    #         reportresult.is_approved=False
+    #         reportresult.save()
+    #         reportwriteragenda=ReportWriterAgenda.objects.get(report_result_id=report_result_id)
+    #         reportwriteragenda.is_approved=False
+    #         reportwriteragenda.save()
+    #         try:
+    #             report_result = ReportResult.objects.get(id=report_result_id)
+    #             customer = report_result.work_order.project.customer.name
+    #             project_number = report_result.work_order.project.number
+    #             bom = report_result.work_order.name
+    #             report_file = ReportFileTemplate.objects.filter(report=report_result).last()
+    #             report_type = report_result.report_type_definition.name
 
-                try:
-                    report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
-                    writer_user = report_team.writer
-                    reviewer_user = report_team.reviewer
-                    approver_user = report_team.approver or report_result.work_order.project.project_manager
-                except ReportTeam.DoesNotExist:
-                    writer_user = reviewer_user = approver_user = None
-                report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
-                report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
-                report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
-                recipient_list = []
-                seen_emails = set()
-                for usr in [writer_user, reviewer_user, approver_user]:
-                    if usr and usr.email and usr.email not in seen_emails:
-                        recipient_list.append(usr.email)
-                        seen_emails.add(usr.email)
-                email_body = f"""
-                <p>Hi Team,</p>
-                <p>The <strong>Report</strong> has been rejected.</p>
-                <p><strong>Details:</strong></p>
-                <table style="border-collapse: collapse;">
-                <tr><td><strong>File Name:</strong> {report_file.name}</td></tr>
-                <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
-                <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
-                <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
-                <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
-                <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
-                <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
-                <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-                </table>
-                <p><strong>Regards,<br/>PVEL System</strong></p>
-                """
-                email = EmailMessage(
-                    subject=f'[PVEL]Status of the Report(Rejected) - Project {project_number}',
-                    body=email_body,
-                    from_email='support@pvel.com',
-                    to=recipient_list
-                )
-                email.content_subtype = "html"
-                email.send(fail_silently=False)
-            except Exception as e:
-                return Response({
-                    "error": "Date delivered saved, but failed to send email.",
-                    "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response({"message": "Report Moved to Writer grid"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+    #             try:
+    #                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
+    #                 writer_user = report_team.writer
+    #                 reviewer_user = report_team.reviewer
+    #                 approver_user = report_team.approver or report_result.work_order.project.project_manager
+    #             except ReportTeam.DoesNotExist:
+    #                 writer_user = reviewer_user = approver_user = None
+    #             report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+    #             report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+    #             report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+    #             recipient_list = []
+    #             seen_emails = set()
+    #             for usr in [writer_user, reviewer_user, approver_user]:
+    #                 if usr and usr.email and usr.email not in seen_emails:
+    #                     recipient_list.append(usr.email)
+    #                     seen_emails.add(usr.email)
+    #             email_body = f"""
+    #             <p>Hi Team,</p>
+    #             <p>The <strong>Report</strong> has been rejected.</p>
+    #             <p><strong>Details:</strong></p>
+    #             <table style="border-collapse: collapse;">
+    #             <tr><td><strong>File Name:</strong> {report_file.name}</td></tr>
+    #             <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
+    #             <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+    #             <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+    #             <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+    #             <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+    #             <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+    #             <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+    #             </table>
+    #             <p><strong>Regards,<br/>PVEL System</strong></p>
+    #             """
+    #             email = EmailMessage(
+    #                 subject=f'[PVEL]Status of the Report(Rejected) - Project {project_number}',
+    #                 body=email_body,
+    #                 from_email='support@pvel.com',
+    #                 to=recipient_list
+    #             )
+    #             email.content_subtype = "html"
+    #             email.send(fail_silently=False)
+    #         except Exception as e:
+    #             return Response({
+    #                 "error": "Date delivered saved, but failed to send email.",
+    #                 "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #         return Response({"message": "Report Moved to Writer grid"}, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
         
     # @transaction.atomic
     # @action(detail=False,methods=["post","get"]) 

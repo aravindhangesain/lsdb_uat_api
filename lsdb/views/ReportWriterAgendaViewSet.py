@@ -66,8 +66,8 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     recipient_list.append(usr.email)
                     seen_emails.add(usr.email)
             email_body = f"""
-                <p>Hi Team,</p>
-                <p>The Report<strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong><strong> File Name: {report_file.name}</strong>.</p>
+                <p><strong>Hi Team,</strong></p>
+                <p><strong>Tech Writer Start Date</strong> has been set by <strong>{writer_user.get_full_name() or writer_user.username}</strong><strong> for - File Name: {report_file.name}</strong>.</p>
                 <p><strong>Details:</strong></p>
                 <table style="border-collapse: collapse;">
                 <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
@@ -80,7 +80,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
                 <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
-                <p><strong>Regards,<br>PVEL System</strong></p>
+                <p><strong>Regards,</strong><br>PVEL System</p>
             """
             email = EmailMessage(
                 subject=f'[PVEL] Tech Writer Start Date Set - Project {project_number}',
@@ -159,7 +159,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                 except ReportWriterAgenda.DoesNotExist:
                     contractually_obligated_date = "Not Set"
                 email_body = f"""
-                <p>Hi Team,</p>
+                <p><strong>Hi Team,</strong></p>
                 <p>The <strong>Report</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
                 <p><strong>File Name:</strong> {report_file.name}</p>
                 <p><strong>Details:</strong></p>
@@ -173,7 +173,7 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
                     <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
                     <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
                 </table>
-                <p><strong>Regards,<br>PVEL System</strong></p>
+                <p><strong>Regards,</strong><br>PVEL System</p>
                 """
                 recipient_list = []
                 seen_emails = set()
