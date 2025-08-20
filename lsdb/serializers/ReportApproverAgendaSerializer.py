@@ -79,7 +79,8 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             return "Version not found"
     
     def get_report_file(self, obj):
-        report_file = ReportFileTemplate.objects.filter(report=obj.id).order_by('-id').first()
+        report_id = obj.report_result.id
+        report_file = ReportFileTemplate.objects.filter(report=report_id).order_by('-id').first()
         if report_file and report_file.file:
             filename = report_file.file.name
             if filename.startswith("reportmedia/"):
