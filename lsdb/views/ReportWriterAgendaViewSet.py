@@ -128,75 +128,84 @@ class ReportWriterAgendaViewSet(viewsets.ModelViewSet):
     @action(detail=False,methods=["post","get"]) 
     def send_to_aprover_grid(self,request):
         report_result_id=request.data.get('report_result_id')
+        
         if report_result_id is not None:
             reportresult=ReportResult.objects.get(id=report_result_id)
-            reportresult.is_approved=True
-            reportresult.save()
-            reportwritertable=ReportWriterAgenda.objects.get(report_result_id=report_result_id)
-            reportwritertable.is_approved=True
-            reportwritertable.save()
-            ReportApproverAgenda.objects.create(flag=True,report_result_id=report_result_id)
-            try:
-                customer = reportresult.work_order.project.customer.name
-                project_number = reportresult.work_order.project.number
-                bom = reportresult.work_order.name
-                report_file = ReportFileTemplate.objects.filter(report=reportresult).last()
-                report_type = reportresult.report_type_definition.name
+            reprt_type_id= reportresult.report_type_definition.id
+            report_team = ReportTeam.objects.get(report_type_id=reprt_type_id)
 
+            if report_team.reviewer.username == request.user.username or request.user.is_superuser==True:
+                
+                reportresult.is_approved=True
+                reportresult.save()
+                reportwritertable=ReportWriterAgenda.objects.get(report_result_id=report_result_id)
+                reportwritertable.is_approved=True
+                reportwritertable.save()
+                ReportApproverAgenda.objects.create(flag=True,report_result_id=report_result_id)
                 try:
-                    report_team = ReportTeam.objects.get(report_type=reportresult.report_type_definition)
-                    writer_user = report_team.writer
-                    reviewer_user = report_team.reviewer
-                    approver_user = report_team.approver or reportresult.work_order.project.project_manager
-                except ReportTeam.DoesNotExist:
-                    writer_user = reviewer_user = approver_user = None
-                report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
-                report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
-                report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
-                try:
-                    agenda = ReportWriterAgenda.objects.get(report_result=reportresult)
-                    contractually_obligated_date = agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if agenda.contractually_obligated_date else "Not Set"
-                except ReportWriterAgenda.DoesNotExist:
-                    contractually_obligated_date = "Not Set"
-                email_body = f"""
-                <p><strong>Hi Team,</strong></p>
-                <p>The <strong>Report</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
-                <p><strong>File Name:</strong> {report_file.name}</p>
-                <p><strong>Details:</strong></p>
-                <table style="border-collapse: collapse;">
-                    <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
-                    <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
-                    <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
-                    <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
-                    <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-                    <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
-                    <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
-                    <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
-                </table>
-                <p><strong>Regards,</strong><br>PVEL System</p>
-                """
-                recipient_list = []
-                seen_emails = set()
-                for usr in [writer_user, reviewer_user, approver_user]:
-                    if usr and usr.email and usr.email not in seen_emails:
-                        recipient_list.append(usr.email)
-                        seen_emails.add(usr.email)
-                email = EmailMessage(
-                subject=f'[PVEL] Report Moved to Approver Grid - Project {project_number}',
-                body=email_body,
-                from_email='support@pvel.com',
-                to=recipient_list,
-                )
-                email.content_subtype = "html"
-                email.send(fail_silently=False)
-            except Exception as e:
-                return Response({
-                    "message": "Report moved, but failed to send email.",
-                    "email_error": str(e)
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response({"message": "Report Moved to approver grid"}, status=status.HTTP_200_OK)
+                    customer = reportresult.work_order.project.customer.name
+                    project_number = reportresult.work_order.project.number
+                    bom = reportresult.work_order.name
+                    report_file = ReportFileTemplate.objects.filter(report=reportresult).last()
+                    report_type = reportresult.report_type_definition.name
+
+                    try:
+                        report_team = ReportTeam.objects.get(report_type=reportresult.report_type_definition)
+                        writer_user = report_team.writer
+                        reviewer_user = report_team.reviewer
+                        approver_user = report_team.approver or reportresult.work_order.project.project_manager
+                    except ReportTeam.DoesNotExist:
+                        writer_user = reviewer_user = approver_user = None
+                    report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+                    report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+                    report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                    try:
+                        agenda = ReportWriterAgenda.objects.get(report_result=reportresult)
+                        contractually_obligated_date = agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S') if agenda.contractually_obligated_date else "Not Set"
+                    except ReportWriterAgenda.DoesNotExist:
+                        contractually_obligated_date = "Not Set"
+                    email_body = f"""
+                    <p><strong>Hi Team,</strong></p>
+                    <p>The <strong>Report</strong> has been moved to the <strong>Approver Grid</strong> by  <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
+                    <p><strong>File Name:</strong> {report_file.name}</p>
+                    <p><strong>Details:</strong></p>
+                    <table style="border-collapse: collapse;">
+                        <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                        <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                        <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                        <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                        <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                        <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                        <tr><td><strong>Report Type:</strong></td><td>&nbsp;&nbsp;{report_type}</td></tr>
+                        <tr><td><strong>Contractually Obligated Date:</strong></td><td>&nbsp;&nbsp;{contractually_obligated_date}</td></tr>
+                    </table>
+                    <p><strong>Regards,</strong><br>PVEL System</p>
+                    """
+                    recipient_list = []
+                    seen_emails = set()
+                    for usr in [writer_user, reviewer_user, approver_user]:
+                        if usr and usr.email and usr.email not in seen_emails:
+                            recipient_list.append(usr.email)
+                            seen_emails.add(usr.email)
+                    email = EmailMessage(
+                    subject=f'[PVEL] Report Moved to Approver Grid - Project {project_number}',
+                    body=email_body,
+                    from_email='support@pvel.com',
+                    to=recipient_list,
+                    )
+                    email.content_subtype = "html"
+                    email.send(fail_silently=False)
+                except Exception as e:
+                    return Response({
+                        "message": "Report moved, but failed to send email.",
+                        "email_error": str(e)
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({"message": "Report Moved to approver grid"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "You are not authorized to perform this action"}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+        
         
     @action(detail=False, methods=["get"],url_path='download_report_writer_agenda')
     def download_report_writer_agenda(self, request):
