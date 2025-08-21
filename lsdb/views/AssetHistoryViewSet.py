@@ -65,10 +65,12 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
         serialized = AssetHistorySerializer(queryset, many=True, context=self.context).data
     
         # --- Group by end_datetime ---
-        grouped = defaultdict(list)
+        grouped = defaultdict(lambda: defaultdict(list))
         for item in serialized:
-            key = item.get("end_datetime")  # assumes serializer includes it
-            grouped[key].append(item)
+            end_dt = item.get("end_datetime")
+            proc_name = item.get("procedure_definition_name")
+
+            grouped[end_dt][proc_name].append(item)
 
         return Response(grouped, status=status.HTTP_200_OK)
     
