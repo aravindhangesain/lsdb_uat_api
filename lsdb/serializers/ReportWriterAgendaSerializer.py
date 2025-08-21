@@ -27,6 +27,22 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_writer_id = serializers.SerializerMethodField()
     report_reviewer_id = serializers.SerializerMethodField()
     report_file  = serializers.SerializerMethodField()
+    is_writer = serializers.SerializerMethodField()
+
+    def get_is_writer(self, obj):
+        user = self.context['request'].user
+        if user:
+            report_type_id = obj.report_type_definition
+            report_type = ReportTeam.objects.get(report_type = report_type_id)
+            writer_name= report_type.writer.username
+            if user.username == writer_name:
+                return True
+            return False
+
+
+        
+
+            
 
     def get_report_file(self, obj):
         report_file = ReportFileTemplate.objects.filter(report=obj.id).order_by('-id').first()
@@ -202,6 +218,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'data_verification_date',
             'report_writer_id',
             'report_writer_name',
+            'is_writer',
             'report_reviewer_id',
             'report_reviewer_name',
             'project_type',
