@@ -18,7 +18,8 @@ class DeliveredReportViewSet(viewsets.ReadOnlyModelViewSet):
         report_result_id=request.data.get('report_result_id')
         comments = request.data.get('comments')
         if report_result_id:
-            reprt_type_id= report_result.report_type_definition.id
+            report_result1 = ReportResult.objects.get(id=report_result_id)
+            reprt_type_id= report_result1.report_type_definition.id
             report_team = ReportTeam.objects.get(report_type_id=reprt_type_id)
 
             if report_team.approver.username == request.user.username or request.user.is_superuser==True:
