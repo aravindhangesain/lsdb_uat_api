@@ -171,3 +171,4 @@ from .NewFlashTestDetailsViewSet import NewFlashTestDetailsViewSet as NewFlashTe
 from .ProjectTypeDetailsViewSet import ProjectTypeDetailsViewSet as ProjectTypeDetailsViewSet
 from .AssetHistoryViewSet import AssetHistoryViewSet as AssetHistoryViewSet
 from .CheckListViewSet import CheckListViewSet as CheckListViewSet
+from .ChecklistReportViewSet import ChecklistReportViewSet as ChecklistReportViewSet

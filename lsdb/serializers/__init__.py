@@ -201,3 +201,4 @@ from .NewFlashTestDetailsSerializer import NewFlashTestDetailsSerializer as NewF
 from .ProjectTypeDetailsSerializer import ProjectTypeDetailsSerializer as ProjectTypeDetailsSerializer
 from .AssetHistorySerializer import AssetHistorySerializer as AssetHistorySerializer
 from .CheckListSerializer import CheckListSerializer as CheckListSerializer
+from .ChecklistReportSerializer import ChecklistReportSerializer as ChecklistReportSerializer
