@@ -22,6 +22,17 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.ReadOnlyField(source='user.username')
     contractually_obligated_date = serializers.SerializerMethodField()
     report_file = serializers.SerializerMethodField()
+    is_approver = serializers.SerializerMethodField()
+
+    def get_is_approver(self, obj):
+        user = self.context['request'].user
+        if user:
+            report_type_id = obj.report_result.report_type_definition.id
+            report_type = ReportTeam.objects.get(report_type = report_type_id)
+            approver_name= report_type.approver.username
+            if user.username == approver_name or user.is_superuser==True:
+                return True
+            return False
 
 
     def get_contractually_obligated_date(self, obj):
@@ -96,6 +107,7 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'approver_id',
             'approver_name',
+            'is_approver',
             'report_type',
             'project_number',
             'project_manager_name',
@@ -120,5 +132,6 @@ class ReportApproverAgendaSerializer(serializers.HyperlinkedModelSerializer):
             'flag',
             'comments',
             'comment_flag',
-            'report_file'
+            'report_file',
+            
         ]

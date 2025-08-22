@@ -35,7 +35,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             report_type_id = obj.report_type_definition
             report_type = ReportTeam.objects.get(report_type = report_type_id)
             writer_name= report_type.writer.username
-            if user.username == writer_name:
+            if user.username == writer_name or user.is_superuser==True:
                 return True
             return False
 
