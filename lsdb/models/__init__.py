@@ -151,3 +151,4 @@ from .ReportTeam import ReportTeam as ReportTeam
 from .ProjectType import ProjectType as ProjectType
 from .NewFlashTestDetails import NewFlashTestDetails as NewFlashTestDetails
 from .ProjectTypeDetails import ProjectTypeDetails as ProjectTypeDetails
+from .CheckList import CheckList as CheckList

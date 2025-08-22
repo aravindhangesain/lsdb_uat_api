@@ -136,6 +136,7 @@ router.register(r'newflashtest',NewFlashTestViewSet,basename='newflashtest')
 router.register(r'flashtestdetails',NewFlashTestDetailsViewSet , basename = 'flashtestdetails')
 router.register(r'projecttypedetails',ProjectTypeDetailsViewSet, basename='projecttypedetails')
 router.register(r'assethistory', AssetHistoryViewSet, basename='assethistory')
+router.register(r'checklist',CheckListViewSet,basename='checklist')
 
 
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')
