@@ -11,25 +11,25 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
     def add_reportchecklistdata(self, request):
         report_id = request.data.get('report_id')
         checklist_report_id = request.data.get('checklist_report_id')
-        checklist_data = request.data.get('checklist_data', [])
+        checklist_data_ids = request.data.get('checklist_data', [])
+        status = request.data.get('status', False)
         
-        if not report_id or not checklist_report_id or not isinstance(checklist_data, list):
-            return Response({"error": "Invalid input data"}, status=400)
-        
-        created_items = []
-        for item in checklist_data:
-            checklist_id = item.get('checklist_id')            
-            if not checklist_id:
-                continue
+
+        for checklist_data_id in checklist_data_ids:
             
-            report_checklist_data = ReportChecklistData.objects.create(
-                report_id=report_id,
-                checklist_report_id=checklist_report_id,
-                checklist_id=checklist_id,
-                status=True,
-            )
-            created_items.append(report_checklist_data)
+            ReportChecklistData.objects.create(report_id=report_id,checklist_report_id=checklist_report_id,checklist_id=checklist_data_id,status=status)
+                
+        return Response({"message": "ReportChecklistData entries created successfully."})
+            
         
-        serializer = self.get_serializer(created_items, many=True)
-        return Response(serializer.data, status=201)
+    
+            
+            
+        
+
+
+
+            
+        
+        
 
