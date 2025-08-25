@@ -28,7 +28,6 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
                     report_id=report_id,
                     checklist_report_id=checklist_report_id,
                     checklist_id=item["id"],
-                    checklist_note_id=item["checklist_note_id"] if "checklist_note_id" in item else None,
                     status=item["status"] if "status" in item else None,
                 )
                 
