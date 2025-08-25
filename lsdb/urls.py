@@ -138,6 +138,8 @@ router.register(r'projecttypedetails',ProjectTypeDetailsViewSet, basename='proje
 router.register(r'assethistory', AssetHistoryViewSet, basename='assethistory')
 router.register(r'checklist',CheckListViewSet,basename='checklist')
 router.register(r'checklistreport',ChecklistReportViewSet,basename='checklistreport')
+router.register(r'reportchecklistdata',ReportChecklistDataViewSet,basename='reportchecklistdata')
+router.register(r'reportchecklistnote',ReportChecklistNoteViewSet,basename='reportchecklistnote')
 
 
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')

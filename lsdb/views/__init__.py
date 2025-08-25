@@ -172,3 +172,5 @@ from .ProjectTypeDetailsViewSet import ProjectTypeDetailsViewSet as ProjectTypeD
 from .AssetHistoryViewSet import AssetHistoryViewSet as AssetHistoryViewSet
 from .CheckListViewSet import CheckListViewSet as CheckListViewSet
 from .ChecklistReportViewSet import ChecklistReportViewSet as ChecklistReportViewSet
+from .ReportChecklistDataViewSet import ReportChecklistDataViewSet as ReportChecklistDataViewSet
+from .ReportChecklistNoteViewSet import ReportChecklistNoteViewSet as ReportChecklistNoteViewSet
