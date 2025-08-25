@@ -5,4 +5,3 @@ class ReportChecklistData(models.Model):
     checklist = models.ForeignKey('CheckList', on_delete=models.CASCADE)
     checklist_report = models.ForeignKey('ChecklistReport', on_delete=models.CASCADE, null=True, blank=True )
     status = models.BooleanField(default=False)
-    checklist_note = models.ForeignKey('ReportChecklistNote', on_delete=models.CASCADE, null=True, blank=True)
