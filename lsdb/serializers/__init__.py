@@ -202,3 +202,4 @@ from .ProjectTypeDetailsSerializer import ProjectTypeDetailsSerializer as Projec
 from .AssetHistorySerializer import AssetHistorySerializer as AssetHistorySerializer
 from .CheckListSerializer import CheckListSerializer as CheckListSerializer
 from .ChecklistReportSerializer import ChecklistReportSerializer as ChecklistReportSerializer
+from .ReportChecklistDataSerializer import ReportChecklistDataSerializer as ReportChecklistDataSerializer

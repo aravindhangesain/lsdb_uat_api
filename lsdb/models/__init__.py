@@ -153,3 +153,4 @@ from .NewFlashTestDetails import NewFlashTestDetails as NewFlashTestDetails
 from .ProjectTypeDetails import ProjectTypeDetails as ProjectTypeDetails
 from .CheckList import CheckList as CheckList
 from .ChecklistReport import ChecklistReport as ChecklistReport
+from .ReportChecklistData import ReportChecklistData as ReportChecklistData
