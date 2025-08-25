@@ -10,6 +10,5 @@ class ReportChecklistDataSerializer(serializers.ModelSerializer):
             'report',
             'checklist',
             'checklist_report',
-            'status',
-            'checklist_note'
+            'status'
         ]
