@@ -16,25 +16,29 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
 
 
     def add_reportchecklistdata(self, request):
-        report_id = request.data.get('report_result_id')
-        checklist_report_id = request.data.get('category_id')
-        checklist_data = request.data.get('checklist_data', [])
+        
         if request.method == 'POST':
+            report_id = request.data.get('report_result_id')
+            checklist_report_id = request.data.get('category_id')
+            checklist_data = request.data.get('checklist_data', [])
             for item in checklist_data:
                 ReportChecklistData.objects.create(
                     report_id=report_id,
                     checklist_report_id=checklist_report_id,
                     checklist_id=item["id"],
-                    status=item["status"] if "status" in item else None,
+                    status=item["status"],
                 )
                 
             return Response({"message": "ReportChecklistData entries created successfully."})
         
         elif request.method == 'PUT':
-            
+            report_id = request.data.get('report_result_id')
+            checklist_report_id = request.data.get('category_id')
+            checklist_data = request.data.get('checklist_data', [])
             for item in checklist_data:
                 checklist=ReportChecklistData.objects.get(report_id=report_id,checklist_report_id=checklist_report_id,checklist_id=item["id"])
                 if checklist:
+                    
                     checklist.status=item["status"]
                     checklist.save()
                 else:
@@ -42,8 +46,62 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
 
             return Response({"message": "ReportChecklistData entries updated successfully."})
 
+        elif request.method=='GET':
+            report_id2 = request.query_params.get('report_result_id')
+            checklist_report_id2 = request.query_params.get('category_id')
+
+            report_checklist_data = (
+                ReportChecklistData.objects
+                .filter(report_id=report_id2, checklist_report_id=checklist_report_id2)
+                .order_by('checklist__category', 'checklist__id')
+            )
+
+            final_response = {
+                "category_id": checklist_report_id2,
+                "report_name": None,
+                "check_list": []
+            }
+
+            
+            category_map = {}
+
+            for instance in report_checklist_data:
+                notecount = ReportChecklistNote.objects.filter(
+                    report_id=report_id2,
+                    checklist_report_id=checklist_report_id2,
+                    checklist=instance.checklist.id
+                ).count()
+
+                
+                if final_response["report_name"] is None:
+                    final_response["report_name"] = instance.checklist_report.report_name
+
+                category_name = instance.checklist.category
+
+                
+                if category_name not in category_map:
+                    category_entry = {
+                        "category": category_name,
+                        "check_point": []
+                    }
+                    final_response["check_list"].append(category_entry)
+                    category_map[category_name] = category_entry
+
+                
+                category_map[category_name]["check_point"].append({
+                    "id": instance.checklist.id,
+                    "description": instance.checklist.check_point,
+                    "status": instance.status,
+                    "note_count": notecount
+                })
+
+            return Response({"results":[final_response]})
+
+                
+                
+
         else:
-            return Response({"message": "Only POST method is allowed."})
+            return Response({"message": "Invalid request method."}, status=400)
 
     
             
