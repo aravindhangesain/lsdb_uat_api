@@ -16,13 +16,10 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
 
 
     def add_reportchecklistdata(self, request):
+        report_id = request.data.get('report_result_id')
+        checklist_report_id = request.data.get('category_id')
+        checklist_data = request.data.get('checklist_data', [])
         if request.method == 'POST':
-            report_id = request.data.get('report_result_id')
-            checklist_report_id = request.data.get('category_id')
-            checklist_data = request.data.get('checklist_data', [])
-
-            
-
             for item in checklist_data:
                 ReportChecklistData.objects.create(
                     report_id=report_id,
@@ -33,6 +30,14 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
                 
             return Response({"message": "ReportChecklistData entries created successfully."})
         
+        elif request.method == 'PUT':
+            
+            for item in checklist_data:
+                checklist=ReportChecklistData.objects.get(report_id=report_id,checklist_report_id=checklist_report_id,checklist_id=item["id"])
+                checklist.status=item["status"]
+                checklist.save()
+            return Response({"message": "ReportChecklistData entries updated successfully."})
+
         else:
             return Response({"message": "Only POST method is allowed."})
 
