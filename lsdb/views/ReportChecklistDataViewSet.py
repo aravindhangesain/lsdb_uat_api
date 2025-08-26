@@ -12,7 +12,7 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
     serializer_class = ReportChecklistDataSerializer
     
     @transaction.atomic
-    @action(detail=False, methods=['post','get'])
+    @action(detail=False, methods=['post','get','put'])
 
 
     def add_reportchecklistdata(self, request):
@@ -34,8 +34,12 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
             
             for item in checklist_data:
                 checklist=ReportChecklistData.objects.get(report_id=report_id,checklist_report_id=checklist_report_id,checklist_id=item["id"])
-                checklist.status=item["status"]
-                checklist.save()
+                if checklist:
+                    checklist.status=item["status"]
+                    checklist.save()
+                else:
+                    return Response({"message": f"Checklist with report_id {report_id} and checklist_report_id{checklist_report_id} not found."}, status=404)
+
             return Response({"message": "ReportChecklistData entries updated successfully."})
 
         else:
