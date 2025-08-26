@@ -48,16 +48,16 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
 
         elif request.method=='GET':
             report_id2 = request.query_params.get('report_result_id')
-            checklist_report_id2 = request.query_params.get('category_id')
+            # checklist_report_id2 = request.query_params.get('category_id')
 
             report_checklist_data = (
                 ReportChecklistData.objects
-                .filter(report_id=report_id2, checklist_report_id=checklist_report_id2)
+                .filter(report_id=report_id2)
                 .order_by('checklist__category', 'checklist__id')
             )
 
             final_response = {
-                "category_id": checklist_report_id2,
+                "category_id":report_checklist_data.first().checklist_report.id if report_checklist_data.exists() else None,
                 "report_name": None,
                 "check_list": []
             }
@@ -68,7 +68,7 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
             for instance in report_checklist_data:
                 notecount = ReportChecklistNote.objects.filter(
                     report_id=report_id2,
-                    checklist_report_id=checklist_report_id2,
+                    checklist_report_id=instance.checklist_report.id,
                     checklist=instance.checklist.id
                 ).count()
 
