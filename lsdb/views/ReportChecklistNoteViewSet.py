@@ -84,7 +84,8 @@ class ReportChecklistNoteViewSet(viewsets.ModelViewSet):
             if not all([report_id, checklist_id, checklist_report_id]):
                 return Response({"error": "Missing some parameters"}, status=400)
             notes = self.queryset.filter(report_id=report_id, checklist_id=checklist_id, checklist_report_id=checklist_report_id).order_by('-datetime')
-            serializer = self.get_serializer(notes, many=True)
+            notes1 = notes.exclude(subject='Comment')
+            serializer = self.get_serializer(notes1, many=True)
             return Response(serializer.data)
     
     @action(detail=True, methods=['get'])
