@@ -11,7 +11,7 @@ class EngineeringAgendaSerializer(serializers.ModelSerializer):
     disposition_name = serializers.ReadOnlyField(source='disposition.name')
     disposition_complete = serializers.ReadOnlyField(source='disposition.complete')
     owner_name = serializers.ReadOnlyField(source='owner.username')
-    tagged_users = serializers.SerializerMethodField
+    tagged_users = serializers.SerializerMethodField()
 
     def get_tagged_users(self, obj):
         queryset = obj.tagged_users.all()
