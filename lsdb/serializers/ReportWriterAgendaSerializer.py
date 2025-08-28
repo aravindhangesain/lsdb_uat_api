@@ -30,6 +30,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     is_writer = serializers.SerializerMethodField()
     is_reviewer = serializers.SerializerMethodField()
     is_checklist = serializers.SerializerMethodField()
+    is_superuser = serializers.SerializerMethodField()
 
     def get_is_writer(self, obj):
         user = self.context['request'].user
@@ -40,6 +41,15 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             if user.username == writer_name or user.is_superuser==True:
                 return True
             return False
+    
+    def get_is_superuser(self, obj):
+        user = self.context['request'].user
+        if user:
+            
+            if user.is_superuser==True:
+                return True
+            return False
+    
 
     def get_is_reviewer(self, obj):
         user = self.context['request'].user
@@ -235,6 +245,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'report_writer_name',
             'is_writer',
             'is_reviewer',
+            'is_superuser',
             'report_reviewer_id',
             'report_reviewer_name',
             'project_type',
