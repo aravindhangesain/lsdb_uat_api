@@ -28,6 +28,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_reviewer_id = serializers.SerializerMethodField()
     report_file  = serializers.SerializerMethodField()
     is_writer = serializers.SerializerMethodField()
+    is_reviewer = serializers.SerializerMethodField()
 
     def get_is_writer(self, obj):
         user = self.context['request'].user
@@ -39,7 +40,15 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
                 return True
             return False
 
-
+    def get_is_reviewer(self, obj):
+        user = self.context['request'].user
+        if user:
+            report_type_id = obj.report_type_definition
+            report_type = ReportTeam.objects.get(report_type = report_type_id)
+            reviewer_name= report_type.reviewer.username
+            if user.username == reviewer_name or user.is_superuser==True:
+                return True
+            return False
         
 
             
@@ -219,6 +228,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'report_writer_id',
             'report_writer_name',
             'is_writer',
+            'is_reviewer',
             'report_reviewer_id',
             'report_reviewer_name',
             'project_type',
