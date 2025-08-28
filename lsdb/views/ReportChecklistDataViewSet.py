@@ -13,8 +13,6 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
     
     @transaction.atomic
     @action(detail=False, methods=['post','get','put'])
-
-
     def add_reportchecklistdata(self, request):
         
         if request.method == 'POST':
@@ -53,7 +51,7 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
             report_checklist_data = (
                 ReportChecklistData.objects
                 .filter(report_id=report_id2)
-                .order_by('checklist__category', 'checklist__id')
+                .order_by('checklist__id')
             )
 
             final_response = {
@@ -65,6 +63,69 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
             
             category_map = {}
 
+            for instance in report_checklist_data:
+                notecount = ReportChecklistNote.objects.filter(
+                    report_id=report_id2,
+                    checklist_report_id=instance.checklist_report.id,
+                    checklist=instance.checklist.id
+                ).count()
+
+                
+                if final_response["report_name"] is None:
+                    final_response["report_name"] = instance.checklist_report.report_name
+
+                category_name = instance.checklist.category
+
+                
+                if category_name not in category_map:
+                    category_entry = {
+                        "category": category_name,
+                        "check_point": []
+                    }
+                    final_response["check_list"].append(category_entry)
+                    category_map[category_name] = category_entry
+
+                
+                category_map[category_name]["check_point"].append({
+                    "id": instance.checklist.id,
+                    "description": instance.checklist.check_point,
+                    "status": instance.status,
+                    "note_count": notecount
+                })
+
+            return Response({"results":[final_response]})
+
+                
+                
+
+        else:
+            return Response({"message": "Invalid request method."}, status=400)
+        
+
+    @transaction.atomic
+    @action(detail=False, methods=['get'])   
+    def add_pending_reportchecklistdata(self, request):
+        
+        
+        if request.method=='GET':
+            report_id2 = request.query_params.get('report_result_id')
+            # checklist_report_id2 = request.query_params.get('category_id')
+
+            report_checklist_data = (
+                ReportChecklistData.objects
+                .filter(report_id=report_id2,status=False)
+                .order_by('checklist__id')
+            )
+
+            final_response = {
+                "category_id":report_checklist_data.first().checklist_report.id if report_checklist_data.exists() else None,
+                "report_name": None,
+                "check_list": []
+            }
+
+            
+            category_map = {}
+    
             for instance in report_checklist_data:
                 notecount = ReportChecklistNote.objects.filter(
                     report_id=report_id2,
