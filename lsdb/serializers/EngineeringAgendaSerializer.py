@@ -11,6 +11,19 @@ class EngineeringAgendaSerializer(serializers.ModelSerializer):
     disposition_name = serializers.ReadOnlyField(source='disposition.name')
     disposition_complete = serializers.ReadOnlyField(source='disposition.complete')
     owner_name = serializers.ReadOnlyField(source='owner.username')
+    tagged_users = serializers.SerializerMethodField
+
+    def get_tagged_users(self, obj):
+        queryset = obj.tagged_users.all()
+        userStruct = []
+        for user in queryset:
+            temp = {
+                "id": user.id,
+                "username": user.username,
+            }
+            userStruct.append(temp)
+        return userStruct
+    
 
     
     class Meta:
@@ -29,5 +42,6 @@ class EngineeringAgendaSerializer(serializers.ModelSerializer):
             'disposition',
             'disposition_name',
             'disposition_complete',
-            'labels'
+            'labels',
+            'tagged_users'
         ]
