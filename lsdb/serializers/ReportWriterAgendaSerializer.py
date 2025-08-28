@@ -29,6 +29,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     report_file  = serializers.SerializerMethodField()
     is_writer = serializers.SerializerMethodField()
     is_reviewer = serializers.SerializerMethodField()
+    is_checklist = serializers.SerializerMethodField()
 
     def get_is_writer(self, obj):
         user = self.context['request'].user
@@ -206,6 +207,11 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             return report_type
         except ReportTeam.DoesNotExist:
             return None
+    
+    def get_is_checklist(self, obj):
+
+        return ReportChecklistData.objects.filter(report=obj).exists()
+
         
                                
     class Meta:
@@ -236,5 +242,6 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'contractually_obligated_date',
             'pqp_version',
             'report_file',
-            'is_approved'
+            'is_approved',
+            'is_checklist'
         ]
