@@ -104,7 +104,7 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     @action(detail=False, methods=['get'])   
-    def add_pending_reportchecklistdata(self, request):
+    def pending_reportchecklistdata(self, request):
         
         
         if request.method=='GET':
