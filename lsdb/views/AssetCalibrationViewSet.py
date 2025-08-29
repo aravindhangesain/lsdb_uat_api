@@ -40,7 +40,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             data = serializer.data
             return Response({
                 "last_calibrated_date": data["last_calibrated_date"],
-                "next_calibrtion_date": data["next_calibrtion_date"],
+                "next_calibration_date": data["next_calibration_date"],
                 "days_to_next_calibration": data["days_to_next_calibration"]
             }, status=200)
 
