@@ -27,9 +27,9 @@ class AssetSubAssetSerializer(serializers.ModelSerializer):
 
         days_to_next_calibration = self.get_days_to_next_calibration(obj)
         if days_to_next_calibration<1:
-            return True
-        else:
             return False
+        else:
+            return True
 
 
     class Meta:
