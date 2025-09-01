@@ -20,7 +20,8 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
         return None
     
     def get_is_calibration(self, obj):
-        if self.get_days_to_next_calibration(obj)<=0:
+        days = self.get_days_to_next_calibration(obj)
+        if days is not None and days <= 0:
             return True
         return False
 

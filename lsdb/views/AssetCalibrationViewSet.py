@@ -28,9 +28,9 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                     [asset.id, asset_calibration.asset_type.id]
                 )
 
-    @action(detail=False, methods=['post','get'])
+    @action(detail=False, methods=['get'])
     def asset_info(self, request):
-        asset_id = request.data.get('asset_id')
+        asset_id = request.query_params.get('asset_id')
         if not asset_id:
             return Response({"error": "Asset ID is required"}, status=400)
 
