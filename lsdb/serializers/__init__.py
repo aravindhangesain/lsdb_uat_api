@@ -204,3 +204,5 @@ from .CheckListSerializer import CheckListSerializer as CheckListSerializer
 from .ChecklistReportSerializer import ChecklistReportSerializer as ChecklistReportSerializer
 from .ReportChecklistDataSerializer import ReportChecklistDataSerializer as ReportChecklistDataSerializer
 from .ReportChecklistNoteSerializer import ReportChecklistNoteSerializer as ReportChecklistNoteSerializer
+from .AssetSubAssetSerializer import AssetSubAssetSerializer as AssetSubAssetSerializer
+from .SubAssetSerializer import SubAssetSerializer as SubAssetSerializer

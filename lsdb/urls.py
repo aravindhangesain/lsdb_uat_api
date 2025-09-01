@@ -140,6 +140,8 @@ router.register(r'checklist',CheckListViewSet,basename='checklist')
 router.register(r'checklistreport',ChecklistReportViewSet,basename='checklistreport')
 router.register(r'reportchecklistdata',ReportChecklistDataViewSet,basename='reportchecklistdata')
 router.register(r'reportchecklistnote',ReportChecklistNoteViewSet,basename='reportchecklistnote')
+router.register(r'asset_subasset',AssetSubAssetViewSet,basename='asset_subasset')
+
 
 
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')

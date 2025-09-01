@@ -174,3 +174,5 @@ from .CheckListViewSet import CheckListViewSet as CheckListViewSet
 from .ChecklistReportViewSet import ChecklistReportViewSet as ChecklistReportViewSet
 from .ReportChecklistDataViewSet import ReportChecklistDataViewSet as ReportChecklistDataViewSet
 from .ReportChecklistNoteViewSet import ReportChecklistNoteViewSet as ReportChecklistNoteViewSet
+from .AssetSubAssetViewSet import AssetSubAssetViewSet as AssetSubAssetViewSet
+from .SubAssetViewSet import SubAssetViewSet as SubAssetViewSet

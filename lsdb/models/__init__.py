@@ -155,3 +155,5 @@ from .CheckList import CheckList as CheckList
 from .ChecklistReport import ChecklistReport as ChecklistReport
 from .ReportChecklistData import ReportChecklistData as ReportChecklistData
 from .ReportChecklistNote import ReportChecklistNote as ReportChecklistNote
+from .SubAsset import SubAsset as SubAsset
+from .AssetSubAsset import AssetSubAsset as AssetSubAsset
