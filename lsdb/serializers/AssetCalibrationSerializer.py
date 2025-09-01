@@ -20,12 +20,14 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
         return None
     
     def get_is_calibration(self, obj):
-        days = self.get_days_to_next_calibration(obj)
-        if days is not None and days <= 0:
+        next_calibration = self.get_next_calibration_date(obj)
+        if next_calibration:
+            days = (next_calibration.date() - now().date()).days
+            if days <= 0:
+                return False
             return True
-        return False
-
-
+        return None
+        
     def get_next_calibration_date(self, obj):
         if obj.last_calibrated_date and obj.schedule_for_calibration:
             return obj.last_calibrated_date + timedelta(days=obj.schedule_for_calibration)
@@ -39,7 +41,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     def get_days_to_next_calibration(self, obj):
         next_calibration = self.get_next_calibration_date(obj)
         if next_calibration:
-            return (next_calibration.date() - now().date()).days
+            return abs((next_calibration.date() - now().date()).days)
         return None
     
     def get_azurefile_download(self, obj):
