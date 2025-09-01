@@ -41,6 +41,8 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             return Response({
                 "last_calibrated_date": data["last_calibrated_date"],
                 "next_calibration_date": data["next_calibration_date"],
+                "asset_name": data["asset_name"],
+                "calibration_days": data["calibration_days"],
                 "days_to_next_calibration": data["days_to_next_calibration"]
             }, status=200)
 
