@@ -142,6 +142,7 @@ router.register(r'reportchecklistdata',ReportChecklistDataViewSet,basename='repo
 router.register(r'reportchecklistnote',ReportChecklistNoteViewSet,basename='reportchecklistnote')
 router.register(r'subasset',SubAssetViewSet,basename='subasset')
 router.register(r'asset_subasset',AssetSubAssetViewSet,basename='asset_subasset')
+router.register(r'stress_run_result',StressRunResultViewSet,basename='stress_run_result')
 
 
 
