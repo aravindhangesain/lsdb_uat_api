@@ -6,7 +6,7 @@ from datetime import datetime
 class AssetSubAssetSerializer(serializers.ModelSerializer):
 
     asset_name = serializers.ReadOnlyField(source='asset.name', read_only=True)
-    sub_asset_name = serializers.ReadOnlyField(source='sub_asset.name', read_only=True)
+    sub_asset_name = serializers.ReadOnlyField(source='sub_asset.sub_asset_name', read_only=True)
     last_calibrated_date = serializers.ReadOnlyField(source='sub_asset.last_calibrated_date', read_only=True)
     next_calibration = serializers.ReadOnlyField(source='sub_asset.next_calibration', read_only=True)
     days_to_next_calibration = serializers.SerializerMethodField()
