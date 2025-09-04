@@ -207,3 +207,4 @@ from .ReportChecklistNoteSerializer import ReportChecklistNoteSerializer as Repo
 from .AssetSubAssetSerializer import AssetSubAssetSerializer as AssetSubAssetSerializer
 from .SubAssetSerializer import SubAssetSerializer as SubAssetSerializer
 from .StressRunResultSerializer import StressRunResultSerializer as StressRunResultSerializer
+from .ProjectdownloadSerializer import ProjectdownloadSerializer as ProjectdownloadSerializer

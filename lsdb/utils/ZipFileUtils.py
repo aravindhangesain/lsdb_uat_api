@@ -128,7 +128,7 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
                             file_name = base_name.split("?")[0].split("&")[0]
                             file_name = file_name.replace("&", "_").replace("?", "_").replace("=", "_")
                             file_name_with_extension = file_name + extension
-                            folder_path = f"crate_intake_images/{file_name_with_extension}"
+                            folder_path = f"module_intake_images/{file_name_with_extension}"
                             image_stream.seek(0)
                             zf.writestr(folder_path, image_stream.read())
                             image_stream.close()
