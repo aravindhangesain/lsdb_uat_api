@@ -45,8 +45,9 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
             sub_asset_ids=request.data.get('sub_asset_ids')
             step_result_id=request.data.get('step_result_id')
             run_name=request.data.get('run_name')
+            comment=request.data.get('comment')
 
-            stress_run_result=StressRunResult.objects.create(run_name=run_name,asset_id=asset_id,step_result_id=step_result_id,user_id=request.user.id,run_date=datetime.now())
+            stress_run_result=StressRunResult.objects.create(run_name=run_name,asset_id=asset_id,step_result_id=step_result_id,user_id=request.user.id,run_date=datetime.now(),comment=comment)
 
             for sub_asset_id in sub_asset_ids:
                 StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)

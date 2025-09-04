@@ -16,4 +16,4 @@ class StressRunResultSerializer(serializers.ModelSerializer):
         return sub_asset_details   
     class Meta:
         model = StressRunResult
-        fields = ['id', 'run_name', 'step_result', 'asset', 'user', 'run_date','sub_asset_details']
+        fields = ['id', 'run_name', 'step_result', 'asset', 'user', 'run_date','sub_asset_details','comment']
