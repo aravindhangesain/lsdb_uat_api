@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 
 class NewFlashTestViewSet(viewsets.ModelViewSet):
-    queryset = ProcedureResult.objects.all()
+    queryset = Unit.objects.all()
     serializer_class = NewFlashTestSerializer
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -34,9 +34,9 @@ class NewFlashTestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def flash(self, request):
         serial_number = request.data.get("serial_number")
-        unit = Unit.objects.get(serial_number=serial_number)
-        if not unit:
+        units = Unit.objects.get(serial_number=serial_number)
+        if not units:
             return Response("Serial Number not found", status=404)
-        serializer = NewFlashTestSerializer(unit, many=True, context={"request": request})
+        serializer = NewFlashTestSerializer(units, context={"request": request})
         return Response({"status": "success", "data": serializer.data})
         
