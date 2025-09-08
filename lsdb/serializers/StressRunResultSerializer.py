@@ -11,7 +11,8 @@ class StressRunResultSerializer(serializers.ModelSerializer):
         for detail in stress_run_details:
             sub_asset_details.append({
                 "id": detail.sub_asset.id,
-                "name": detail.sub_asset.sub_asset_name
+                "name": detail.sub_asset.sub_asset_name,
+                "asset_number": detail.sub_asset.asset_number   
             })  
         return sub_asset_details   
     class Meta:
