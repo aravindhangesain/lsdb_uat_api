@@ -10,6 +10,8 @@ import zipfile
 from io import BytesIO
 from openpyxl import Workbook
 from PIL import Image, ImageOps
+from django.db.models import F, Value
+from django.db.models.functions import Replace, Lower
 
 class ProjectdownloadViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -59,8 +61,38 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         Query Params: workorder_id, procedure_definition_id, procedure_name
         Supports multiple comma-separated values.
         Example:
-        ?workorder_id=1,2&procedure_definition_id=2,3&procedure_name=prelightsoak,pre-stress
+        ?workorder_id=1,2&procedure_definition_id=2,3&procedure_name=Pre-Light Soak,Pre-Stress
         """
+
+        # ----------------------------
+        # Helpers
+        # ----------------------------
+        def normalize_name(queryset):
+            """Annotates queryset with normalized_name (lowercase, no spaces/dashes)."""
+            return queryset.annotate(
+                normalized_name=Lower(
+                    Replace(
+                        Replace(F("name"), Value("-"), Value("")),
+                        Value(" "), Value("")
+                    )
+                )
+            )
+
+        def normalize_value(val: str) -> str:
+            """Normalize input string (lowercase, no spaces/dashes)."""
+            return val.replace("-", "").replace(" ", "").lower()
+
+        def safe_excel_value(val):
+            """Convert any object to safe Excel cell value."""
+            if hasattr(val, "all"):  # ManyToMany manager
+                return ", ".join(str(v) for v in val.all())
+            if isinstance(val, (str, int, float, type(None))):
+                return val
+            return str(val)
+
+        # ----------------------------
+        # Validate query params
+        # ----------------------------
         workorder_ids = request.GET.get("workorder_id")
         procedure_definition_ids = request.GET.get("procedure_definition_id")
         procedure_names = request.GET.get("procedure_name")
@@ -99,19 +131,13 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
 
                     # ---- loop over all procedure names
                     for procedure_name in procedure_names:
+                        normalized_proc_name = normalize_value(procedure_name)
+
                         # Create workbook
                         excel_file = Workbook()
                         sheet = excel_file.active
 
-                        # Helper to sanitize Excel values
-                        def safe_excel_value(val):
-                            if hasattr(val, "all"):  # ManyToMany manager
-                                return ", ".join(str(v) for v in val.all())
-                            if isinstance(val, (str, int, float, type(None))):
-                                return val
-                            return str(val)
-
-                        # Fetch units linked to this work order (only once per combo)
+                        # Fetch units linked to this work order
                         units = Unit.objects.filter(
                             procedureresult__work_order=work_order
                         ).distinct()
@@ -127,10 +153,13 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                             ])
 
                             for unit in units:
-                                tests = ProcedureResult.objects.filter(
-                                    unit=unit,
-                                    procedure_definition_id=procedure_definition_id,
-                                    name=procedure_name
+                                tests = normalize_name(
+                                    ProcedureResult.objects.filter(
+                                        unit=unit,
+                                        procedure_definition_id=procedure_definition_id,
+                                    )
+                                ).filter(
+                                    normalized_name=normalized_proc_name
                                 ).order_by("test_sequence_definition", "linear_execution_group")
 
                                 for test in tests:
@@ -148,12 +177,8 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
 
                                         for measurement in step_result.measurementresult_set.all().order_by("report_order"):
 
-                                            # Case 1: Handle flash result files
                                             if measurement.measurement_result_type.name == "result_files":
                                                 if measurement.result_files.all().count():
-                                                    has_result = step_result.measurementresult_set.filter(
-                                                        result_files__name__icontains="Results"
-                                                    )
                                                     for azurefile in measurement.result_files.all():
                                                         path = "Flash Data/"
                                                         if "200" in step_result.name:
@@ -176,11 +201,9 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                             file_bytes
                                                         )
 
-                                            # Case 2: Skip datetime
                                             elif measurement.measurement_result_type.name == "result_datetime":
                                                 continue
 
-                                            # Case 3: Regular measurement values
                                             else:
                                                 raw_value = getattr(
                                                     measurement,
@@ -202,10 +225,13 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                             ])
 
                             for unit in units:
-                                tests = ProcedureResult.objects.filter(
-                                    unit=unit,
-                                    procedure_definition_id=procedure_definition_id,
-                                    name=procedure_name
+                                tests = normalize_name(
+                                    ProcedureResult.objects.filter(
+                                        unit=unit,
+                                        procedure_definition_id=procedure_definition_id,
+                                    )
+                                ).filter(
+                                    normalized_name=normalized_proc_name
                                 ).order_by("test_sequence_definition", "linear_execution_group")
 
                                 for test in tests:
@@ -276,10 +302,13 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                             ])
 
                             for unit in units:
-                                tests = ProcedureResult.objects.filter(
-                                    unit=unit,
-                                    procedure_definition_id=procedure_definition_id,
-                                    name=procedure_name
+                                tests = normalize_name(
+                                    ProcedureResult.objects.filter(
+                                        unit=unit,
+                                        procedure_definition_id=procedure_definition_id,
+                                    )
+                                ).filter(
+                                    normalized_name=normalized_proc_name
                                 ).order_by("test_sequence_definition", "linear_execution_group")
 
                                 for test in tests:
@@ -316,10 +345,13 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                             ])
 
                             for unit in units:
-                                tests = ProcedureResult.objects.filter(
-                                    unit=unit,
-                                    procedure_definition_id=procedure_definition_id,
-                                    name=procedure_name
+                                tests = normalize_name(
+                                    ProcedureResult.objects.filter(
+                                        unit=unit,
+                                        procedure_definition_id=procedure_definition_id,
+                                    )
+                                ).filter(
+                                    normalized_name=normalized_proc_name
                                 ).order_by("test_sequence_definition", "linear_execution_group")
 
                                 for test in tests:
@@ -414,5 +446,4 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         mem_zip.seek(0)
         response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
         response["Content-Disposition"] = f"attachment; filename={timezone.now().strftime('%b-%d-%Y-%H%M%S')}.zip"
-        return response
-
+        return response    
