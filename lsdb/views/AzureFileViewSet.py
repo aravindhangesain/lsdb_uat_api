@@ -144,6 +144,8 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
         3. last_calibrated_date (format: YYYY-MM-DD)
         4. next_calibration (in days)
         """
+        if request.method == 'GET':
+            return Response("Please upload file after reading the above mentioned instructions.")
         file = request.FILES.get('file')
         if not file:
             return Response(
@@ -180,7 +182,7 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
                     if SubAsset.objects.filter(
                         sub_asset_name=sub_asset_name
                     ).exists():
-                        skipped.append(sub_asset_name)
+                        skipped.append(f"{sub_asset_name } (Subasset name already exists)")
                         continue
 
                     subasset = SubAsset(
