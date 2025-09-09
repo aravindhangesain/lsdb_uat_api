@@ -19,6 +19,16 @@ from lsdb.models import AzureFile
 from lsdb.serializers import AzureFileSerializer
 from lsdb.permissions import ConfiguredPermission
 from lsdb.utils.Crypto import encrypt, decrypt
+from lsdb.models import *
+from lsdb.serializers import *
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+from django.db import transaction
+from django.core.mail import EmailMessage
+import csv
+from django.http import HttpResponse
 
 class AzureFileFilter(filters.FilterSet):
     # uploaded_min_datetime = filters.DateFromToRangeFilter(field_name='uploaded_datetime',lookup_expr='gte')
@@ -121,3 +131,81 @@ class AzureFileViewSet(LoggingMixin, viewsets.ModelViewSet):
             except :
                 print('odd')
         return response
+    
+    @transaction.atomic
+    @action(detail=False, methods=['get','post'])
+    def create_subasset_by_fileupload(self, request):
+        """
+        This API is to create SubAssets from a CSV file upload.
+        Please adhere to the below mentioned column names for successful upload:
+
+        1. sub_asset_name
+        2. description
+        3. last_calibrated_date (format: YYYY-MM-DD)
+        4. next_calibration (in days)
+        """
+        file = request.FILES.get('file')
+        if not file:
+            return Response(
+                {"status": "error", "msg": "No file uploaded."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            decoded_file = file.read().decode("utf-8").splitlines()
+            reader = csv.DictReader(decoded_file)
+
+            required_columns = [
+                "sub_asset_name",
+                
+                "description",
+                "last_calibrated_date",
+                "next_calibration"
+            ]
+
+            for col in required_columns:
+                if col not in reader.fieldnames:
+                    return Response(
+                        {"status": "error", "msg": f"Missing column: {col}"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            created, skipped = [], []
+
+            for row in reader:
+                try:
+                    sub_asset_name = row.get("sub_asset_name")
+                    # asset_number = row.get("asset_number")
+
+                    if SubAsset.objects.filter(
+                        sub_asset_name=sub_asset_name
+                    ).exists():
+                        skipped.append(sub_asset_name)
+                        continue
+
+                    subasset = SubAsset(
+                        sub_asset_name=sub_asset_name,
+                    
+                        description=row.get("description") or None,
+                        last_calibrated_date=row.get("last_calibrated_date") or None,
+                        next_calibration=row.get("next_calibration") or None,
+                    )
+                    subasset.save()
+                    created.append(sub_asset_name)
+                except Exception as e:
+                    skipped.append(f"{row.get('sub_asset_name')} (error: {str(e)})")
+
+            return Response(
+                {
+                    "status": "success",
+                    "created": created,
+                    "skipped": skipped
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        except Exception as e:
+            return Response(
+                {"status": "error", "msg": f"Invalid file format: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
