@@ -342,6 +342,8 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             
                 elif valid_report and valid_report.data_ready_status in ['Module Intake']:
 
+                    procedure_results= ProcedureResult.objects.filter(work_order=result.work_order,linear_execution_group=1).order_by('linear_execution_group')
+
                     if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
                         serializer = ProcedureResultSerializer(result, many=False, context=self.context)
                         return Response(serializer.data)
