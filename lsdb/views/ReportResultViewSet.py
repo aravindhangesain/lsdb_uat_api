@@ -59,10 +59,12 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         report = ReportExecutionOrder.objects.get(id=result_id)
 
         if report.data_ready_status in ['Module Intake']:
+            
             project_id = WorkOrder.objects.filter(id=work_order_id).values_list('project_id', flat=True).first()
-            module_intakes = ModuleIntakeDetails.objects.filter(projects_id=project_id)
-
-            if all(intake.steps in ['step 3'] for intake in module_intakes):
+            
+            bom_procedure_results=ProcedureResult.objects.filter(work_order_id=work_order_id,linear_execution_group=1).order_by('linear_execution_group')
+            
+            if all(procedure_result.disposition_id in [2,20,10] for procedure_result in bom_procedure_results):
                 try:
                     project = Project.objects.get(id=project_id)
                     customer = project.customer.name if project.customer else "Not Set"

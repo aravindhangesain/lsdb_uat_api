@@ -268,9 +268,9 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             result.save()
 
             if ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exists():
-                valid_report=ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exclude(data_ready_status__in=["Factory Witness","Define","Module Intake"]).first()
+                valid_report=ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exclude(data_ready_status__in=["Factory Witness","Define"]).first()
 
-                if valid_report:
+                if valid_report and valid_report.data_ready_status not in ['Module Intake']:
                     procedure_exec_name=valid_report.data_ready_status
 
                     valid_definitions=ProcedureExecutionOrder.objects.filter(execution_group_name=procedure_exec_name,test_sequence_id=result.test_sequence_definition.id).values_list('procedure_definition_id',flat=True)
@@ -335,10 +335,26 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                             email.content_subtype = "html"
                             email.send(fail_silently=False)
                         except Exception as e:
-                            return Response(
-                                {"error": "Date saved, but failed to send email.", "details": str(e)},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                            )
+                            # print({"error": "Date saved, but failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            serializer = ProcedureResultSerializer(result, many=False, context=self.context)
+                            return Response(serializer.data)
+
+            
+                elif valid_report and valid_report.data_ready_status in ['Module Intake']:
+
+                    if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                        serializer = ProcedureResultSerializer(result, many=False, context=self.context)
+                        return Response(serializer.data)
+                    else:
+                        datetime=timezone.now()
+                        valid_report.hex_color='#4ef542'
+                        valid_report.ready_datetime=datetime
+                        valid_report.is_approved = False
+                        valid_report.save()
+                    
+                    
+
+
 
 
         serializer = ProcedureResultSerializer(result, many=False, context=self.context)
