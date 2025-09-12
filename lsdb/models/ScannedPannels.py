@@ -1,7 +1,7 @@
 from django.db import models
 
 class ScannedPannels(models.Model):
-    serial_number = models.CharField(max_length=128, blank=False, null=False)
+    serial_number = models.CharField(max_length=128, blank=False, null=False,unique=True)
     test_sequence = models.ForeignKey('TestSequenceDefinition', on_delete=models.CASCADE, blank=True, null=True)
     status = models.BooleanField()
     module_intake  = models.ForeignKey('ModuleIntakeDetails', on_delete=models.CASCADE, blank=False, null=False)
