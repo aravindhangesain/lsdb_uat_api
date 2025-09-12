@@ -31,6 +31,14 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     is_reviewer = serializers.SerializerMethodField()
     is_checklist = serializers.SerializerMethodField()
     is_superuser = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    procedure_definition_name = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        return None
+    
+    def get_procedure_definition_name(self, obj):
+        return None
 
     def get_is_writer(self, obj):
         user = self.context['request'].user
@@ -254,5 +262,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'pqp_version',
             'report_file',
             'is_approved',
-            'is_checklist'
+            'is_checklist',
+            'status',
+            'procedure_definition_name',
         ]
