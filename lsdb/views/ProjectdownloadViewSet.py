@@ -54,7 +54,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         return Response(data)
     
 
-    @action(detail=True, methods=['get'], url_path='download')
+    @action(detail=True, methods=['get'], url_path='download')   
     def download(self, request, number=None):
         """
         Endpoint: /api/1.0/projectdownload/<pk>/download/
@@ -101,18 +101,16 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         if not workorder_ids:
             return Response({"error": "workorder_id is required"}, status=400)
 
-        if not procedure_definition_ids or not procedure_names:
-            return Response(
-                {"error": "procedure_definition_id and procedure_name are required"},
-                status=400,
-            )
-
         # Convert CSV params → lists
         workorder_ids = [wid.strip() for wid in workorder_ids.split(",") if wid.strip()]
-        procedure_definition_ids = [
-            pid.strip() for pid in procedure_definition_ids.split(",") if pid.strip()
-        ]
-        procedure_names = [pn.strip() for pn in procedure_names.split(",") if pn.strip()]
+        procedure_definition_ids = (
+            [pid.strip() for pid in procedure_definition_ids.split(",") if pid.strip()]
+            if procedure_definition_ids else []
+        )
+        procedure_names = (
+            [pn.strip() for pn in procedure_names.split(",") if pn.strip()]
+            if procedure_names else []
+        )
 
         project = get_object_or_404(Project, number=number)
 
@@ -123,14 +121,26 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             for workorder_id in workorder_ids:
                 work_order = get_object_or_404(project.workorder_set, id=workorder_id)
 
+                if not procedure_definition_ids:
+                    proc_defs = ProcedureDefinition.objects.all()
+                else:
+                    proc_defs = ProcedureDefinition.objects.filter(id__in=procedure_definition_ids)
+
                 # ---- loop over all procedure definitions
-                for procedure_definition_id in procedure_definition_ids:
-                    procedure_def = get_object_or_404(
-                        ProcedureDefinition, id=procedure_definition_id
-                    )
+                for procedure_def in proc_defs:
+
+                    if not procedure_names:
+                        proc_names = (
+                            ProcedureResult.objects.filter(
+                                work_order=work_order,
+                                procedure_definition=procedure_def
+                            ).values_list("name", flat=True).exclude(group_id=45).distinct()
+                        )
+                    else:
+                        proc_names = procedure_names
 
                     # ---- loop over all procedure names
-                    for procedure_name in procedure_names:
+                    for procedure_name in proc_names:
                         normalized_proc_name = normalize_value(procedure_name)
 
                         # Create workbook
@@ -156,7 +166,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                 tests = normalize_name(
                                     ProcedureResult.objects.filter(
                                         unit=unit,
-                                        procedure_definition_id=procedure_definition_id,
+                                        procedure_definition_id=procedure_def.id,
                                     )
                                 ).filter(
                                     normalized_name=normalized_proc_name
@@ -228,7 +238,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                 tests = normalize_name(
                                     ProcedureResult.objects.filter(
                                         unit=unit,
-                                        procedure_definition_id=procedure_definition_id,
+                                        procedure_definition_id=procedure_def.id,
                                     )
                                 ).filter(
                                     normalized_name=normalized_proc_name
@@ -305,7 +315,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                 tests = normalize_name(
                                     ProcedureResult.objects.filter(
                                         unit=unit,
-                                        procedure_definition_id=procedure_definition_id,
+                                        procedure_definition_id=procedure_def.id,
                                     )
                                 ).filter(
                                     normalized_name=normalized_proc_name
@@ -348,7 +358,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                 tests = normalize_name(
                                     ProcedureResult.objects.filter(
                                         unit=unit,
-                                        procedure_definition_id=procedure_definition_id,
+                                        procedure_definition_id=procedure_def.id,
                                     )
                                 ).filter(
                                     normalized_name=normalized_proc_name
@@ -446,4 +456,4 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         mem_zip.seek(0)
         response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
         response["Content-Disposition"] = f"attachment; filename={timezone.now().strftime('%b-%d-%Y-%H%M%S')}.zip"
-        return response    
+        return response
