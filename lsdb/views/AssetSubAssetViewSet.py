@@ -74,7 +74,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     comment=comment
                                                                     )
                 else:
-                    return Response({"Cannot proceed with stress run. Ensure that sub-assets are Available."})
+                    return Response({"Cannot proceed with stress run. Ensure that all selected sub-assets are Available."})
 
             for sub_asset_id in sub_asset_ids:
                 StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)

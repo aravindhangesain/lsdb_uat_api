@@ -12,6 +12,8 @@ class AssetSubAssetSerializer(serializers.ModelSerializer):
     next_calibration = serializers.ReadOnlyField(source='sub_asset.next_calibration', read_only=True)
     days_to_next_calibration = serializers.SerializerMethodField()
     is_valid_subasset = serializers.SerializerMethodField()
+    disposition_id = serializers.ReadOnlyField(source='sub_asset.disposition_id', read_only=True)
+    disposition_name = serializers.ReadOnlyField(source='sub_asset.disposition.name', read_only=True)
 
     def get_days_to_next_calibration(self, obj):
         sub_asset_id=obj.sub_asset.id
@@ -45,5 +47,7 @@ class AssetSubAssetSerializer(serializers.ModelSerializer):
             'days_to_next_calibration',
             'last_calibrated_date',
             'next_calibration',
-            'is_valid_subasset'
+            'is_valid_subasset',
+            'disposition_id',
+            'disposition_name',
         ]
