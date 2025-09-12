@@ -7,6 +7,7 @@ class SubAsset(models.Model):
     description=models.CharField(max_length=128, blank=True, null=True)
     last_calibrated_date=models.DateTimeField(blank=True, null=True)
     next_calibration=models.IntegerField(blank=True, null=True)
+    disposition=models.ForeignKey('Disposition', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.name

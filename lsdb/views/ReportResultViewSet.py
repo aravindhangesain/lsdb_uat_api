@@ -246,3 +246,11 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                 return Response({"No procedures for this unit"},status=status.HTTP_200_OK)
         else:
             return Response({"serial number is required"},status=status.HTTP_200_OK)
+        
+    
+    @action(detail=False, methods=['post','get'])
+    def pre_report_writer(self, request):
+        incomplete_data_ready_status=ReportResult.objects.filter(hex_color='#f51111').exclude(data_ready_status__in=['Module Intake','Factory Witness','Define'])
+        serializer=ReportResultSerilaizer(incomplete_data_ready_status,many=True,context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

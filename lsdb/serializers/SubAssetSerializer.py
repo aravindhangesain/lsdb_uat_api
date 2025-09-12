@@ -25,4 +25,14 @@ class SubAssetSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = SubAsset
-        fields = ['id', 'sub_asset_name','asset_number', 'description', 'last_calibrated_date','next_calibration','days_to_next_calibration','is_valid_subasset']
+        fields = [
+                  'id', 
+                  'sub_asset_name',
+                  'asset_number', 
+                  'description', ''
+                  'last_calibrated_date',
+                  'next_calibration',
+                  'days_to_next_calibration',''
+                  'is_valid_subasset',
+                  'disposition_id'
+                  ]

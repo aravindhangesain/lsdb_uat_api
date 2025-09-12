@@ -8,5 +8,6 @@ class StressRunResult(models.Model):
     user=models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='stress_run_done_by')
     run_date=models.DateTimeField()
     comment=models.CharField(max_length=255, null=True, blank=True)
+    procedure_result=models.ForeignKey('ProcedureResult', on_delete=models.CASCADE, related_name='stress_run_results', null=True, blank=True)
 
 
