@@ -61,17 +61,17 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
 
         Example Body JSON:
         {
-        "workorder_id": [1],
-        "procedures": [
-            {
-            "procedure_definition_id": 2,
-            "procedure_names": ["Pre-Stress","Post-Stress"]
-            },
-            {
-            "procedure_definition_id": 3,
-            "procedure_names": ["Pre Light Soak","Post Light Soak"]
-            }
-        ]
+            "workorder_id": [1],
+            "procedures": [
+                {
+                "procedure_definition_id": 2,
+                "procedure_names": ["Pre-Stress","Post-Stress"]
+                },
+                {
+                "procedure_definition_id": 3,
+                "procedure_names": ["Pre Light Soak","Post Light Soak"]
+                }
+            ]
         }
         """
 
@@ -105,16 +105,19 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         procedures = request.data.get("procedures", [])
         adjust_images = False
 
-        if not workorder_id or not procedures:
-            return Response({"error": "workorder_id and procedures are required"}, status=400)
+        if not workorder_id:
+            return Response({"error": "workorder id are required"}, status=400)
 
         project = get_object_or_404(Project, number=number)
-
         work_order = get_object_or_404(project.workorder_set, id=workorder_id)
+
         allowed_proc_def = [2,3,14,54,50,62,33,49,21,38,48,12,18,37]
+
         if not procedures:
             procedures = []
-            procedure_results = ProcedureResult.objects.filter(work_order=work_order,procedure_definition_id__in =allowed_proc_def).exclude(group_id=45)
+            procedure_results = ProcedureResult.objects.filter(
+                work_order=work_order, procedure_definition_id__in=allowed_proc_def
+            ).exclude(group_id=45)
             proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
 
             for proc_def_id in proc_defs:
@@ -134,216 +137,187 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         mem_zip = BytesIO()
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
 
-            # ---- loop over all workorders
-            # for workorder_id in workorder_id:
-                # work_order = get_object_or_404(project.workorder_set, id=workorder_id)
+            for proc in procedures:
+                procedure_def_id = proc.get("procedure_definition_id")
+                procedure_names = proc.get("procedure_names", [])
 
-                # ---- loop over each procedure_definition group
-                for proc in procedures:
-                    procedure_def_id = proc.get("procedure_definition_id")
-                    procedure_names = proc.get("procedure_names", [])
+                procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
 
-                    procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
+                # ----------------------------
+                # Determine if only workorder_id passed
+                # ----------------------------
+                if not request.data.get("procedures"):
+                    # Single Excel per procedure_definition
+                    excel_file = Workbook()
+                    sheet = excel_file.active
+                    sheet.title = procedure_def.name
 
-                    # fallback if no names given → get all names from DB
-                    if not procedure_names:
-                        procedure_names = ProcedureResult.objects.filter(
-                            work_order=work_order,
-                            procedure_definition=procedure_def
-                        ).values_list("name", flat=True).exclude(group_id=45).distinct()
+                    # Fetch all ProcedureResults for this workorder & procedure_definition
+                    procedure_results = ProcedureResult.objects.filter(
+                        work_order=work_order,
+                        procedure_definition=procedure_def
+                    ).exclude(group_id=45)
 
-                    # ---- loop over all procedure names under this definition
-                    for procedure_name in procedure_names:
-                        normalized_proc_name = normalize_value(procedure_name)
+                    # Extract all units
+                    units = Unit.objects.filter(
+                        procedureresult__in=procedure_results
+                    ).distinct()
 
-                        # create Excel workbook
+                    # Placeholder for downstream loop
+                    procedure_names_to_use = [None]
+
+                else:
+                    # Keep your existing logic for passed procedures
+                    procedure_names_to_use = procedure_names
+                    units = Unit.objects.filter(
+                        procedureresult__work_order=work_order
+                    ).distinct()
+
+                # ----------------------------
+                # Loop over procedure_names if provided
+                # ----------------------------
+                for procedure_name in procedure_names_to_use:
+                    normalized_proc_name = normalize_value(procedure_name) if procedure_name else None
+
+                    if request.data.get("procedures"):
+                        # Create new workbook per procedure_name (existing behavior)
                         excel_file = Workbook()
                         sheet = excel_file.active
 
-                        units = Unit.objects.filter(
-                            procedureresult__work_order=work_order
-                        ).distinct()
+                    # ========================================================
+                    # I-V Flash Procedure
+                    # ========================================================
+                    if "I-V" in procedure_def.name:
+                        sheet.title = "Flash"
+                        sheet.append([
+                            "Serial Number", "TSD", "LEG", "final_result",
+                            "Pmp", "Voc", "Vmp", "Isc", "Imp", "Irradiance", "Temperature"
+                        ])
 
-                        # ========================================================
-                        #   I-V Flash Procedure
-                        # ========================================================
-                        if "I-V" in procedure_def.name:
-                            sheet.title = "Flash"
-                            sheet.append([
-                                "Serial Number", "TSD", "LEG", "final_result",
-                                "Pmp", "Voc", "Vmp", "Isc", "Imp", "Irradiance", "Temperature"
-                            ])
-                            for unit in units:
-                                tests = normalize_name(
-                                    ProcedureResult.objects.filter(
-                                        unit=unit,
-                                        procedure_definition_id=procedure_def.id,
-                                    )
-                                ).filter(
-                                    normalized_name=normalized_proc_name
-                                ).order_by("test_sequence_definition", "linear_execution_group")
+                        for unit in units:
+                            tests = normalize_name(
+                                ProcedureResult.objects.filter(
+                                    unit=unit,
+                                    procedure_definition_id=procedure_def.id,
+                                )
+                            )
+                            if normalized_proc_name:
+                                tests = tests.filter(normalized_name=normalized_proc_name)
+                            tests = tests.order_by("test_sequence_definition", "linear_execution_group")
 
-                                for test in tests:
-                                    final_result_value = ProcedureResult_FinalResult.objects.filter(
-                                        procedure_result_id=test.id
-                                    ).values_list("final_result", flat=True).first() or "N/A"
+                            for test in tests:
+                                final_result_value = ProcedureResult_FinalResult.objects.filter(
+                                    procedure_result_id=test.id
+                                ).values_list("final_result", flat=True).first() or "N/A"
 
-                                    for step_result in test.stepresult_set.all().exclude(archived=True):
-                                        data = [
-                                            safe_excel_value(unit.serial_number),
-                                            safe_excel_value(test.test_sequence_definition.name),
-                                            safe_excel_value(test.name),
-                                            safe_excel_value(final_result_value)
-                                        ]
+                                for step_result in test.stepresult_set.all().exclude(archived=True):
+                                    data = [
+                                        safe_excel_value(unit.serial_number),
+                                        safe_excel_value(test.test_sequence_definition.name),
+                                        safe_excel_value(test.name),
+                                        safe_excel_value(final_result_value)
+                                    ]
 
-                                        for measurement in step_result.measurementresult_set.all().order_by("report_order"):
-                                            if measurement.measurement_result_type.name == "result_files":
-                                                if measurement.result_files.all().count():
-                                                    for azurefile in measurement.result_files.all():
-                                                        path = "Flash Data/"
-                                                        if "200" in step_result.name:
-                                                            path += "200W/"
-                                                        elif "Rear" in test.procedure_definition.name:
-                                                            path += "Rear/"
-                                                        path += "FLASH/{}/{}".format(
-                                                            test.test_sequence_definition.name,
-                                                            test.name
-                                                        )
-                                                        file_bytes = azurefile.file.file.read()
-                                                        # extra_files_exist = True
-                                                        zf.writestr(
-                                                            "{}/{}/{}/{}/{}".format(
-                                                                work_order.project.number,
-                                                                work_order.name,
-                                                                "Flash Data",
-                                                                path,
-                                                                azurefile.file.name,
-                                                            ),
-                                                            file_bytes
-                                                        )
-                                            elif measurement.measurement_result_type.name == "result_datetime":
-                                                continue
-                                            else:
-                                                raw_value = getattr(
-                                                    measurement,
-                                                    measurement.measurement_result_type.name,
-                                                    "",
-                                                )
-                                                data.append(safe_excel_value(raw_value))
-                                        sheet.append(data)
+                                    for measurement in step_result.measurementresult_set.all().order_by("report_order"):
+                                        if measurement.measurement_result_type.name == "result_files":
+                                            if measurement.result_files.all().count():
+                                                for azurefile in measurement.result_files.all():
+                                                    path = "Flash Data/"
+                                                    if "200" in step_result.name:
+                                                        path += "200W/"
+                                                    elif "Rear" in test.procedure_definition.name:
+                                                        path += "Rear/"
+                                                    path += "FLASH/{}/{}".format(
+                                                        test.test_sequence_definition.name,
+                                                        test.name
+                                                    )
+                                                    file_bytes = azurefile.file.file.read()
+                                                    zf.writestr(
+                                                        "{}/{}/{}/{}/{}".format(
+                                                            work_order.project.number,
+                                                            work_order.name,
+                                                            "Flash Data",
+                                                            path,
+                                                            azurefile.file.name,
+                                                        ),
+                                                        file_bytes
+                                                    )
+                                        elif measurement.measurement_result_type.name == "result_datetime":
+                                            continue
+                                        else:
+                                            raw_value = getattr(
+                                                measurement,
+                                                measurement.measurement_result_type.name,
+                                                "",
+                                            )
+                                            data.append(safe_excel_value(raw_value))
+                                    sheet.append(data)
 
-                        # ========================================================
-                        # Visual Inspection
-                        # ========================================================
-                        elif "Visual Inspection" in procedure_def.name:
-                            sheet.title = "Visual Inspection"
-                            sheet.append([
-                                "Serial Number", "TSD", "LEG", "final_result",
-                                "Defect", "Category", "Notes", "Images"
-                            ])
+                    # ========================================================
+                    # Visual Inspection
+                    # ========================================================
+                    elif "Visual Inspection" in procedure_def.name:
+                        sheet.title = "Visual Inspection"
+                        sheet.append([
+                            "Serial Number", "TSD", "LEG", "final_result",
+                            "Defect", "Category", "Notes", "Images"
+                        ])
+                        for unit in units:
+                            tests = normalize_name(
+                                ProcedureResult.objects.filter(
+                                    unit=unit,
+                                    procedure_definition_id=procedure_def.id,
+                                )
+                            )
+                            if normalized_proc_name:
+                                tests = tests.filter(normalized_name=normalized_proc_name)
+                            tests = tests.order_by("test_sequence_definition", "linear_execution_group")
 
-                            for unit in units:
-                                tests = normalize_name(
-                                    ProcedureResult.objects.filter(
-                                        unit=unit,
-                                        procedure_definition_id=procedure_def.id,
-                                    )
-                                ).filter(
-                                    normalized_name=normalized_proc_name
-                                ).order_by("test_sequence_definition", "linear_execution_group")
+                            for test in tests:
+                                final_result_value = ProcedureResult_FinalResult.objects.filter(
+                                    procedure_result_id=test.id
+                                ).values_list("final_result", flat=True).first() or "N/A"
 
-                                for test in tests:
-                                    final_result_value = ProcedureResult_FinalResult.objects.filter(
-                                        procedure_result_id=test.id
-                                    ).values_list("final_result", flat=True).first() or "N/A"
+                                skip = False
+                                for step_result in test.stepresult_set.all().exclude(archived=True):
+                                    data = [
+                                        unit.serial_number,
+                                        safe_excel_value(test.test_sequence_definition.name),
+                                        safe_excel_value(test.name),
+                                        safe_excel_value(final_result_value)
+                                    ]
 
-                                    skip = False
-                                    for step_result in test.stepresult_set.all().exclude(archived=True):
-                                        data = [
-                                            unit.serial_number,
-                                            safe_excel_value(test.test_sequence_definition.name),
-                                            safe_excel_value(test.name),
-                                            safe_excel_value(final_result_value)
-                                        ]
+                                    for measurement in step_result.measurementresult_set.all().order_by("report_order"):
 
-                                        for measurement in step_result.measurementresult_set.all().order_by("report_order"):
+                                        if step_result.name == "Inspect Module":
+                                            if getattr(measurement, measurement.measurement_result_type.name):
+                                                skip = True
+                                                data.append("No Defects Observed")
+                                                sheet.append(data)
 
-                                            if step_result.name == "Inspect Module":
-                                                if getattr(measurement, measurement.measurement_result_type.name):
-                                                    skip = True
-                                                    data.append("No Defects Observed")
-                                                    sheet.append(data)
-
-                                            elif skip:
-                                                break
-
-                                            elif measurement.measurement_result_type.name == "result_files":
-                                                if measurement.result_files.all().count():
-                                                    for azurefile in measurement.result_files.all():
-                                                        file_bytes = azurefile.file.file.read()
-                                                        # extra_files_exist = True
-                                                        zf.writestr(
-                                                            "{}/{}/{}/{}".format(
-                                                                work_order.project.number,
-                                                                work_order.name,
-                                                                "VI Images",
-                                                                azurefile.file.name,
-                                                            ),
-                                                            file_bytes
-                                                        )
-                                                        data.append(azurefile.file.name)
-
-                                            elif measurement.result_defect is not None and measurement.measurement_result_type.name == "result_defect":
-                                                data.append(safe_excel_value(measurement.result_defect.short_name))
-                                                data.append(safe_excel_value(measurement.result_defect.category))
-
-                                            else:
-                                                raw_value = getattr(
-                                                    measurement,
-                                                    measurement.measurement_result_type.name,
-                                                    "",
-                                                )
-                                                data.append(safe_excel_value(raw_value))
-
-                                        if skip:
+                                        elif skip:
                                             break
-                                        sheet.append(data)
 
-                        # ========================================================
-                        # Wet Leakage
-                        # ========================================================
-                        elif "Wet Leakage" in procedure_def.name:
-                            sheet.title = "Wet Leakage"
-                            sheet.append([
-                                "Serial Number", "TSD", "LEG", "final_result",
-                                "Insulation Resistance", "Passed?", "Test Voltage",
-                                "Leakage Current", "Current Trip Setpoint", "Water Temperature"
-                            ])
+                                        elif measurement.measurement_result_type.name == "result_files":
+                                            if measurement.result_files.all().count():
+                                                for azurefile in measurement.result_files.all():
+                                                    file_bytes = azurefile.file.file.read()
+                                                    zf.writestr(
+                                                        "{}/{}/{}/{}".format(
+                                                            work_order.project.number,
+                                                            work_order.name,
+                                                            "VI Images",
+                                                            azurefile.file.name,
+                                                        ),
+                                                        file_bytes
+                                                    )
+                                                    data.append(azurefile.file.name)
 
-                            for unit in units:
-                                tests = normalize_name(
-                                    ProcedureResult.objects.filter(
-                                        unit=unit,
-                                        procedure_definition_id=procedure_def.id,
-                                    )
-                                ).filter(
-                                    normalized_name=normalized_proc_name
-                                ).order_by("test_sequence_definition", "linear_execution_group")
+                                        elif measurement.result_defect is not None and measurement.measurement_result_type.name == "result_defect":
+                                            data.append(safe_excel_value(measurement.result_defect.short_name))
+                                            data.append(safe_excel_value(measurement.result_defect.category))
 
-                                for test in tests:
-                                    final_result_value = ProcedureResult_FinalResult.objects.filter(
-                                        procedure_result_id=test.id
-                                    ).values_list("final_result", flat=True).first() or "N/A"
-
-                                    for step_result in test.stepresult_set.all().exclude(archived=True):
-                                        data = [
-                                            safe_excel_value(unit.serial_number),
-                                            safe_excel_value(test.test_sequence_definition.name),
-                                            safe_excel_value(test.name),
-                                            safe_excel_value(final_result_value)
-                                        ]
-
-                                        for measurement in step_result.measurementresult_set.all().order_by("report_order"):
+                                        else:
                                             raw_value = getattr(
                                                 measurement,
                                                 measurement.measurement_result_type.name,
@@ -351,141 +325,168 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                             )
                                             data.append(safe_excel_value(raw_value))
 
-                                        sheet.append(data)
+                                    if skip:
+                                        break
+                                    sheet.append(data)
 
-                        # ========================================================
-                        # EL Image
-                        # ========================================================
-                        elif "EL Image" in procedure_def.name:
-                            sheet.title = "EL Image"
-                            sheet.append([
-                                "Serial Number", "TSD", "LEG", "final_result",
-                                "Measurement Values"
-                            ])
-
-                            for unit in units:
-                                tests = normalize_name(
-                                    ProcedureResult.objects.filter(
-                                        unit=unit,
-                                        procedure_definition_id=procedure_def.id,
-                                    )
-                                ).filter(
-                                    normalized_name=normalized_proc_name
-                                ).order_by("test_sequence_definition", "linear_execution_group")
-
-                                for test in tests:
-                                    final_result_value = ProcedureResult_FinalResult.objects.filter(
-                                        procedure_result_id=test.id
-                                    ).values_list("final_result", flat=True).first() or "N/A"
-
-                                    for step_result in test.stepresult_set.all().exclude(archived=True):
-                                        data = [
-                                            safe_excel_value(unit.serial_number),
-                                            safe_excel_value(test.test_sequence_definition.name),
-                                            safe_excel_value(test.name),
-                                            safe_excel_value(final_result_value)
-                                        ]
-
-                                        for measurement in step_result.measurementresult_set.all().order_by("report_order"):
-                                            if measurement.measurement_result_type.name == "result_files":
-                                                if measurement.result_files.all().count():
-                                                    for azurefile in measurement.result_files.all():
-                                                        if "RAW" in azurefile.file.name:
-                                                            continue
-
-                                                        filetype = "DataFiles" if azurefile.file.name.lower().endswith(("xls", "xlsx", "txt", "csv")) else "ImageFiles"
-
-                                                        name = azurefile.file.name
-                                                        if filetype == "ImageFiles":
-                                                            temp = azurefile.file.name.split(".")
-                                                            base_name = ".".join(temp[:-1])
-                                                            name = "{}-{}-{}.{}".format(
-                                                                base_name,
-                                                                test.test_sequence_definition.name,
-                                                                test.name,
-                                                                temp[-1]
-                                                            )
-
-                                                        bytes_io = BytesIO(azurefile.file.file.read())
-                                                        bytes_io.seek(0)
-
-                                                        try:
-                                                            temp_image = Image.open(bytes_io)
-                                                            if adjust_images:
-                                                                width, height = temp_image.size
-                                                                temp_image = temp_image.rotate(-90, expand=True)
-                                                                temp_image = temp_image.resize((height, width))
-                                                                temp_image = ImageOps.grayscale(temp_image)
-                                                                temp_image = ImageOps.autocontrast(temp_image)
-
-                                                            image_bytes = BytesIO()
-                                                            temp_image.save(image_bytes, format="jpeg", quality=75)
-                                                            temp_image.close()
-                                                            content = image_bytes.getvalue()
-                                                            image_bytes.close()
-                                                        except Exception:
-                                                            bytes_io.seek(0)
-                                                            content = bytes_io.getvalue()
-                                                        bytes_io.close()
-                                                        # extra_files_exist = True
-
-                                                        zf.writestr(
-                                                            "{}/{}/{}/{}".format(
-                                                                work_order.project.number,
-                                                                work_order.name,
-                                                                "EL Images",
-                                                                name,
-                                                            ),
-                                                            content,
-                                                        )
-                                            else:
-                                                raw_value = getattr(
-                                                    measurement,
-                                                    measurement.measurement_result_type.name,
-                                                    "",
-                                                )
-                                                data.append(safe_excel_value(raw_value))
-                                        sheet.append(data)
-
-                        else:
-                            return Response(
-                                {"error": f"Unsupported procedure type for {procedure_def.name}"},
-                                status=400
+                    # ========================================================
+                    # Wet Leakage
+                    # ========================================================
+                    elif "Wet Leakage" in procedure_def.name:
+                        sheet.title = "Wet Leakage"
+                        sheet.append([
+                            "Serial Number", "TSD", "LEG", "final_result",
+                            "Insulation Resistance", "Passed?", "Test Voltage",
+                            "Leakage Current", "Current Trip Setpoint", "Water Temperature"
+                        ])
+                        for unit in units:
+                            tests = normalize_name(
+                                ProcedureResult.objects.filter(
+                                    unit=unit,
+                                    procedure_definition_id=procedure_def.id,
+                                )
                             )
+                            if normalized_proc_name:
+                                tests = tests.filter(normalized_name=normalized_proc_name)
+                            tests = tests.order_by("test_sequence_definition", "linear_execution_group")
 
-                        # Save Excel into ZIP
-                        # file_stream = BytesIO()
-                        # excel_file.save(file_stream)
-                        # file_stream.seek(0)
-                        # files_to_return.append({
-                        #     "name": f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
-                        #     "content": file_stream.getvalue(),
-                        #     "force_zip": False
-                        # })
-                        # file_stream.close()
-                        if not request.data.get("procedures"):
-                        # Save one Excel file per procedure type
-                            file_stream = BytesIO()
-                            excel_file.save(file_stream)
-                            file_stream.seek(0)
-                            files_to_return.append({
-                                "name": f"{work_order.name}_{procedure_def.name}.xlsx",
-                                "content": file_stream.getvalue(),
-                                "force_zip": False
-                            })
-                            file_stream.close()
-                        else:
-                            # Keep your existing logic for passed procedures
-                            file_stream = BytesIO()
-                            excel_file.save(file_stream)
-                            file_stream.seek(0)
-                            files_to_return.append({
-                                "name": f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
-                                "content": file_stream.getvalue(),
-                                "force_zip": False
-                            })
-                            file_stream.close()
-                     
+                            for test in tests:
+                                final_result_value = ProcedureResult_FinalResult.objects.filter(
+                                    procedure_result_id=test.id
+                                ).values_list("final_result", flat=True).first() or "N/A"
+
+                                for step_result in test.stepresult_set.all().exclude(archived=True):
+                                    data = [
+                                        safe_excel_value(unit.serial_number),
+                                        safe_excel_value(test.test_sequence_definition.name),
+                                        safe_excel_value(test.name),
+                                        safe_excel_value(final_result_value)
+                                    ]
+
+                                    for measurement in step_result.measurementresult_set.all().order_by("report_order"):
+                                        raw_value = getattr(
+                                            measurement,
+                                            measurement.measurement_result_type.name,
+                                            "",
+                                        )
+                                        data.append(safe_excel_value(raw_value))
+                                    sheet.append(data)
+
+                    # ========================================================
+                    # EL Image
+                    # ========================================================
+                    elif "EL Image" in procedure_def.name:
+                        sheet.title = "EL Image"
+                        sheet.append([
+                            "Serial Number", "TSD", "LEG", "final_result",
+                            "Measurement Values"
+                        ])
+                        for unit in units:
+                            tests = normalize_name(
+                                ProcedureResult.objects.filter(
+                                    unit=unit,
+                                    procedure_definition_id=procedure_def.id,
+                                )
+                            )
+                            if normalized_proc_name:
+                                tests = tests.filter(normalized_name=normalized_proc_name)
+                            tests = tests.order_by("test_sequence_definition", "linear_execution_group")
+
+                            for test in tests:
+                                final_result_value = ProcedureResult_FinalResult.objects.filter(
+                                    procedure_result_id=test.id
+                                ).values_list("final_result", flat=True).first() or "N/A"
+
+                                for step_result in test.stepresult_set.all().exclude(archived=True):
+                                    data = [
+                                        safe_excel_value(unit.serial_number),
+                                        safe_excel_value(test.test_sequence_definition.name),
+                                        safe_excel_value(test.name),
+                                        safe_excel_value(final_result_value)
+                                    ]
+
+                                    for measurement in step_result.measurementresult_set.all().order_by("report_order"):
+                                        if measurement.measurement_result_type.name == "result_files":
+                                            if measurement.result_files.all().count():
+                                                for azurefile in measurement.result_files.all():
+                                                    if "RAW" in azurefile.file.name:
+                                                        continue
+
+                                                    filetype = "DataFiles" if azurefile.file.name.lower().endswith(("xls", "xlsx", "txt", "csv")) else "ImageFiles"
+
+                                                    name = azurefile.file.name
+                                                    if filetype == "ImageFiles":
+                                                        temp = azurefile.file.name.split(".")
+                                                        base_name = ".".join(temp[:-1])
+                                                        name = "{}-{}-{}.{}".format(
+                                                            base_name,
+                                                            test.test_sequence_definition.name,
+                                                            test.name,
+                                                            temp[-1]
+                                                        )
+
+                                                    bytes_io = BytesIO(azurefile.file.file.read())
+                                                    bytes_io.seek(0)
+
+                                                    try:
+                                                        temp_image = Image.open(bytes_io)
+                                                        if adjust_images:
+                                                            width, height = temp_image.size
+                                                            temp_image = temp_image.rotate(-90, expand=True)
+                                                            temp_image = temp_image.resize((height, width))
+                                                            temp_image = ImageOps.grayscale(temp_image)
+                                                            temp_image = ImageOps.autocontrast(temp_image)
+
+                                                        image_bytes = BytesIO()
+                                                        temp_image.save(image_bytes, format="jpeg", quality=75)
+                                                        temp_image.close()
+                                                        content = image_bytes.getvalue()
+                                                        image_bytes.close()
+                                                    except Exception:
+                                                        bytes_io.seek(0)
+                                                        content = bytes_io.getvalue()
+                                                    bytes_io.close()
+
+                                                    zf.writestr(
+                                                        "{}/{}/{}/{}".format(
+                                                            work_order.project.number,
+                                                            work_order.name,
+                                                            "EL Images",
+                                                            name,
+                                                        ),
+                                                        content,
+                                                    )
+                                        else:
+                                            raw_value = getattr(
+                                                measurement,
+                                                measurement.measurement_result_type.name,
+                                                "",
+                                            )
+                                            data.append(safe_excel_value(raw_value))
+                                    sheet.append(data)
+
+                    else:
+                        return Response(
+                            {"error": f"Unsupported procedure type for {procedure_def.name}"},
+                            status=400
+                        )
+
+                    # ----------------------------
+                    # Save Excel file
+                    # ----------------------------
+                    file_stream = BytesIO()
+                    excel_file.save(file_stream)
+                    file_stream.seek(0)
+                    files_to_return.append({
+                        "name": f"{work_order.name}_{procedure_def.name}.xlsx" if not request.data.get("procedures") else f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
+                        "content": file_stream.getvalue(),
+                        "force_zip": False
+                    })
+                    file_stream.close()
+
+        # ----------------------------
+        # Return single Excel or ZIP
+        # ----------------------------
         if len(files_to_return) == 1 and not extra_files_exist:
             file = files_to_return[0]
             response = HttpResponse(
@@ -494,6 +495,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             )
             response["Content-Disposition"] = f'attachment; filename="{file["name"]}"'
             return response
+
         mem_zip = BytesIO()
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
             for file in files_to_return:
