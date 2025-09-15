@@ -125,7 +125,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             else:
                 return '#f51111'
 
-        elif report.data_ready_status in ['Factory Witness']:
+        elif report.data_ready_status in ['Factory witness']:
             work_order = WorkOrder.objects.get(id=work_order_id)
             project_id = work_order.project.id
             if ProjectFactoryWitness.objects.filter(project_id=project_id,factory_witness=True).exists():
