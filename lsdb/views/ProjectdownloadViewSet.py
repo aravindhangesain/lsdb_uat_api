@@ -515,29 +515,12 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             return Response({"error": "workorder id are required"}, status=400)
 
         project = get_object_or_404(Project, number=number)
-
-        work_order = get_object_or_404(project.workorder_set, id=workorder_id)
-        if not procedures:
-            procedures = []
-            procedure_results = ProcedureResult.objects.filter(work_order=work_order).exclude(group_id=45)
-            proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
-
-            for proc_def_id in proc_defs:
-                proc_names = (
-                    procedure_results.filter(procedure_definition_id=proc_def_id)
-                    .values_list("name", flat=True)
-                    .distinct()
-                )
-                procedures.append({
-                    "procedure_definition_id": proc_def_id,
-                    "procedure_names": list(proc_names)
-                })
-
         files_to_return = []     
         extra_files_exist = False
 
         mem_zip = BytesIO()
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+                work_order = get_object_or_404(project.workorder_set, id=workorder_id)
                 # ---- loop over each procedure_definition group
                 for proc in procedures:
                     procedure_def_id = proc.get("procedure_definition_id")
