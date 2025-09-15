@@ -511,16 +511,33 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         procedures = request.data.get("procedures", [])
         adjust_images = False
 
-        if not workorder_id or not procedures:
-            return Response({"error": "workorder_id and procedures are required"}, status=400)
+        if not workorder_id:
+            return Response({"error": "workorder id are required"}, status=400)
 
         project = get_object_or_404(Project, number=number)
+
+        work_order = get_object_or_404(project.workorder_set, id=workorder_id)
+        if not procedures:
+            procedures = []
+            procedure_results = ProcedureResult.objects.filter(work_order=work_order).exclude(group_id=45)
+            proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
+
+            for proc_def_id in proc_defs:
+                proc_names = (
+                    procedure_results.filter(procedure_definition_id=proc_def_id)
+                    .values_list("name", flat=True)
+                    .distinct()
+                )
+                procedures.append({
+                    "procedure_definition_id": proc_def_id,
+                    "procedure_names": list(proc_names)
+                })
+
         files_to_return = []     
         extra_files_exist = False
 
         mem_zip = BytesIO()
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-                work_order = get_object_or_404(project.workorder_set, id=workorder_id)
                 # ---- loop over each procedure_definition group
                 for proc in procedures:
                     procedure_def_id = proc.get("procedure_definition_id")
@@ -588,13 +605,16 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                             path += "200W/"
                                                         elif "Rear" in test.procedure_definition.name:
                                                             path += "Rear/"
-                                                        path += "{}/{}".format(
+                                                        path += "FLASH/{}/{}".format(
                                                             test.test_sequence_definition.name,
                                                             test.name
                                                         )
                                                         file_bytes = azurefile.file.file.read()
                                                         zf.writestr(
-                                                            "{}/{}".format(
+                                                            "{}/{}/{}/{}/{}".format(
+                                                                work_order.project.number,
+                                                                work_order.name,
+                                                                "Flash Data",
                                                                 path,
                                                                 azurefile.file.name,
                                                             ),
@@ -661,7 +681,9 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                     for azurefile in measurement.result_files.all():
                                                         file_bytes = azurefile.file.file.read()
                                                         zf.writestr(
-                                                            "{}/{}".format(
+                                                            "{}/{}/{}/{}".format(
+                                                                work_order.project.number,
+                                                                work_order.name,
                                                                 "VI Images",
                                                                 azurefile.file.name,
                                                             ),
@@ -805,7 +827,9 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                         bytes_io.close()
 
                                                         zf.writestr(
-                                                            "{}/{}".format(
+                                                            "{}/{}/{}/{}".format(
+                                                                work_order.project.number,
+                                                                work_order.name,
                                                                 "EL Images",
                                                                 name,
                                                             ),
@@ -825,8 +849,6 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                 {"error": f"Unsupported procedure type for {procedure_def.name}"},
                                 status=400
                             )
-
-                        # # Save Excel into ZIP
                         file_stream = BytesIO()
                         excel_file.save(file_stream)
                         file_stream.seek(0)
@@ -852,5 +874,5 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                 zf.writestr(file["name"], file["content"])
         mem_zip.seek(0)
         response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
-        response["Content-Disposition"] = f"attachment; filename={timezone.now().strftime('%b-%d-%Y-%H%M%S')}.zip"
+        response["Content-Disposition"] = (f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"')
         return response
