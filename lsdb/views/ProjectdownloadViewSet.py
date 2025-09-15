@@ -109,6 +109,25 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             return Response({"error": "workorder_id and procedures are required"}, status=400)
 
         project = get_object_or_404(Project, number=number)
+
+        work_order = get_object_or_404(project.workorder_set, id=workorder_id)
+        allowed_proc_def = [2,3,14,54,50,62,33,49,21,38,48,12,18,37]
+        if not procedures:
+            procedures = []
+            procedure_results = ProcedureResult.objects.filter(work_order=work_order,procedure_definition_id__in =allowed_proc_def).exclude(group_id=45)
+            proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
+
+            for proc_def_id in proc_defs:
+                proc_names = (
+                    procedure_results.filter(procedure_definition_id=proc_def_id)
+                    .values_list("name", flat=True)
+                    .distinct()
+                )
+                procedures.append({
+                    "procedure_definition_id": proc_def_id,
+                    "procedure_names": list(proc_names)
+                })
+
         files_to_return = []
         extra_files_exist = False
 
@@ -116,8 +135,8 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
 
             # ---- loop over all workorders
-            for workorder_id in workorder_id:
-                work_order = get_object_or_404(project.workorder_set, id=workorder_id)
+            # for workorder_id in workorder_id:
+                # work_order = get_object_or_404(project.workorder_set, id=workorder_id)
 
                 # ---- loop over each procedure_definition group
                 for proc in procedures:
@@ -191,6 +210,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                             test.name
                                                         )
                                                         file_bytes = azurefile.file.file.read()
+                                                        # extra_files_exist = True
                                                         zf.writestr(
                                                             "{}/{}/{}/{}/{}".format(
                                                                 work_order.project.number,
@@ -261,6 +281,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                 if measurement.result_files.all().count():
                                                     for azurefile in measurement.result_files.all():
                                                         file_bytes = azurefile.file.file.read()
+                                                        # extra_files_exist = True
                                                         zf.writestr(
                                                             "{}/{}/{}/{}".format(
                                                                 work_order.project.number,
@@ -406,6 +427,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                             bytes_io.seek(0)
                                                             content = bytes_io.getvalue()
                                                         bytes_io.close()
+                                                        # extra_files_exist = True
 
                                                         zf.writestr(
                                                             "{}/{}/{}/{}".format(
@@ -432,15 +454,38 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                             )
 
                         # Save Excel into ZIP
-                        file_stream = BytesIO()
-                        excel_file.save(file_stream)
-                        file_stream.seek(0)
-                        files_to_return.append({
-                            "name": f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
-                            "content": file_stream.getvalue(),
-                            "force_zip": False
-                        })
-                        file_stream.close()
+                        # file_stream = BytesIO()
+                        # excel_file.save(file_stream)
+                        # file_stream.seek(0)
+                        # files_to_return.append({
+                        #     "name": f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
+                        #     "content": file_stream.getvalue(),
+                        #     "force_zip": False
+                        # })
+                        # file_stream.close()
+                        if not request.data.get("procedures"):
+                        # Save one Excel file per procedure type
+                            file_stream = BytesIO()
+                            excel_file.save(file_stream)
+                            file_stream.seek(0)
+                            files_to_return.append({
+                                "name": f"{work_order.name}_{procedure_def.name}.xlsx",
+                                "content": file_stream.getvalue(),
+                                "force_zip": False
+                            })
+                            file_stream.close()
+                        else:
+                            # Keep your existing logic for passed procedures
+                            file_stream = BytesIO()
+                            excel_file.save(file_stream)
+                            file_stream.seek(0)
+                            files_to_return.append({
+                                "name": f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
+                                "content": file_stream.getvalue(),
+                                "force_zip": False
+                            })
+                            file_stream.close()
+                     
         if len(files_to_return) == 1 and not extra_files_exist:
             file = files_to_return[0]
             response = HttpResponse(
