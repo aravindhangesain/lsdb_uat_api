@@ -507,22 +507,20 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         # ----------------------------
         # Validate body payload
         # ----------------------------
-        workorder_ids = request.data.get("workorder_id", [])
+        workorder_id = request.data.get("workorder_id")
         procedures = request.data.get("procedures", [])
         adjust_images = False
 
-        if not workorder_ids or not procedures:
+        if not workorder_id or not procedures:
             return Response({"error": "workorder_id and procedures are required"}, status=400)
 
         project = get_object_or_404(Project, number=number)
+        files_to_return = []     
+        extra_files_exist = False
 
         mem_zip = BytesIO()
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-
-            # ---- loop over all workorders
-            for workorder_id in workorder_ids:
                 work_order = get_object_or_404(project.workorder_set, id=workorder_id)
-
                 # ---- loop over each procedure_definition group
                 for proc in procedures:
                     procedure_def_id = proc.get("procedure_definition_id")
@@ -590,16 +588,13 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                             path += "200W/"
                                                         elif "Rear" in test.procedure_definition.name:
                                                             path += "Rear/"
-                                                        path += "FLASH/{}/{}".format(
+                                                        path += "{}/{}".format(
                                                             test.test_sequence_definition.name,
                                                             test.name
                                                         )
                                                         file_bytes = azurefile.file.file.read()
                                                         zf.writestr(
-                                                            "{}/{}/{}/{}/{}".format(
-                                                                work_order.project.number,
-                                                                work_order.name,
-                                                                "Flash Data",
+                                                            "{}/{}".format(
                                                                 path,
                                                                 azurefile.file.name,
                                                             ),
@@ -666,9 +661,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                     for azurefile in measurement.result_files.all():
                                                         file_bytes = azurefile.file.file.read()
                                                         zf.writestr(
-                                                            "{}/{}/{}/{}".format(
-                                                                work_order.project.number,
-                                                                work_order.name,
+                                                            "{}/{}".format(
                                                                 "VI Images",
                                                                 azurefile.file.name,
                                                             ),
@@ -812,9 +805,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                                         bytes_io.close()
 
                                                         zf.writestr(
-                                                            "{}/{}/{}/{}".format(
-                                                                work_order.project.number,
-                                                                work_order.name,
+                                                            "{}/{}".format(
                                                                 "EL Images",
                                                                 name,
                                                             ),
@@ -835,15 +826,30 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                                 status=400
                             )
 
-                        # Save Excel into ZIP
+                        # # Save Excel into ZIP
                         file_stream = BytesIO()
                         excel_file.save(file_stream)
                         file_stream.seek(0)
-                        zf.writestr(
-                            f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
-                            file_stream.read(),
-                        )
+                        files_to_return.append({
+                            "name": f"{work_order.name}_{procedure_def.name}_{procedure_name}.xlsx",
+                            "content": file_stream.getvalue(),
+                            "force_zip": False
+                        })
+                        file_stream.close()
 
+        if len(files_to_return) == 1 and not extra_files_exist:
+            file = files_to_return[0]
+            response = HttpResponse(
+                file["content"],
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+            response["Content-Disposition"] = f'attachment; filename="{file["name"]}"'
+            return response
+
+        mem_zip = BytesIO()
+        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for file in files_to_return:
+                zf.writestr(file["name"], file["content"])
         mem_zip.seek(0)
         response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
         response["Content-Disposition"] = f"attachment; filename={timezone.now().strftime('%b-%d-%Y-%H%M%S')}.zip"
