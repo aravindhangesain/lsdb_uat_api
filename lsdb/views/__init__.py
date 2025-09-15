@@ -178,3 +178,4 @@ from .AssetSubAssetViewSet import AssetSubAssetViewSet as AssetSubAssetViewSet
 from .SubAssetViewSet import SubAssetViewSet as SubAssetViewSet
 from .StressRunResultViewSet import StressRunResultViewSet as StressRunResultViewSet
 from .ProjectdownloadViewSet import ProjectdownloadViewSet as ProjectdownloadViewSet
+from .ProjectFactoryWitnessViewSet import ProjectFactoryWitnessViewSet as ProjectFactoryWitnessViewSet

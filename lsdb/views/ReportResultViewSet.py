@@ -126,7 +126,13 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                 return '#f51111'
 
         elif report.data_ready_status in ['Factory Witness']:
-            return '#4ef542'
+            work_order = WorkOrder.objects.get(id=work_order_id)
+            project_id = work_order.project.id
+            if ProjectFactoryWitness.objects.filter(project_id=project_id,factory_witness=True).exists():
+                return '#4ef542'
+            else:
+                return '#f51111'
+        
         elif report.data_ready_status in ['Define']:
             return '#FAA405'
         else:

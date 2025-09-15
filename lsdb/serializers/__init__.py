@@ -208,3 +208,4 @@ from .AssetSubAssetSerializer import AssetSubAssetSerializer as AssetSubAssetSer
 from .SubAssetSerializer import SubAssetSerializer as SubAssetSerializer
 from .StressRunResultSerializer import StressRunResultSerializer as StressRunResultSerializer
 from .ProjectdownloadSerializer import ProjectdownloadSerializer as ProjectdownloadSerializer
+from .ProjectFactoryWitnessSerializer import ProjectFactoryWitnessSerializer as ProjectFactoryWitnessSerializer
