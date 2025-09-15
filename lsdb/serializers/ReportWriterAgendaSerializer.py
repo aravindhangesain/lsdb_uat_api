@@ -32,7 +32,6 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     is_checklist = serializers.SerializerMethodField()
     is_superuser = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
-    procedure_definition_name = serializers.SerializerMethodField()
 
     def get_status(self, obj):
         return "In-Progress"
