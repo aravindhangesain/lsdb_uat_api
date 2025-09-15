@@ -1,6 +1,7 @@
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from lsdb.models import *
 from lsdb.serializers import *
+from rest_framework.response import Response
 
 
 class ProjectFactoryWitnessViewSet(viewsets.ModelViewSet):
@@ -19,7 +20,7 @@ class ProjectFactoryWitnessViewSet(viewsets.ModelViewSet):
             for work_order in work_orders:
                 reports = ReportResult.objects.filter(work_order=work_order)
                 for report in reports:
-                    if report.data_ready_status == 'Factory Witness':
+                    if report.data_ready_status == 'Factory witness':
                         report.hex_color = '#4ef542'
                         report.save()
         headers = self.get_success_headers(serializer.data)
