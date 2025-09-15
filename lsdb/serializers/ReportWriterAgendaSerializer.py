@@ -45,14 +45,11 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         if user:
             report_type_id = obj.report_type_definition
             if report_type_id is not None:
-                report_type = ReportTeam.objects.get(report_type = report_type_id)
-            
-                writer_name= report_type.writer.username
-                if user.username == writer_name or user.is_superuser==True:
-                    return True
-                return False
-            else:
-                return None
+                report_team = ReportTeam.objects.filter(report_type=report_type_id).first()
+                if report_team and report_team.writer:
+                    writer_name = report_team.writer.username
+                    return user.username == writer_name or user.is_superuser
+            return None
     
     def get_is_superuser(self, obj):
         user = self.context['request'].user
@@ -68,14 +65,13 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         if user:
             report_type_id = obj.report_type_definition
             if report_type_id is not None:
-                report_type = ReportTeam.objects.get(report_type = report_type_id)
-            
-                reviewer_name= report_type.reviewer.username
-                if user.username == reviewer_name or user.is_superuser==True:
-                    return True
-                return False
-            else:
-                return None
+                report_team = ReportTeam.objects.filter(report_type=report_type_id).first()
+                if report_team and report_team.reviewer:
+                    return user.username == report_team.reviewer.username or user.is_superuser
+            return None
+
+        
+
         
 
             

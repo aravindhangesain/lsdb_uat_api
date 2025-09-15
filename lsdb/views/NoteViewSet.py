@@ -745,6 +745,13 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
             # Notifications on New:
             if owner != request.user and owner != None:
                 note_id=new_note.id
+
+                serial_number = None
+                valid_workorder = None
+                valid_project = None
+                valid_customer = None
+                test_name = None
+
                 units=Unit.objects.all()
                 note_unit=units.filter(notes__id=note_id).first()
                 if note_unit:
@@ -762,21 +769,23 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
                             test_name= note_procedure.procedure_definition.name
 
                 email_notify = Notification()
-                email_notify.throttled_email(
-                    template='assigned_owner',
-                    user=owner,
-                    ticket_id=new_note.id,
-                    ticket_link=get_note_link(new_note),
-                    # ticket_link_pichina = get_note_link_pichina(new_note),
-                    ticket_subject=new_note.subject,
-                    ticket_body=new_note.text,
-                    bom=valid_workorder.name,
-                    project_number=valid_project.number,
-                    serial_number=serial_number,
-                    customer=valid_customer.name,
-                    test_name=test_name
+                email_kwargs = {
+                    "template": "assigned_owner",
+                    "user": owner,
+                    "ticket_id": new_note.id,
+                    "ticket_link": get_note_link(new_note),
+                    "ticket_subject": new_note.subject,
+                    "ticket_body": new_note.text,
+                    "bom": valid_workorder.name if valid_workorder else "",
+                    "project_number": valid_project.number if valid_project else "",
+                    "serial_number": serial_number or "",
+                    "customer": valid_customer.name if valid_customer else "",
+                }
+                if test_name:  # add only if a value was found
+                    email_kwargs["test_name"] = test_name
                     
-                )
+                email_notify.throttled_email(**email_kwargs)
+                
             for user_id in params.get('tagged_users'):
                 tagged_user = User.objects.get(id=user_id)
                 if tagged_user != request.user:
