@@ -152,7 +152,6 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
                     customer = report_result.work_order.project.customer.name
                     project_number = report_result.work_order.project.number
                     bom = report_result.work_order.name
-                    report_file = ReportFileTemplate.objects.filter(report=report_result).last()
                     report_type = report_result.report_type_definition.name
                     try:
                         report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
@@ -164,15 +163,7 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
                     report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
                     report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
                     report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
-                    try:
-                        agenda = ReportWriterAgenda.objects.get(report_result=report_result)
-                        contractually_obligated_date = (
-                            agenda.contractually_obligated_date.strftime('%Y-%m-%d %H:%M:%S')
-                            if agenda.contractually_obligated_date
-                            else "Not Set"
-                        )
-                    except ReportWriterAgenda.DoesNotExist:
-                        contractually_obligated_date = "Not Set"
+                    
                     recipient_list = []
                     seen_emails = set()
                     for usr in [writer_user, reviewer_user, approver_user]:
@@ -219,7 +210,7 @@ class ReportChecklistDataViewSet(viewsets.ModelViewSet):
                     checklist_table += "</table>"
                     email_body = f"""
                         <p><strong>Hi Team,</strong></p>
-                        <p><strong>Check List Data</strong> has been Updated by <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong><Strong> for - File Name: {report_file.name}</strong>.</p>
+                        <p><strong>Check List Data</strong> has been Updated by <strong>{reviewer_user.get_full_name() or reviewer_user.username}</strong>.</p>
                         <p><strong>Details:</strong></p>
                         <table style="border-collapse: collapse;">
                         <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
