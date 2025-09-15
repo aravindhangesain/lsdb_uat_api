@@ -35,10 +35,8 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     procedure_definition_name = serializers.SerializerMethodField()
 
     def get_status(self, obj):
-        return None
+        return "In-Progress"
     
-    def get_procedure_definition_name(self, obj):
-        return None
 
     def get_is_writer(self, obj):
         user = self.context['request'].user
@@ -268,5 +266,4 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'is_approved',
             'is_checklist',
             'status',
-            'procedure_definition_name',
         ]
