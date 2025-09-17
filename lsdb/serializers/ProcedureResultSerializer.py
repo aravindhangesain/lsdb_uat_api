@@ -4,7 +4,7 @@ import pandas as pd
 
 from rest_framework import serializers
 from django.db.models import Q
-from lsdb.models import ProcedureResult, StepResult, Unit, UnitType, ModuleProperty,WorkOrder
+from lsdb.models import Asset, AssetCalibration, ProcedureResult, StepResult, StressRunResult, Unit, UnitType, ModuleProperty,WorkOrder
 from lsdb.models import MeasurementResult, MeasurementCorrectionFactor
 from lsdb.models import ProcedureResult_FinalResult
 from lsdb.serializers.StepResultSerializer import StepResultSerializer
@@ -110,6 +110,7 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     has_notes = serializers.SerializerMethodField()
     open_notes = serializers.SerializerMethodField()
     final_result = serializers.SerializerMethodField()
+    last_calibration_date = serializers.SerializerMethodField()
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -354,6 +355,19 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
         ).distinct().values_list('asset__name')
         assets = set(measurements)
         return assets
+    
+    def get_last_calibration_date(self, obj):
+        measurements = (MeasurementResult.objects.filter(step_result__in=obj.stepresult_set.all(), disposition__isnull=False).distinct().values_list('asset__name', flat=True))
+        assets = set(measurements)
+        last_calibration_date=[]
+        for asset_name in assets:
+            asset=Asset.objects.get(name=asset_name)
+            measurement_result=MeasurementResult.objects.filter(step_result_id__in=obj.stepresult_set.all(),asset_id=asset.id).order_by('-date_time').first()
+
+            if measurement_result and measurement_result is not None:
+                last_calibration_date.append(measurement_result.date_time if measurement_result else None)
+            
+        return last_calibration_date
 
     class Meta:
         model = ProcedureResult
@@ -368,6 +382,7 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
             'flash_values',
             'iv_curves',
             'assets',
+            'last_calibration_date',
             'has_notes',
             'open_notes',
             'final_result'
@@ -387,6 +402,7 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
     has_notes = serializers.SerializerMethodField()
     open_notes = serializers.SerializerMethodField()
     final_result = serializers.SerializerMethodField()
+    last_calibration_date = serializers.SerializerMethodField()
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -420,6 +436,21 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
         ).distinct().values_list('asset__name')
         assets = set(measurements)
         return assets
+    
+    def get_last_calibration_date(self, obj):
+        measurements = (MeasurementResult.objects.filter(step_result__in=obj.stepresult_set.all(), disposition__isnull=False).distinct().values_list('asset__name', flat=True))
+        assets = set(measurements)
+        last_calibration_date=[]
+        for asset_name in assets:
+            asset=Asset.objects.get(name=asset_name)
+            measurement_result=MeasurementResult.objects.filter(step_result_id__in=obj.stepresult_set.all(),asset_id=asset.id).order_by('-date_time').first()
+
+            if measurement_result and measurement_result is not None:
+                last_calibration_date.append(measurement_result.date_time if measurement_result else None)
+            
+        return last_calibration_date
+                
+
 
     class Meta:
         model = ProcedureResult
@@ -449,6 +480,7 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
             'step_results',
             'visualizer',
             'assets',
+            'last_calibration_date',
             'has_notes',
             'open_notes',
             'final_result'
@@ -501,6 +533,8 @@ class ProcedureResultStressSerializer(serializers.HyperlinkedModelSerializer):
         ).distinct().values_list('asset__name')
         assets = set(measurements)
         return assets
+    
+    
 
     class Meta:
         model = ProcedureResult
