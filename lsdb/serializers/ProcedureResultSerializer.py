@@ -357,16 +357,40 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
         return assets
     
     def get_last_calibration_date(self, obj):
-        measurements = (MeasurementResult.objects.filter(step_result__in=obj.stepresult_set.all(), disposition__isnull=False).distinct().values_list('asset__name', flat=True))
-        assets = set(measurements)
-        last_calibration_date=[]
-        for asset_name in assets:
-            asset=Asset.objects.get(name=asset_name)
-            measurement_result=MeasurementResult.objects.filter(step_result_id__in=obj.stepresult_set.all(),asset_id=asset.id).order_by('-date_time').first()
+        measurements = (
+            MeasurementResult.objects
+            .filter(
+                step_result__in=obj.stepresult_set.all(),
+                disposition__isnull=False,
+                asset__isnull=False,
+                asset__name__isnull=False
+            )
+            .values_list('asset__name', flat=True)
+            .distinct()
+        )
 
-            if measurement_result and measurement_result is not None:
-                last_calibration_date.append(measurement_result.date_time if measurement_result else None)
-            
+        assets = set(measurements)
+        last_calibration_date = []
+
+        for asset_name in assets:
+            # safer: won't raise if asset is missing
+            asset = Asset.objects.filter(name=asset_name).first()
+            if not asset:
+                continue  # skip if no matching Asset
+
+            measurement_result = (
+                MeasurementResult.objects
+                .filter(
+                    step_result_id__in=obj.stepresult_set.all(),
+                    asset_id=asset.id
+                )
+                .order_by('-date_time')
+                .first()
+            )
+
+            if measurement_result and measurement_result.date_time:
+                last_calibration_date.append(measurement_result.date_time)
+
         return last_calibration_date
 
     class Meta:
@@ -438,16 +462,40 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
         return assets
     
     def get_last_calibration_date(self, obj):
-        measurements = (MeasurementResult.objects.filter(step_result__in=obj.stepresult_set.all(), disposition__isnull=False).distinct().values_list('asset__name', flat=True))
-        assets = set(measurements)
-        last_calibration_date=[]
-        for asset_name in assets:
-            asset=Asset.objects.get(name=asset_name)
-            measurement_result=MeasurementResult.objects.filter(step_result_id__in=obj.stepresult_set.all(),asset_id=asset.id).order_by('-date_time').first()
+        measurements = (
+            MeasurementResult.objects
+            .filter(
+                step_result__in=obj.stepresult_set.all(),
+                disposition__isnull=False,
+                asset__isnull=False,
+                asset__name__isnull=False
+            )
+            .values_list('asset__name', flat=True)
+            .distinct()
+        )
 
-            if measurement_result and measurement_result is not None:
-                last_calibration_date.append(measurement_result.date_time if measurement_result else None)
-            
+        assets = set(measurements)
+        last_calibration_date = []
+
+        for asset_name in assets:
+            # safer: won't raise if asset is missing
+            asset = Asset.objects.filter(name=asset_name).first()
+            if not asset:
+                continue  # skip if no matching Asset
+
+            measurement_result = (
+                MeasurementResult.objects
+                .filter(
+                    step_result_id__in=obj.stepresult_set.all(),
+                    asset_id=asset.id
+                )
+                .order_by('-date_time')
+                .first()
+            )
+
+            if measurement_result and measurement_result.date_time:
+                last_calibration_date.append(measurement_result.date_time)
+
         return last_calibration_date
                 
 
@@ -500,6 +548,7 @@ class ProcedureResultStressSerializer(serializers.HyperlinkedModelSerializer):
     has_notes = serializers.SerializerMethodField()
     open_notes = serializers.SerializerMethodField()
     final_result = serializers.SerializerMethodField()
+    last_calibration_date = serializers.SerializerMethodField()
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -534,8 +583,25 @@ class ProcedureResultStressSerializer(serializers.HyperlinkedModelSerializer):
         assets = set(measurements)
         return assets
     
-    
+    def get_last_calibration_date(self, obj):
 
+        step_results=StepResult.objects.filter(procedure_result_id=obj.id,name__in=['Test Start','Test Resume'])
+
+        for step in step_results:
+            if step.name=='Test Resume':
+                measurement=MeasurementResult.objects.get(step_result_id=step.id)
+                if measurement and measurement.result_datetime:
+                    return [measurement.result_datetime]
+                else:
+                    continue
+            elif step.name=='Test Start':
+                measurement=MeasurementResult.objects.get(step_result_id=step.id)
+                if measurement and measurement.result_datetime:
+                    return [measurement.result_datetime]
+        return None
+                
+        
+                
     class Meta:
         model = ProcedureResult
         fields = [
@@ -564,6 +630,7 @@ class ProcedureResultStressSerializer(serializers.HyperlinkedModelSerializer):
             'step_results',
             'visualizer',
             'assets',
+            'last_calibration_date',
             'has_notes',
             'open_notes',
             'final_result'
