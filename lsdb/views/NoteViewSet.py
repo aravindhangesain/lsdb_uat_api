@@ -99,15 +99,15 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
                 if parent['model_name'] == 'project':
                     project_number = parent['str']
             writer.writerow([
-                data['id'],
-                data['username'],
-                data['owner_name'],
-                data['datetime'],
-                data['subject'],
-                data['text'],
-                data['note_type_name'],
+                data.get('id', ''),
+                data.get('username', ''),
+                data.get('owner_name', ''),
+                data.get('datetime', ''),
+                data.get('subject', ''),
+                data.get('text', ''),
+                data.get('note_type_name', ''),
                 project_number
-            ])
+        ])
 
         return response
 
