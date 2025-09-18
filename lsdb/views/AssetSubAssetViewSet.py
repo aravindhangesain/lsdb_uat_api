@@ -52,7 +52,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 procedure_result_id=step_result.procedure_result_id
 
 
-                if step_result.name=='Test Start' and SubAsset.objects.filter(id__in=sub_asset_ids,disposition_id=[16,None]) and not StressRunResult.objects.filter(step_result_id=step_result_id):
+                if step_result.name=='Test Start' and SubAsset.objects.filter(id__in=sub_asset_ids,disposition_id__in=[16,None]) and not StressRunResult.objects.filter(step_result_id=step_result_id).exists():
                     stress_run_result=StressRunResult.objects.create(run_name=run_name,
                                                                     asset_id=asset_id,
                                                                     step_result_id=step_result_id,
