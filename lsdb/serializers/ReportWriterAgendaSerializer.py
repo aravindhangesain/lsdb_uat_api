@@ -32,6 +32,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     is_checklist = serializers.SerializerMethodField()
     is_superuser = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    procedure_definition_name=serializers.SerializerMethodField()
 
     def get_status(self, obj):
         return "In-Progress"
@@ -230,6 +231,91 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
     def get_is_checklist(self, obj):
 
         return ReportChecklistData.objects.filter(report=obj).exists()
+    
+    def get_procedure_definition_name(self, obj):
+        
+        if obj.hex_color=="#f51111":
+            work_order_id=obj.work_order_id
+
+            workorder = WorkOrder.objects.get(id=work_order_id)
+
+            workorder_units = workorder.units.all()
+            if obj.data_ready_status in ['Module Intake']:
+                progress_details = []
+                for unit in workorder_units:
+
+                    
+                    bom_procedure_results=ProcedureResult.objects.filter(unit_id=unit.id,linear_execution_group=1).order_by('procedure_definition__name')
+
+                    
+
+                    for procedure_result in bom_procedure_results:
+                        if procedure_result.disposition_id not in [2, 10, 20]:
+
+                            if procedure_result.disposition_id==8 and ProcedureResult.objects.filter(procedure_definition=procedure_result.procedure_definition,
+                                                            test_sequence_definition=procedure_result.test_sequence_definition,
+                                                            linear_execution_group=procedure_result.linear_execution_group,disposition_id__in=[2,10,20]).exists():
+                                continue
+                            else:         
+                                progress_details.append({"procedure_definition_name": procedure_result.procedure_definition.name})
+                                break
+                        else:
+                            continue
+                if progress_details:
+                    return progress_details[0]
+                return None  
+
+                        
+
+
+            elif obj.data_ready_status in ['Factory witness']:
+                project_id = workorder.project.id
+                progress_details = []
+                if not ProjectFactoryWitness.objects.filter(project_id=project_id,factory_witness=True).exists():
+                    progress_details.append({"procedure_definition_name": "Factory Witness"})
+                    if progress_details:
+                        return progress_details
+                    return None
+
+
+
+
+            else:
+                progress_details = []
+                for unit in workorder_units:
+                    unit_id = unit.id
+                    
+                    
+                    selected_execution_number=ProcedureExecutionOrder.objects.filter(
+                        execution_group_name=obj.data_ready_status,
+                        test_sequence_id=obj.test_sequence_definition.id
+                        ).first()
+                    procedure_results = ProcedureResult.objects.filter(
+                            unit_id=unit_id,
+                            linear_execution_group__lte=selected_execution_number.execution_group_number
+                        ).order_by('procedure_definition__name')
+                    
+                                                                        
+                    for procedure in procedure_results:
+                        if procedure.disposition_id not in [2, 10, 20]:
+
+                            if procedure.disposition_id==8 and ProcedureResult.objects.filter(procedure_definition=procedure.procedure_definition,
+                                                            test_sequence_definition=procedure.test_sequence_definition,
+                                                            linear_execution_group=procedure.linear_execution_group,disposition_id__in=[2,10,20]).exists():
+                                continue
+                            else:
+                                progress_details.append({"procedure_definition_name": procedure.procedure_definition.name})
+                                break
+                        else:
+                            continue
+
+                if progress_details:
+                    return progress_details[0]
+                return None
+            
+        else:
+            return None 
+            
 
         
                                
@@ -265,4 +351,5 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             'is_approved',
             'is_checklist',
             'status',
+            'procedure_definition_name'
         ]

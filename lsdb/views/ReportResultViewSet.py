@@ -64,7 +64,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             
             bom_procedure_results=ProcedureResult.objects.filter(work_order_id=work_order_id,linear_execution_group=1).order_by('linear_execution_group')
             
-            if all(procedure_result.disposition_id in [2,20,10,8,13] for procedure_result in bom_procedure_results):
+            if all(procedure_result.disposition_id in [2,20,10,8] for procedure_result in bom_procedure_results):
                 try:
                     project = Project.objects.get(id=project_id)
                     customer = project.customer.name if project.customer else "Not Set"
@@ -120,7 +120,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                         {"error": "Module Intake completed but failed to send email.", "details": str(e)},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
-
+                 
                 return '#4ef542'  
             else:
                 return '#f51111'
@@ -263,4 +263,107 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         incomplete_data_ready_status=ReportResult.objects.filter(hex_color='#f51111').exclude(data_ready_status__in=['Define'])
         serializer=ReportWriterAgendaSerializer(incomplete_data_ready_status,many=True,context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get','post'])
+    def report_progress(self, request):
+        if request.method == 'POST':
+            report_result_id=request.data.get('report_result_id')
+
+            report_result=ReportResult.objects.get(id=report_result_id)
+            work_order_id=report_result.work_order.id
+
+            workorder = WorkOrder.objects.get(id=work_order_id)
+
+            workorder_units = workorder.units.all()
+            if report_result.data_ready_status in ['Module Intake']:
+                progress_details = []
+                for unit in workorder_units:
+
+                    
+                    bom_procedure_results=ProcedureResult.objects.filter(unit_id=unit.id,linear_execution_group=1).order_by('procedure_definition__name')
+
+                    
+
+                    for procedure_result in bom_procedure_results:
+                        if procedure_result.disposition_id not in [2, 10, 20]:
+
+                            if procedure_result.disposition_id==8 and ProcedureResult.objects.filter(procedure_definition=procedure_result.procedure_definition,
+                                                            test_sequence_definition=procedure_result.test_sequence_definition,
+                                                            linear_execution_group=procedure_result.linear_execution_group,disposition_id__in=[2,10,20]).exists():
+                                continue
+                            else:         
+                                progress_details.append({
+                                "unit_serial_number": unit.serial_number,
+                                "execution_group_name": procedure_result.name,
+                                "procedure_definition_name": procedure_result.procedure_definition.name,
+                                "message":"N/A",
+                                "is_factory_witness": False
+
+                            })
+                            break
+                        else:
+                            continue
+
+                return Response({"incomplete_procedures": progress_details}, status=status.HTTP_200_OK)
+
+                        
+
+
+            elif report_result.data_ready_status in ['Factory witness']:
+                project_id = workorder.project.id
+                project= Project.objects.get(id=project_id)
+                progress_details = []
+                if not ProjectFactoryWitness.objects.filter(project_id=project_id,factory_witness=True).exists():
+                    progress_details.append({
+                        "is_factory_witness": True,
+                        "message": "Factory Witness not completed.Please update the factory witness status for project:"+ str(project.number)
+                    })
+                    return Response({"incomplete_procedures": progress_details}, status=status.HTTP_200_OK)
+
+
+
+
+            else:
+                progress_details = []
+                for unit in workorder_units:
+                    unit_id = unit.id
+                    
+                    selected_execution_number=ProcedureExecutionOrder.objects.filter(
+                        execution_group_name=report_result.data_ready_status,
+                        test_sequence_id=report_result.test_sequence_definition.id
+                        ).first()
+                    procedure_results = ProcedureResult.objects.filter(
+                            unit_id=unit_id,
+                            linear_execution_group__lte=selected_execution_number.execution_group_number
+                        ).order_by('procedure_definition__name')
+                    
+                                                                        
+                    for procedure in procedure_results:
+                        if procedure.disposition_id not in [2, 10, 20]:
+
+                            if procedure.disposition_id==8 and ProcedureResult.objects.filter(procedure_definition=procedure.procedure_definition,
+                                                            test_sequence_definition=procedure.test_sequence_definition,
+                                                            linear_execution_group=procedure.linear_execution_group,disposition_id__in=[2,10,20]).exists():
+                                continue
+                            else:
+                                progress_details.append({
+                                "unit_serial_number": unit.serial_number,
+                                "execution_group_name": procedure.name,
+                                "procedure_definition_name": procedure.procedure_definition.name,
+                                "message":"N/A",
+                                "is_factory_witness": False
+                            })
+                            break
+                        else:
+                            continue
+
+                return Response({"incomplete_procedures": progress_details}, status=status.HTTP_200_OK)
+            
+        else:
+            return Response({"message":"Only post method allowed"},status=status.HTTP_400_BAD_REQUEST)  
+            
+
+
+
+
 
