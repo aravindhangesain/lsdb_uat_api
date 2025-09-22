@@ -65,72 +65,79 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             bom_procedure_results=ProcedureResult.objects.filter(work_order_id=work_order_id,linear_execution_group=1).order_by('linear_execution_group')
             
             if all(procedure_result.disposition_id in [2,20,10,8] for procedure_result in bom_procedure_results):
-                # procedure_results_with_8 = [pr for pr in bom_procedure_results if pr.disposition_id == 8]
-                # for procedure in procedure_results_with_8:
-                #     if ProcedureResult.objects.filter(procedure_definition=procedure.procedure_definition,
-                #                                      test_sequence_definition=procedure.test_sequence_definition,
-                #                                      linear_execution_group=procedure.linear_execution_group,
-                #                                      disposition_id__in=[2,10,20]).exists():
+                procedure_results_with_8 = [pr for pr in bom_procedure_results if pr.disposition_id == 8]
+                
+                is_completed=all(
+                    ProcedureResult.objects.filter(
+                        procedure_definition=procedure.procedure_definition,
+                        test_sequence_definition=procedure.test_sequence_definition,
+                        linear_execution_group=procedure.linear_execution_group,
+                        disposition_id__in=[2,10,20]
+                        ).exists()
+                        for procedure in procedure_results_with_8
+                    )
                                                      
                         
-
-                try:
-                    project = Project.objects.get(id=project_id)
-                    customer = project.customer.name if project.customer else "Not Set"
-                    project_number = project.number
-                    work_order = WorkOrder.objects.get(id=work_order_id)
-                    bom = work_order.name
-
+                if is_completed:
                     try:
-                        report_team = ReportTeam.objects.get(report_type=report.report_definition_id)
-                        writer_user = report_team.writer
-                        reviewer_user = report_team.reviewer
-                        approver_user = report_team.approver or project.project_manager
-                    except ReportTeam.DoesNotExist:
-                        writer_user = reviewer_user = approver_user = None
+                        project = Project.objects.get(id=project_id)
+                        customer = project.customer.name if project.customer else "Not Set"
+                        project_number = project.number
+                        work_order = WorkOrder.objects.get(id=work_order_id)
+                        bom = work_order.name
 
-                    report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
-                    report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
-                    report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                        try:
+                            report_team = ReportTeam.objects.get(report_type=report.report_definition_id)
+                            writer_user = report_team.writer
+                            reviewer_user = report_team.reviewer
+                            approver_user = report_team.approver or project.project_manager
+                        except ReportTeam.DoesNotExist:
+                            writer_user = reviewer_user = approver_user = None
 
-                    recipient_list = []
-                    seen_emails = set()
-                    for usr in [writer_user, reviewer_user, approver_user]:
-                        if usr and usr.email and usr.email not in seen_emails:
-                            recipient_list.append(usr.email)
-                            seen_emails.add(usr.email)
+                        report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+                        report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+                        report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
 
-                    email_body = f"""
-                        <p><strong>Hi Team,</strong></p>
-                        <p> <strong>Module Intake</strong> steps are now completed for <strong>Project {project_number}</strong>. This Report has been moved to Report Writer's Agenda.</p>
-                        <p><strong>Details:</strong></p>
-                        <table style="border-collapse: collapse;">
-                        <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
-                        <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
-                        <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
-                        <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
-                        <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
-                        <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
-                        </table>
-                        <p><strong>Regards,</strong><br>PVEL System</p>
-                    """
+                        recipient_list = []
+                        seen_emails = set()
+                        for usr in [writer_user, reviewer_user, approver_user]:
+                            if usr and usr.email and usr.email not in seen_emails:
+                                recipient_list.append(usr.email)
+                                seen_emails.add(usr.email)
 
-                    email = EmailMessage(
-                        subject=f'[PVEL] Module Intake Completed - Project {project_number}',
-                        body=email_body,
-                        from_email='support@pvel.com',
-                        to=recipient_list,
-                    )
-                    email.content_subtype = "html"
-                    email.send(fail_silently=False)
+                        email_body = f"""
+                            <p><strong>Hi Team,</strong></p>
+                            <p> <strong>Module Intake</strong> steps are now completed for <strong>Project {project_number}</strong>. This Report has been moved to Report Writer's Agenda.</p>
+                            <p><strong>Details:</strong></p>
+                            <table style="border-collapse: collapse;">
+                            <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                            <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                            <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                            <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                            <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                            <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                            </table>
+                            <p><strong>Regards,</strong><br>PVEL System</p>
+                        """
 
-                except Exception as e:
-                    return Response(
-                        {"error": "Module Intake completed but failed to send email.", "details": str(e)},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                    )
-                 
-                return '#4ef542'  
+                        email = EmailMessage(
+                            subject=f'[PVEL] Module Intake Completed - Project {project_number}',
+                            body=email_body,
+                            from_email='support@pvel.com',
+                            to=recipient_list,
+                        )
+                        email.content_subtype = "html"
+                        email.send(fail_silently=False)
+
+                    except Exception as e:
+                        return Response(
+                            {"error": "Module Intake completed but failed to send email.", "details": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
+                    
+                    return '#4ef542'
+                else:
+                    return '#f51111'
             else:
                 return '#f51111'
 
@@ -144,8 +151,8 @@ class ReportResultViewSet(viewsets.ModelViewSet):
         
         elif report.data_ready_status in ['Define']:
             return '#FAA405'
-        else:
-            if tsd_id:
+        
+        elif tsd_id:
                 workorder = WorkOrder.objects.get(id=work_order_id)
                 workorder_units = workorder.units.all()
                 for unit in workorder_units:
@@ -157,11 +164,25 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                             unit_id=unit_id,
                             procedure_definition_id__in=valid_procedure_definitions
                         )
-                    if not all(procedure.disposition_id in [2, 10, 20] for procedure in procedure_results):
+                    if not all(procedure.disposition_id in [2, 10, 20, 8] for procedure in procedure_results):
                             return '#f51111'
+
+                    procedure_results_with_8 = [pr for pr in procedure_results if pr.disposition_id == 8]
+                
+                    is_completed=all(
+                        ProcedureResult.objects.filter(
+                            procedure_definition=procedure.procedure_definition,
+                            test_sequence_definition=procedure.test_sequence_definition,
+                            linear_execution_group=procedure.linear_execution_group,
+                            disposition_id__in=[2,10,20]
+                            ).exists()
+                            for procedure in procedure_results_with_8
+                        )
+                    if not is_completed:
+                        return '#f51111'
+
                 return '#4ef542'
-            else:
-                return None
+            
         
 
     @transaction.atomic
