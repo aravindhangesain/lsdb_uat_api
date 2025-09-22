@@ -267,7 +267,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get','post'])
     def report_progress(self, request):
         if request.method == 'POST':
-            report_result_id=request.data.get('report_result_id')
+            report_result_id=request.query_params.get('report_result_id') 
 
             report_result=ReportResult.objects.get(id=report_result_id)
             work_order_id=report_result.work_order.id
