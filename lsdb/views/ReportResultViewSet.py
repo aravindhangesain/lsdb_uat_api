@@ -65,6 +65,15 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             bom_procedure_results=ProcedureResult.objects.filter(work_order_id=work_order_id,linear_execution_group=1).order_by('linear_execution_group')
             
             if all(procedure_result.disposition_id in [2,20,10,8] for procedure_result in bom_procedure_results):
+                # procedure_results_with_8 = [pr for pr in bom_procedure_results if pr.disposition_id == 8]
+                # for procedure in procedure_results_with_8:
+                #     if ProcedureResult.objects.filter(procedure_definition=procedure.procedure_definition,
+                #                                      test_sequence_definition=procedure.test_sequence_definition,
+                #                                      linear_execution_group=procedure.linear_execution_group,
+                #                                      disposition_id__in=[2,10,20]).exists():
+                                                     
+                        
+
                 try:
                     project = Project.objects.get(id=project_id)
                     customer = project.customer.name if project.customer else "Not Set"
@@ -266,7 +275,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get','post'])
     def report_progress(self, request):
-        if request.method == 'POST':
+        if request.method == 'GET':
             report_result_id=request.query_params.get('report_result_id') 
 
             report_result=ReportResult.objects.get(id=report_result_id)
@@ -360,7 +369,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                 return Response({"incomplete_procedures": progress_details}, status=status.HTTP_200_OK)
             
         else:
-            return Response({"message":"Only post method allowed"},status=status.HTTP_400_BAD_REQUEST)  
+            return Response({"message":"Only GET method allowed"},status=status.HTTP_400_BAD_REQUEST)  
             
 
 
