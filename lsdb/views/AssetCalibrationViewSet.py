@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from lsdb.models import Asset, AssetCalibration
-from lsdb.serializers import AssetCalibrationSerializer
+from lsdb.models import *
+from lsdb.serializers import *
 from django.db import connection
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -27,6 +27,16 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                     "INSERT INTO lsdb_asset_asset_types (asset_id, assettype_id) VALUES (%s, %s)",
                     [asset.id, asset_calibration.asset_type.id]
                 )
+        if asset_calibration.is_main_asset is False:
+            if asset_calibration.is_main_asset is False:
+                SubAsset.objects.create(
+                    sub_asset_name=asset_calibration.asset_name,
+                    asset_number = asset_calibration.asset_number,
+                    description = asset_calibration.description,
+                    last_calibrated_date = asset_calibration.last_calibrated_date,
+                    next_calibration = asset_calibration.schedule_for_calibration,
+                    disposition_id = 16
+                )         
 
     @action(detail=False, methods=['get'])
     def asset_info(self, request):
