@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework_tracking.mixins import LoggingMixin
 from rest_framework.status import (HTTP_400_BAD_REQUEST)
 
-from lsdb.models import StepResult
+from lsdb.models import *
 from lsdb.models import Disposition
 from lsdb.models import DispositionCode
 from lsdb.models import MeasurementResult
@@ -24,13 +24,15 @@ from lsdb.models import ProcedureDefinition
 from lsdb.models import TestSequenceDefinition
 from lsdb.models import Unit
 
-from lsdb.serializers import StepResultSerializer
+from lsdb.serializers import *
 from lsdb.serializers import DispositionCodeListSerializer
 from lsdb.serializers import ProcedureResultSerializer
 from lsdb.permissions import ConfiguredPermission
 from lsdb.utils import DeferredFile
 from lsdb.utils import RetestUtils
 from lsdb.utils.HasHistory import unit_completion, unit_revenue
+from django.core.mail import EmailMessage
+
 
 class ManageResultViewSet(LoggingMixin, viewsets.ModelViewSet):
     """
@@ -412,6 +414,8 @@ class ManageResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             params = json.loads(request.body)
             try:
                 result = ProcedureResult.objects.get(id=params.get('procedure_result'))
+                
+
             except:
                 errors.append(
                         "Error: requested procedure result {} does not exist".format(params.get('procedure_result'))
@@ -426,6 +430,158 @@ class ManageResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                 return Response(errors)
             result.disposition = disposition
             result.save()
+
+            ## Report Data Ready Status Update Login(Not AI generated ^_^)
+            if ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exists():
+                valid_report=ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exclude(data_ready_status__in=["Factory Witness","Define"]).first()
+                if valid_report and valid_report.data_ready_status in ['Module Intake']:
+                        procedure_results1= ProcedureResult.objects.filter(work_order=result.work_order,linear_execution_group=1).order_by('linear_execution_group')
+                        if all(procedure.disposition_id in [2, 10, 20, 8] for procedure in procedure_results1):
+                            
+                        
+                            procedure_results_with_8 = [pr for pr in procedure_results1 if pr.disposition_id == 8]
+                            print(procedure_results_with_8)
+                    
+                            is_completed=all(
+                                ProcedureResult.objects.filter(
+                                    procedure_definition=procedure.procedure_definition,
+                                    test_sequence_definition=procedure.test_sequence_definition,
+                                    linear_execution_group=procedure.linear_execution_group,
+                                    disposition_id__in=[2,10,20]
+                                    ).exists()
+                                    for procedure in procedure_results_with_8
+                                )
+                            print(is_completed)
+                            if is_completed:
+                                current_date=timezone.now()
+                                valid_report.hex_color='#4ef542'
+                                valid_report.ready_datetime=current_date
+                                valid_report.is_approved = False
+                                valid_report.save()
+                                
+                                customer = valid_report.work_order.project.customer.name
+                                project_number = valid_report.work_order.project.number
+                                bom = valid_report.work_order.name
+                                date_time = valid_report.ready_datetime
+                                try:
+                                    report_team = ReportTeam.objects.get(report_type=valid_report.report_type_definition)
+                                    writer_user = report_team.writer
+                                    reviewer_user = report_team.reviewer
+                                    approver_user = report_team.approver or valid_report.work_order.project.project_manager
+                                except ReportTeam.DoesNotExist:
+                                    writer_user = reviewer_user = approver_user = None
+                                report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+                                report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+                                report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                                recipient_list = []
+                                seen_emails = set()
+                                for usr in [writer_user, reviewer_user, approver_user]:
+                                    if usr and usr.email and usr.email not in seen_emails:
+                                        recipient_list.append(usr.email)
+                                        seen_emails.add(usr.email)
+                                email_body = f"""
+                                    <p><strong>Hi Team,</strong></p>
+                                    <p>The procedure has been completed, and the report has been moved to the Writer’s Agenda - Project Number: {project_number}.</p>
+                                    <p><strong>Details:</strong></p>
+                                    <table style="border-collapse: collapse;">
+                                    <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                                    <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                                    <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                                    <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                                    <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                                    <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                                    <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
+                                    </table>
+                                    <p><strong>Regards,</strong><br>PVEL System</p>
+                                """
+                                email = EmailMessage(
+                                    subject=f'[PVEL] Report Moved to Writer\'s Agenda - Project {project_number}',
+                                    body=email_body,
+                                    from_email='support@pvel.com',
+                                    to=recipient_list,
+                                )
+                                email.content_subtype = "html"
+                                email.send(fail_silently=False)
+                elif valid_report and valid_report.data_ready_status not in ['Module Intake']:
+                    procedure_exec_name=valid_report.data_ready_status
+                    valid_definitions=ProcedureExecutionOrder.objects.filter(execution_group_name=procedure_exec_name,test_sequence_id=result.test_sequence_definition.id).values_list('procedure_definition_id',flat=True)
+                    procedure_results = ProcedureResult.objects.filter(
+                        name=procedure_exec_name,
+                        work_order=result.work_order,
+                        procedure_definition_id__in=valid_definitions,
+                        test_sequence_definition_id=valid_report.test_sequence_definition.id
+                    )
+                    if not all(procedure.disposition_id in [2, 10, 20, 8] for procedure in procedure_results):
+                        serializer = ProcedureResultSerializer(result, many=False, context=self.context)
+                        return Response(serializer.data)
+                    
+
+                    procedure_results_with_8 = [pr for pr in procedure_results if pr.disposition_id == 8]
+                    print(procedure_results_with_8)
+            
+                    is_completed=all(
+                        ProcedureResult.objects.filter(
+                            procedure_definition=procedure.procedure_definition,
+                            test_sequence_definition=procedure.test_sequence_definition,
+                            linear_execution_group=procedure.linear_execution_group,
+                            disposition_id__in=[2,10,20]
+                            ).exists()
+                            for procedure in procedure_results_with_8
+                        )
+                    print(is_completed)
+                    if is_completed:  
+                        current_datetime=timezone.now()
+                        valid_report.hex_color='#4ef542'
+                        valid_report.ready_datetime=current_datetime
+                        valid_report.is_approved = False
+                        valid_report.save()
+                        
+                        customer = valid_report.work_order.project.customer.name
+                        project_number = valid_report.work_order.project.number
+                        bom = valid_report.work_order.name
+                        date_time = valid_report.ready_datetime
+                        try:
+                            report_team = ReportTeam.objects.get(report_type=valid_report.report_type_definition)
+                            writer_user = report_team.writer
+                            reviewer_user = report_team.reviewer
+                            approver_user = report_team.approver or valid_report.work_order.project.project_manager
+                        except ReportTeam.DoesNotExist:
+                            writer_user = reviewer_user = approver_user = None
+                        report_writer = writer_user.get_full_name() if writer_user else "Not Assigned"
+                        report_reviewer = reviewer_user.get_full_name() if reviewer_user else "Not Assigned"
+                        report_approver = approver_user.get_full_name() if approver_user else "Not Assigned"
+                        recipient_list = []
+                        seen_emails = set()
+                        for usr in [writer_user, reviewer_user, approver_user]:
+                            if usr and usr.email and usr.email not in seen_emails:
+                                recipient_list.append(usr.email)
+                                seen_emails.add(usr.email)
+                        email_body = f"""
+                            <p><strong>Hi Team,</strong></p>
+                            <p>The procedure has been completed, and the report has been moved to the Writer’s Agenda - Project Number: {project_number}.</p>
+                            <p><strong>Details:</strong></p>
+                            <table style="border-collapse: collapse;">
+                            <tr><td><strong>Customer:</strong></td><td>&nbsp;&nbsp;{customer}</td></tr>
+                            <tr><td><strong>BOM:</strong></td><td>&nbsp;&nbsp;{bom}</td></tr>
+                            <tr><td><strong>Project Number:</strong></td><td>&nbsp;&nbsp;{project_number}</td></tr>
+                            <tr><td><strong>Report Writer:</strong></td><td>&nbsp;&nbsp;{report_writer}</td></tr>
+                            <tr><td><strong>Report Approver:</strong></td><td>&nbsp;&nbsp;{report_approver}</td></tr>
+                            <tr><td><strong>Report Reviewer:</strong></td><td>&nbsp;&nbsp;{report_reviewer}</td></tr>
+                            <tr><td><strong>Start Date:</strong></td><td>&nbsp;&nbsp;{date_time}</td></tr>
+                            </table>
+                            <p><strong>Regards,</strong><br>PVEL System</p>
+                        """
+                        email = EmailMessage(
+                            subject=f'[PVEL] Report Moved to Writer\'s Agenda - Project {project_number}',
+                            body=email_body,
+                            from_email='support@pvel.com',
+                            to=recipient_list,
+                        )
+                        email.content_subtype = "html"
+                        email.send(fail_silently=False)
+                        
+
+
             for stepresult in result.stepresult_set.filter(disposition__isnull=False):
                 stepresult.disposition = disposition
                 stepresult.save()
