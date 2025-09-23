@@ -227,7 +227,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             many=False, context=self.context).data)
 
 
-    # @transaction.atomic
+    @transaction.atomic
     @action(detail=True, methods=['get','post'],
         serializer_class=ProcedureResultSerializer,
     )
