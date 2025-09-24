@@ -43,7 +43,6 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         asset_id = request.query_params.get('asset_id')
         if not asset_id:
             return Response({"error": "Asset ID is required"}, status=400)
-
         try:
             asset_calibration = AssetCalibration.objects.get(asset_id=asset_id)
             serializer = self.get_serializer(asset_calibration)
@@ -56,6 +55,15 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                 "is_calibration": data["is_calibration"],
                 "days_to_next_calibration": data["days_to_next_calibration"]
             }, status=200)
-
         except AssetCalibration.DoesNotExist:
             return Response({"error": "Asset Calibration not found"}, status=404)
+        
+    
+    @action(detail=False, methods=['get'])
+    def asset_list(self, request):
+        is_main_asset = request.query_params.get('is_main_asset')
+        if is_main_asset is None:
+            return Response({"error": "is_main_asset parameter is required"}, status=400)
+        assets = AssetCalibration.objects.filter(is_main_asset=is_main_asset)
+        serializer = self.get_serializer(assets, many=True) 
+        return Response(serializer.data, status=200)
