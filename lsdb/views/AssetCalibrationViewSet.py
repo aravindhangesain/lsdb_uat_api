@@ -42,13 +42,14 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     def psr_subassets(self,request):
         if self.request.method=='GET':
             
-            psr_subassets=AssetCalibration.objects.filter(is_main_asset=False,is_sub_asset=False,asset_type_id=66)
+            psr_subassets=AssetCalibration.objects.filter(is_main_asset=False,is_sub_asset=True,is_rack=False,asset_type_id=23)
             print(psr_subassets)
             valid_sub_assets=[]
             for psr_subasset in psr_subassets:
                 valid_sub_assets.append({
                                 "sub_asset_name":psr_subasset.asset_name or None,
                                 "disposition_id":psr_subasset.disposition.id or None,
+                                "sub_asset_number":psr_subasset.asset_number or None,
                                 "sub_asset_type":psr_subasset.asset_type.name or None
                             })
             return Response(valid_sub_assets)
@@ -64,15 +65,14 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post','get'])
     def link_asset_subasset(self,request):
         if self.request.method=='GET':
-            sub_assets=AssetCalibration.objects.filter(is_main_asset=False)
-            valid_subassets=[]
-            for subasset in sub_assets:
-                valid_subassets.append({
-                        "sub_asset_name":subasset.asset_name,
-                        "disposition_id":subasset.disposition.id,
-                        "sub_asset_type":subasset.asset_type.name
-                    })
-            return Response(valid_subassets)
+            is_main_asset = request.query_params.get('is_main_asset')
+            if is_main_asset is None:
+                return Response({"error": "is_main_asset parameter is required"}, status=400)
+            if isinstance(is_main_asset, str):
+                is_main_asset = is_main_asset.lower() in ['true', '1', 'yes']
+            assets = AssetCalibration.objects.filter(is_main_asset=is_main_asset)
+            serializer = self.get_serializer(assets, many=True) 
+            return Response(serializer.data, status=200)
             
         elif self.request.method=='POST':
             asset_id=self.request.data.get('asset_id')
@@ -81,6 +81,20 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             for sub_asset_id in sub_asset_ids:
                 AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
             return Response ({"detail":"Asset Linked"},status=200)
+        
+        elif self.request.method=='PUT':
+            asset_id=request.data.get('asset_id')
+            sub_asset_ids=request.data.get('sub_asset_ids')
+            AssetSubAsset.objects.filter(asset_id=asset_id).delete()
+            for sub_asset_id in sub_asset_ids:
+                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
+            return Response ({"detail":"Asset Re-Linked"},status=200)
+        
+        elif self.request.method=='DELETE':
+            asset_id=request.data.get('asset_id')
+            AssetSubAsset.objects.filter(asset_id=asset_id).delete()
+            return Response ({"detail":"Asset Unlinked"},status=200)
+
     
     
     @action(detail=False, methods=['get'])
@@ -104,11 +118,11 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             return Response({"error": "Asset Calibration not found"}, status=404)
         
     
-    @action(detail=False, methods=['get'])
-    def asset_list(self, request):
-        is_main_asset = request.query_params.get('is_main_asset')
-        if is_main_asset is None:
-            return Response({"error": "is_main_asset parameter is required"}, status=400)
-        assets = AssetCalibration.objects.filter(is_main_asset=is_main_asset)
-        serializer = self.get_serializer(assets, many=True) 
-        return Response(serializer.data, status=200)
+    # @action(detail=False, methods=['get'])
+    # def asset_list(self, request):
+    #     is_main_asset = request.query_params.get('is_main_asset')
+    #     if is_main_asset is None:
+    #         return Response({"error": "is_main_asset parameter is required"}, status=400)
+    #     assets = AssetCalibration.objects.filter(is_main_asset=is_main_asset)
+    #     serializer = self.get_serializer(assets, many=True) 
+    #     return Response(serializer.data, status=200)
