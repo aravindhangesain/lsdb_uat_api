@@ -82,5 +82,6 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'azurefile_download',
             'calibration_days',
             'is_calibration',
-            'is_main_asset'
+            'is_main_asset',
+            'is_sub_asset'
         ]
