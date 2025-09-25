@@ -1,3 +1,4 @@
+from django.utils import timezone   
 from rest_framework import viewsets
 from lsdb.models import *
 from lsdb.serializers import *
@@ -16,11 +17,11 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             asset_type_id=self.request.data.get('asset_type')
 
             if is_main_asset==True :
-                asset_calibration=serializer.save(is_sub_asset=False,disposition_id=16)
+                asset_calibration=serializer.save(is_sub_asset=False,is_rack=False,disposition_id=16)
             elif is_main_asset==False and asset_type_id in [66]:
                 asset_calibration=serializer.save(is_sub_asset=False,is_rack=True,disposition_id=16)
             elif is_main_asset==False:
-                asset_calibration=serializer.save(is_sub_asset=True,disposition_id=16)
+                asset_calibration=serializer.save(is_sub_asset=True,is_rack=False,disposition_id=16)
             
             asset = Asset.objects.create(
                 name = asset_calibration.asset_name,
@@ -57,7 +58,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             sub_asset_ids=self.request.data.get('sub_asset_ids')
 
             for sub_asset_id in sub_asset_ids:
-                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id)
+                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
             return Response ({"detail":"Asset Linked"},status=200)
 
     @action(detail=False, methods=['post','get'])
@@ -78,7 +79,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             sub_asset_ids=self.request.data.get('sub_asset_ids')
 
             for sub_asset_id in sub_asset_ids:
-                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id)
+                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
             return Response ({"detail":"Asset Linked"},status=200)
     
     
