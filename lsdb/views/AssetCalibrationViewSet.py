@@ -16,11 +16,11 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             asset_type_id=self.request.data.get('asset_type')
 
             if is_main_asset==True :
-                asset_calibration=serializer.save(is_sub_asset=False)
+                asset_calibration=serializer.save(is_sub_asset=False,disposition_id=16)
             elif is_main_asset==False and asset_type_id in [66]:
-                asset_calibration=serializer.save(is_sub_asset=False,is_rack=True)
+                asset_calibration=serializer.save(is_sub_asset=False,is_rack=True,disposition_id=16)
             elif is_main_asset==False:
-                asset_calibration=serializer.save(is_sub_asset=True)
+                asset_calibration=serializer.save(is_sub_asset=True,disposition_id=16)
             
             asset = Asset.objects.create(
                 name = asset_calibration.asset_name,
@@ -64,12 +64,14 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     def link_asset_subasset(self,request):
         if self.request.method=='GET':
             sub_assets=AssetCalibration.objects.filter(is_main_asset=False)
+            valid_subassets=[]
             for subasset in sub_assets:
-                return Response({
-                    "sub_asset_name":subasset.asset_name,
-                    "disposition_id":subasset.disposition.id,
-                    "sub_asset_type":subasset.asset_type.name
-                })
+                valid_subassets.append({
+                        "sub_asset_name":subasset.asset_name,
+                        "disposition_id":subasset.disposition.id,
+                        "sub_asset_type":subasset.asset_type.name
+                    })
+            return Response(valid_subassets)
             
         elif self.request.method=='POST':
             asset_id=self.request.data.get('asset_id')
