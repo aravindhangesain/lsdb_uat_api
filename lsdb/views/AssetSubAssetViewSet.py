@@ -89,7 +89,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
                                                                         stress_name=step_result.name
-                                                                        )  
+                                                                        )
+                          
                     
                 
                 elif step_result.name=='Test Resume' and StressRunResult.objects.filter(step_result__procedure_result_id=procedure_result_id).exists(): 
@@ -102,6 +103,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     comment=comment,
                                                                     stress_name=step_result.name
                                                                     )
+                    
                 elif step_result.name=='Test End' and StepResult.objects.filter(step_result_id=step_result_id).exists():
                     
                     if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists():
@@ -131,6 +133,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
 
                 
                 if step_result.name=='Test Start' or step_result.name=='Test Resume':
+                    
                     if AssetCalibration.objects.filter(asset_id=asset_id,is_main_asset=True).exists():
                         asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                         asset.disposition=7
@@ -139,22 +142,54 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
                             sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
                             if sub_asset:
-                                sub_asset.disposition=20
+                                sub_asset.disposition=7
                                 sub_asset.save()
                                 return Response({"status": "stress run recorded successfully"})
+                
+                elif step_result.name=='Test Pause':
+                    asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
+                    asset.disposition=7
+                    asset.save()
+                    if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id).exists():
+                        start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id)
+                        start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,asset_id=asset_id).values_list('sub_asset_id',flat=True)
+                        for subasset_id in start_sub_asset_ids:
+                            
+                            StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
+                            sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+                            if sub_asset:
+                                sub_asset.disposition=7
+                                sub_asset.save()
+                                return Response({"status": "stress run recorded successfully"})
+
                 
                 elif step_result.name=='Test End':
                     if AssetCalibration.objects.filter(asset_id=asset_id,is_main_asset=True).exists():
                         asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                         asset.disposition=16
                         asset.save()
-                    for sub_asset_id in sub_asset_ids:
-                        StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
-                        sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
-                        if sub_asset:
-                            sub_asset.disposition=16
-                            sub_asset.save()
-                            return Response({"status": "stress run recorded successfully"})
+                        if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_id).exists():
+                            resume_run=StressRunResult.objects.get(stress_name='Test Resume',asset_id=asset_id)
+                            resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,asset_id=asset_id).values_list('sub_asset_id',flat=True)   
+                            for sub_asset_id in resume_sub_asset_ids:
+                                StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
+                                sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+                                if sub_asset:
+                                    sub_asset.disposition=16
+                                    sub_asset.save()
+                                    return Response({"status": "stress run recorded successfully"})
+                                
+                        elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id).exists():
+                            start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id)
+                            start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,asset_id=asset_id).values_list('sub_asset_id',flat=True)
+                            for subasset_id in start_sub_asset_ids:
+                                
+                                StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
+                                sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+                                if sub_asset:
+                                    sub_asset.disposition=7
+                                    sub_asset.save()
+                                    return Response({"status": "stress run recorded successfully"})
                 
                 else:
                     return Response({"status": "stress run recorded successfully"})
