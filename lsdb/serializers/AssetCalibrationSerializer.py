@@ -51,6 +51,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
         azurefile_download="https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/"+str(azurefile_id)+"/download"
         return azurefile_download
     
+   
 
 
     class Meta:
@@ -83,5 +84,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'calibration_days',
             'is_calibration',
             'is_main_asset',
-            'is_sub_asset'
+            'is_sub_asset',
+            'is_rack',
+            'disposition'
         ]

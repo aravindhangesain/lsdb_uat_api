@@ -42,12 +42,16 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         if self.request.method=='GET':
             
             psr_subassets=AssetCalibration.objects.filter(is_main_asset=False,is_sub_asset=False,asset_type_id=66)
+            print(psr_subassets)
+            valid_sub_assets=[]
             for psr_subasset in psr_subassets:
-                return Response({
-                                    "sub_asset_name":psr_subasset.asset_name,
-                                    "disposition_id":psr_subasset.disposition.id,
-                                    "sub_asset_type":psr_subasset.asset_type.name
-                                })
+                valid_sub_assets.append({
+                                "sub_asset_name":psr_subasset.asset_name or None,
+                                "disposition_id":psr_subasset.disposition.id or None,
+                                "sub_asset_type":psr_subasset.asset_type.name or None
+                            })
+            return Response(valid_sub_assets)
+            
         elif self.request.method=='POST':
             asset_id=self.request.data.get('asset_id')
             sub_asset_ids=self.request.data.get('sub_asset_ids')

@@ -19,3 +19,5 @@ class AssetCalibration(models.Model):
     azurefile = models.ForeignKey('AzureFile',on_delete=models.CASCADE, blank=False, null=True)
     is_main_asset = models.BooleanField(null=True,blank=True)
     is_sub_asset = models.BooleanField(null=True,blank=True)
+    is_rack=models.BooleanField(null=True,blank=True)
+    disposition=models.ForeignKey('Disposition',on_delete=models.CASCADE, blank=True, null=True)
