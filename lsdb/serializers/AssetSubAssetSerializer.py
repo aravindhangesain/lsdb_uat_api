@@ -16,19 +16,24 @@ class AssetSubAssetSerializer(serializers.ModelSerializer):
     disposition_name = serializers.SerializerMethodField()
 
     def get_days_to_next_calibration(self, obj):
-        sub_asset_id=obj.sub_asset.id
-
-        sub_asset=SubAsset.objects.get(id=sub_asset_id)
-        if sub_asset.last_calibrated_date and sub_asset.next_calibration is not None:
-            delta = datetime.now(sub_asset.last_calibrated_date.tzinfo) - sub_asset.last_calibrated_date
-            days_passed = delta.days
-            days_remaining = sub_asset.next_calibration - days_passed
-            return days_remaining if days_remaining >= 0 else 0
-        return None
+        if obj.sub_asset.id:
+            sub_asset_id=obj.sub_asset.id
+        
+            sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+            if sub_asset.last_calibrated_date and sub_asset.schedule_for_calibration is not None:
+                delta = datetime.now(sub_asset.last_calibrated_date.tzinfo) - sub_asset.last_calibrated_date
+                days_passed = delta.days
+                days_remaining = sub_asset.schedule_for_calibration - days_passed
+                return days_remaining if days_remaining >= 0 else 0
+            return None
+        else:
+            None
     
     def get_is_valid_subasset(self, obj):
 
         days_to_next_calibration = self.get_days_to_next_calibration(obj)
+        if days_to_next_calibration is None:
+            days_to_next_calibration=0
         if days_to_next_calibration<1:
             return False
         else:

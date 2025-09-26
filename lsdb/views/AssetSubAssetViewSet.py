@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from lsdb.serializers import *
 from lsdb.models import *
 from rest_framework.response import Response
@@ -23,6 +23,29 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
     serializer_class = AssetSubAssetSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = AssetSubAssetFilter
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        If ?asset_id=<id> is present in the URL query string,
+        return all sub-assets linked to that asset.
+        Otherwise fall back to the normal retrieve(<pk>) behavior.
+        """
+        asset_id = request.query_params.get("asset_id")
+
+        # --- custom behaviour when asset_id is given ---
+        if asset_id is not None:
+            linked_qs = AssetSubAsset.objects.filter(asset_id=asset_id)
+            if linked_qs.exists():
+                serializer = self.get_serializer(linked_qs, many=True)
+                return Response(serializer.data)
+            return Response(
+                {"status": "No sub-assets linked to this asset"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        qs = AssetSubAsset.objects.all()
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+            
     
     @transaction.atomic
     @action(detail=False, methods=['get','post'])
@@ -37,17 +60,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
         
         return Response({"status": "use POST method to assign sub-assets to an asset"})
     
-    @action(detail=False, methods=['get','post'])
-    def get_linked_subassets(self,request):
-        if self.request.method=='GET':
-            asset_id=request.query_params.get('asset_id')
-            if AssetSubAsset.objects.filter(asset_id=asset_id).exists():
-                linked_sub_assets=AssetSubAsset.objects.get(asset_id=asset_id)
-                serializer=AssetSubAssetSerializer(linked_sub_assets,many=True)
-                return Response(serializer.data)
-            else:
-                return Response({"status":"No sub-assets linked to this asset"})
-        return Response({"status": "use GET method to fetch linked sub-assets for an asset"})
+    
 
     @transaction.atomic
     @action(detail=False, methods=['get','post'])
