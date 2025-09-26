@@ -62,7 +62,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                 AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
             return Response ({"detail":"Asset Linked"},status=200)
 
-    @action(detail=False, methods=['post','get'])
+    @action(detail=False, methods=['post','get','put','delete'])
     def link_asset_subasset(self,request):
         if self.request.method=='GET':
             is_main_asset = request.query_params.get('is_main_asset')
@@ -75,24 +75,24 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=200)
             
         elif self.request.method=='POST':
-            asset_id=self.request.data.get('asset_id')
+            asset_calibration_id=self.request.data.get('asset_calibration_id')
             sub_asset_ids=self.request.data.get('sub_asset_ids')
 
             for sub_asset_id in sub_asset_ids:
-                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
+                AssetSubAsset.objects.create(asset_id=asset_calibration_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
             return Response ({"detail":"Asset Linked"},status=200)
         
         elif self.request.method=='PUT':
-            asset_id=request.data.get('asset_id')
+            asset_calibration_id=request.data.get('asset_calibration_id')
             sub_asset_ids=request.data.get('sub_asset_ids')
-            AssetSubAsset.objects.filter(asset_id=asset_id).delete()
+            AssetSubAsset.objects.filter(asset_id=asset_calibration_id).delete()
             for sub_asset_id in sub_asset_ids:
-                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
+                AssetSubAsset.objects.create(asset_id=asset_calibration_id,sub_asset_id=sub_asset_id,linked_date=timezone.now())
             return Response ({"detail":"Asset Re-Linked"},status=200)
         
         elif self.request.method=='DELETE':
-            asset_id=request.data.get('asset_id')
-            AssetSubAsset.objects.filter(asset_id=asset_id).delete()
+            asset_calibration_id= request.query_params.get('asset_calibration_id')
+            AssetSubAsset.objects.filter(asset_id=asset_calibration_id).delete()
             return Response ({"detail":"Asset Unlinked"},status=200)
 
     

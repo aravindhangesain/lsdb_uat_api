@@ -12,6 +12,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     azurefile_download=serializers.SerializerMethodField()
     calibration_days = serializers.SerializerMethodField()
     is_calibration = serializers.SerializerMethodField()
+    is_calibration_date = serializers.SerializerMethodField()
     
     def get_calibration_days(self, obj):
         if obj.last_calibrated_date:
@@ -44,6 +45,14 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             return abs((next_calibration.date() - now().date()).days)
         return None
     
+    def get_is_calibration_date(self, obj):
+        is_next_calibration = self.get_days_to_next_calibration(obj)
+        if is_next_calibration is None:
+            return 0
+        if is_next_calibration <= 30:
+            return True
+        return False
+    
     def get_azurefile_download(self, obj):
         azurefile_id=obj.azurefile_id
         if azurefile_id==None:
@@ -75,6 +84,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'next_calibration_date',
             'days_since_calibrated',
             'days_to_next_calibration',
+            'is_calibration_date',
             'asset_type',
             'asset_type_name',
             'external_asset_required',
