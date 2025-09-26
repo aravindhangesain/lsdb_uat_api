@@ -12,32 +12,57 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     serializer_class = AssetCalibrationSerializer
 
     def perform_create(self, serializer):
-        if self.request.method=='POST':
-            is_main_asset=self.request.data.get('is_main_asset')
-            asset_type_id=self.request.data.get('asset_type')
+        if self.request.method == 'POST':
+            # Convert string/None to proper boolean
+            is_main_asset_str = self.request.data.get('is_main_asset')
+            asset_type_id = self.request.data.get('asset_type')
 
-            if is_main_asset==True :
-                asset_calibration=serializer.save(is_sub_asset=False,is_rack=False,disposition_id=16)
-            elif is_main_asset==False and asset_type_id in [66]:
-                asset_calibration=serializer.save(is_sub_asset=False,is_rack=True,disposition_id=16)
-            elif is_main_asset==False:
-                asset_calibration=serializer.save(is_sub_asset=True,is_rack=False,disposition_id=16)
-            
+            # handle possible string input like "true"/"false"
+            is_main_asset = str(is_main_asset_str).lower() == 'true'
+
+            # Always start with a default to avoid UnboundLocalError
+            asset_calibration = None
+
+            if is_main_asset:
+                asset_calibration = serializer.save(
+                    is_sub_asset=False, is_rack=False, disposition_id=16
+                )
+            elif not is_main_asset and asset_type_id in [66]:
+                asset_calibration = serializer.save(
+                    is_sub_asset=False, is_rack=True, disposition_id=16
+                )
+            elif is_main_asset is False:
+                asset_calibration = serializer.save(
+                    is_sub_asset=True, is_rack=False, disposition_id=16
+                )
+
+            if not asset_calibration:
+                # No branch matched -> raise clear error
+                raise ValueError(
+                    "Could not create AssetCalibration: invalid is_main_asset or asset_type"
+                )
+
+            # Create linked Asset
             asset = Asset.objects.create(
-                name = asset_calibration.asset_name,
-                description = asset_calibration.description,
-                location_id = asset_calibration.location.id,
-                last_action_datetime = asset_calibration.last_action_datetime,
-                disposition_id = 16
+                name=asset_calibration.asset_name,
+                description=asset_calibration.description,
+                location_id=asset_calibration.location.id,
+                last_action_datetime=asset_calibration.last_action_datetime,
+                disposition_id=16
             )
-            asset_calibration.asset = asset 
+
+            asset_calibration.asset = asset
             asset_calibration.save(update_fields=['asset'])
+
             if asset_calibration.asset_type:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO lsdb_asset_asset_types (asset_id, assettype_id) VALUES (%s, %s)",
+                        """
+                        INSERT INTO lsdb_asset_asset_types (asset_id, assettype_id)
+                        VALUES (%s, %s)
+                        """,
                         [asset.id, asset_calibration.asset_type.id]
-                    ) 
+                    )
     @action(detail=False, methods=['post','get'])         
     def psr_subassets(self,request):
         if self.request.method=='GET':

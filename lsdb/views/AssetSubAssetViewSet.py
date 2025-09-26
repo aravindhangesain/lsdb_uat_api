@@ -86,7 +86,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     run_date=datetime.now(),
                                                                     comment=comment,
                                                                     stress_name=step_result.name,
-                                                                    disposition=7
+                                                                    disposition=Disposition.objects.get(id=7)
                                                                     )
                     
                                                                     
@@ -105,7 +105,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
                                                                         stress_name=step_result.name,
-                                                                        disposition=7
+                                                                        disposition=Disposition.objects.get(id=7)
                                                                         )
                           
                     
@@ -122,7 +122,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     run_date=datetime.now(),
                                                                     comment=comment,
                                                                     stress_name=step_result.name,
-                                                                    disposition=7
+                                                                    disposition=Disposition.objects.get(id=7)
                                                                     )
                     
                 elif step_result.name=='Test End' and StepResult.objects.filter(step_result_id=step_result_id).exists():
@@ -139,7 +139,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
                                                                         stress_name=step_result.name,
-                                                                        disposition=20
+                                                                        disposition=Disposition.objects.get(id=20)
                                                                         )
                     else:
                         prev_run3=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
@@ -153,7 +153,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
                                                                         stress_name=step_result.name,
-                                                                        disposition=20
+                                                                        disposition=Disposition.objects.get(id=20)
                                                                         )
 
                         
