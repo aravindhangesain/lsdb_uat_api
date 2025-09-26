@@ -80,8 +80,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 
                 elif step_result.name=='Test Pause' and StressRunResult.objects.filter(step_result__procedure_result_id=procedure_result_id).exists():
                     if StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).exists():
-                        prev_run=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
-                        stress_run_result=StressRunResult.objects.create(run_name=prev_run.run_name,
+                        prev_run1=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
+                        stress_run_result=StressRunResult.objects.create(run_name=prev_run1.run_name,
                                                                         asset_id=asset_id,
                                                                         step_result_id=step_result_id,
                                                                         procedure_result_id=procedure_result_id,
@@ -107,8 +107,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 elif step_result.name=='Test End' and StepResult.objects.filter(step_result_id=step_result_id).exists():
                     
                     if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists():
-                        prev_run=StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).first()
-                        stress_run_result=StressRunResult.objects.create(run_name=prev_run.run_name,
+                        prev_run2=StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).first()
+                        stress_run_result=StressRunResult.objects.create(run_name=prev_run2.run_name,
                                                                         asset_id=asset_id,
                                                                         step_result_id=step_result_id,
                                                                         procedure_result_id=procedure_result_id,
@@ -118,8 +118,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         stress_name=step_result.name
                                                                         )
                     else:
-                        prev_run=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
-                        stress_run_result=StressRunResult.objects.create(run_name=prev_run.run_name,
+                        prev_run3=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
+                        stress_run_result=StressRunResult.objects.create(run_name=prev_run3.run_name,
                                                                         asset_id=asset_id,
                                                                         step_result_id=step_result_id,
                                                                         procedure_result_id=procedure_result_id,
