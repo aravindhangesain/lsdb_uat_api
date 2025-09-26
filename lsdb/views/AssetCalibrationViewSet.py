@@ -118,8 +118,23 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             AssetSubAsset.objects.filter(asset_id=asset_calibration_id).delete()
             return Response ({"detail":"Asset Unlinked"},status=200)
 
-    
-    
+    @action(detail=False, methods=['get'])
+    def edit_asset_get(self,request):
+        asset_calibration_id= request.query_params.get('id')
+        if not asset_calibration_id:
+            return Response({"error": "Asset Calibration ID is required"}, status=400)
+        try:
+            asset_calibration = AssetCalibration.objects.get(id=asset_calibration_id)
+            
+            linked_subassets = AssetSubAsset.objects.filter(asset_id=asset_calibration.id)
+            linked_subasset_ids = [subasset.sub_asset.id for subasset in linked_subassets]
+            sub_assets=AssetCalibration.objects.filter(id__in=linked_subasset_ids)
+            serializer = self.get_serializer(sub_assets, many=True)
+            data = serializer.data
+            return Response(data, status=200)           
+        except AssetCalibration.DoesNotExist:
+            return Response({"error": "Asset Calibration not found"}, status=404)
+        
     @action(detail=False, methods=['get'])
     def asset_info(self, request):
         asset_id = request.query_params.get('asset_id')
