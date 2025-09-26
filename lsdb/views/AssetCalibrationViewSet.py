@@ -69,15 +69,13 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             
             psr_subassets=AssetCalibration.objects.filter(is_main_asset=False,is_sub_asset=True,is_rack=False,asset_type_id=23)
             print(psr_subassets)
-            valid_sub_assets=[]
-            for psr_subasset in psr_subassets:
-                valid_sub_assets.append({
-                                "sub_asset_name":psr_subasset.asset_name or None,
-                                "disposition_id":psr_subasset.disposition.id or None,
-                                "sub_asset_number":psr_subasset.asset_number or None,
-                                "sub_asset_type":psr_subasset.asset_type.name or None
-                            })
-            return Response(valid_sub_assets)
+            serializer = self.get_serializer(psr_subassets, many=True)
+            data = serializer.data
+            filtered_data = [
+                {k: d[k] for k in ("id", "asset_name", "asset_number","asset_type","asset_type_name","disposition_id",
+                                   "is_calibration_date","days_to_next_calibration","in_use")} for d in data
+            ]            
+            return Response(filtered_data, status=200)
             
         elif self.request.method=='POST':
             asset_calibration_id=self.request.data.get('asset_calibration_id')

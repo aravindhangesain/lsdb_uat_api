@@ -13,6 +13,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     calibration_days = serializers.SerializerMethodField()
     is_calibration = serializers.SerializerMethodField()
     is_calibration_date = serializers.SerializerMethodField()
+    in_use = serializers.SerializerMethodField()
     
     def get_calibration_days(self, obj):
         if obj.last_calibrated_date:
@@ -53,6 +54,12 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             return True
         return False
     
+    def get_in_use(self, obj):
+        disposition = obj.disposition.id 
+        if disposition in [7]:
+            return True
+        return False
+    
     def get_azurefile_download(self, obj):
         azurefile_id=obj.azurefile_id
         if azurefile_id==None:
@@ -78,6 +85,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'usage',
             'model',
             'serial_number',
+            'in_use',
             'is_calibration_required',
             'last_calibrated_date',
             'schedule_for_calibration',
@@ -96,5 +104,6 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'is_main_asset',
             'is_sub_asset',
             'is_rack',
-            'disposition'
+            'disposition',
+            'disposition_id',
         ]
