@@ -150,7 +150,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                     asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                     asset.disposition=7
                     asset.save()
-                    if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id).exists():
+                    if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
                         start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id)
                         start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,asset_id=asset_id).values_list('sub_asset_id',flat=True)
                         for subasset_id in start_sub_asset_ids:
@@ -168,7 +168,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                         asset.disposition=16
                         asset.save()
-                        if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_id).exists():
+                        if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
                             resume_run=StressRunResult.objects.get(stress_name='Test Resume',asset_id=asset_id)
                             resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,asset_id=asset_id).values_list('sub_asset_id',flat=True)   
                             for sub_asset_id in resume_sub_asset_ids:
@@ -179,7 +179,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                     sub_asset.save()
                                     return Response({"status": "stress run recorded successfully"})
                                 
-                        elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id).exists():
+                        elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
                             start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id)
                             start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,asset_id=asset_id).values_list('sub_asset_id',flat=True)
                             for subasset_id in start_sub_asset_ids:
