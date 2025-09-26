@@ -10,5 +10,6 @@ class StressRunResult(models.Model):
     comment=models.CharField(max_length=255, null=True, blank=True)
     procedure_result=models.ForeignKey('ProcedureResult', on_delete=models.CASCADE, related_name='stress_run_results', null=True, blank=True)
     stress_name=models.CharField(max_length=255, null=True, blank=True)
+    disposition=models.ForeignKey('Disposition',on_delete=models.CASCADE,null=True, blank=True)
 
 

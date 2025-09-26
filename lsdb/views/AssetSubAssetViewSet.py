@@ -72,7 +72,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     user_id=request.user.id,
                                                                     run_date=datetime.now(),
                                                                     comment=comment,
-                                                                    stress_name=step_result.name
+                                                                    stress_name=step_result.name,
+                                                                    disposition=7
                                                                     )
                     
                                                                     
@@ -81,6 +82,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 elif step_result.name=='Test Pause' and StressRunResult.objects.filter(step_result__procedure_result_id=procedure_result_id).exists():
                     if StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).exists():
                         prev_run1=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
+                        prev_run1.disposition=20
+                        prev_run1.save()
                         stress_run_result=StressRunResult.objects.create(run_name=prev_run1.run_name,
                                                                         asset_id=asset_id,
                                                                         step_result_id=step_result_id,
@@ -88,12 +91,16 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         user_id=request.user.id,
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
-                                                                        stress_name=step_result.name
+                                                                        stress_name=step_result.name,
+                                                                        disposition=7
                                                                         )
                           
                     
                 
-                elif step_result.name=='Test Resume' and StressRunResult.objects.filter(step_result__procedure_result_id=procedure_result_id).exists(): 
+                elif step_result.name=='Test Resume' and StressRunResult.objects.filter(stress_name='Test Pause',step_result__procedure_result_id=procedure_result_id).exists(): 
+                    prev_run4=StressRunResult.objects.filter(stress_name='Test Pause',step_result__procedure_result_id=procedure_result_id).first()
+                    prev_run4.disposition=20
+                    prev_run4.save()
                     stress_run_result=StressRunResult.objects.create(run_name=run_name,
                                                                     asset_id=asset_id,
                                                                     step_result_id=step_result_id,
@@ -101,13 +108,16 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     user_id=request.user.id,
                                                                     run_date=datetime.now(),
                                                                     comment=comment,
-                                                                    stress_name=step_result.name
+                                                                    stress_name=step_result.name,
+                                                                    disposition=7
                                                                     )
                     
                 elif step_result.name=='Test End' and StepResult.objects.filter(step_result_id=step_result_id).exists():
                     
                     if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists():
                         prev_run2=StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).first()
+                        prev_run2.disposition=20
+                        prev_run2.save()
                         stress_run_result=StressRunResult.objects.create(run_name=prev_run2.run_name,
                                                                         asset_id=asset_id,
                                                                         step_result_id=step_result_id,
@@ -115,10 +125,13 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         user_id=request.user.id,
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
-                                                                        stress_name=step_result.name
+                                                                        stress_name=step_result.name,
+                                                                        disposition=20
                                                                         )
                     else:
                         prev_run3=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
+                        prev_run3.disposition=20
+                        prev_run3.save()
                         stress_run_result=StressRunResult.objects.create(run_name=prev_run3.run_name,
                                                                         asset_id=asset_id,
                                                                         step_result_id=step_result_id,
@@ -126,7 +139,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         user_id=request.user.id,
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
-                                                                        stress_name=step_result.name
+                                                                        stress_name=step_result.name,
+                                                                        disposition=20
                                                                         )
 
                         
