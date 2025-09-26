@@ -73,7 +73,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
             data = serializer.data
             filtered_data = [
                 {k: d[k] for k in ("id", "asset_name", "asset_number","asset_type","asset_type_name","disposition_id",
-                                   "is_calibration_date","days_to_next_calibration","in_use")} for d in data
+                                   "is_calibration_date","days_to_next_calibration","in_use","is_calibration")} for d in data
             ]            
             return Response(filtered_data, status=200)
             
