@@ -171,7 +171,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=7)
                                 sub_asset.save()
-                                return Response({"status": "stress run recorded successfully"})
+                        return Response({"status": "stress run recorded successfully"})
                 
                 elif step_result.name=='Test Pause':
                     asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
@@ -187,7 +187,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=7)
                                 sub_asset.save()
-                                return Response({"status": "stress run recorded successfully"})
+                        return Response({"status": "stress run recorded successfully"})
 
                 
                 elif step_result.name=='Test End':
@@ -204,7 +204,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                 if sub_asset:
                                     sub_asset.disposition=Disposition.objects.get(id=16)
                                     sub_asset.save()
-                                    return Response({"status": "stress run recorded successfully"})
+                            return Response({"status": "stress run recorded successfully"})
                                 
                         elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
                             start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id)
@@ -216,7 +216,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                 if sub_asset:
                                     sub_asset.disposition=Disposition.objects.get(id=7)
                                     sub_asset.save()
-                                    return Response({"status": "stress run recorded successfully"})
+                            return Response({"status": "stress run recorded successfully"})
                 
                 else:
                     return Response({"status": "stress run recorded successfully"})
