@@ -62,6 +62,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
             run_name=request.data.get('run_name')
             comment=request.data.get('comment')
 
+            asset_calibration=AssetCalibration.objects.filter(asset_id=asset_id).first()
             for step_result_id in step_result_ids:
                 step_result=StepResult.objects.get(id=step_result_id)
                 procedure_result_id=step_result.procedure_result_id
@@ -69,7 +70,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
 
                 if step_result.step_definition.id==6:
                         stress_run_result=StressRunResult.objects.create(run_name=run_name,
-                                                                        asset_id=asset_id,
+                                                                        asset_id=asset_calibration.id,
                                                                         step_result_id=step_result_id,
                                                                         procedure_result_id=procedure_result_id,
                                                                         user_id=request.user.id,
@@ -89,7 +90,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         prev_run1.disposition=Disposition.objects.get(id=20)
                         prev_run1.save()
                         stress_run_result=StressRunResult.objects.create(run_name=prev_run1.run_name,
-                                                                        asset_id=asset_id,
+                                                                        asset_id=asset_calibration.id,
                                                                         step_result_id=step_result_id,
                                                                         procedure_result_id=procedure_result_id,
                                                                         user_id=request.user.id,
@@ -106,7 +107,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                     prev_run4.disposition=Disposition.objects.get(id=20)
                     prev_run4.save()
                     stress_run_result=StressRunResult.objects.create(run_name=run_name,
-                                                                    asset_id=asset_id,
+                                                                    asset_id=asset_calibration.id,
                                                                     step_result_id=step_result_id,
                                                                     procedure_result_id=procedure_result_id,
                                                                     user_id=request.user.id,
@@ -124,7 +125,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             prev_run2.disposition=Disposition.objects.get(id=20)
                             prev_run2.save()
                             stress_run_result=StressRunResult.objects.create(run_name=prev_run2.run_name,
-                                                                            asset_id=asset_id,
+                                                                            asset_id=asset_calibration.id,
                                                                             step_result_id=step_result_id,
                                                                             procedure_result_id=procedure_result_id,
                                                                             user_id=request.user.id,
@@ -138,7 +139,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             prev_run3.disposition=Disposition.objects.get(id=20)
                             prev_run3.save()
                             stress_run_result=StressRunResult.objects.create(run_name=prev_run3.run_name,
-                                                                            asset_id=asset_id,
+                                                                            asset_id=asset_calibration.id,
                                                                             step_result_id=step_result_id,
                                                                             procedure_result_id=procedure_result_id,
                                                                             user_id=request.user.id,
@@ -171,9 +172,9 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                 asset.disposition=Disposition.objects.get(id=7)
                 asset.save()
-                if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
-                    start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id)
-                    start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_id).values_list('sub_asset_id',flat=True)
+                if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
+                    start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id)
+                    start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)
                     for subasset_id in start_sub_asset_ids:
                         
                         StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
@@ -189,9 +190,9 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                     asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                     asset.disposition=Disposition.objects.get(id=16)
                     asset.save()
-                    if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
-                        resume_run=StressRunResult.objects.get(stress_name='Test Resume',asset_id=asset_id)
-                        resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,sub_asset_id=asset_id).values_list('sub_asset_id',flat=True)   
+                    if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
+                        resume_run=StressRunResult.objects.get(stress_name='Test Resume',asset_id=asset_calibration.id)
+                        resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)   
                         for sub_asset_id in resume_sub_asset_ids:
                             StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
                             sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
@@ -200,9 +201,9 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                 sub_asset.save()
                         return Response({"status": "stress run recorded successfully"})
                             
-                    elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id).exists():
-                        start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_id,procedure_result_id=step_result.procedure_result_id)
-                        start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_id).values_list('sub_asset_id',flat=True)
+                    elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
+                        start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id)
+                        start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)
                         for subasset_id in start_sub_asset_ids:
                             
                             StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
