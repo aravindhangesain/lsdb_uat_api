@@ -177,6 +177,13 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         except AssetCalibration.DoesNotExist:
             return Response({"error": "Asset Calibration not found"}, status=404)
         
+    @action(detail=False, methods=['get', ],
+            serializer_class=DispositionCodeListSerializer)
+    def asset_dispositions(self, request, pk=None):
+        self.context = {'request': request}
+        serializer = DispositionCodeListSerializer(DispositionCode.objects.get(name='asset_management'),many=False,context={'request': request})
+        return Response(serializer.data)
+        
     
     # @action(detail=False, methods=['get'])
     # def asset_list(self, request):
