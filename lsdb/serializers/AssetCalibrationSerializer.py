@@ -14,6 +14,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     is_calibration = serializers.SerializerMethodField()
     is_calibration_date = serializers.SerializerMethodField()
     in_use = serializers.SerializerMethodField()
+    asset_next_calibration  = serializers.SerializerMethodField()
     
     def get_calibration_days(self, obj):
         if obj.last_calibrated_date:
@@ -43,8 +44,15 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     def get_days_to_next_calibration(self, obj):
         next_calibration = self.get_next_calibration_date(obj)
         if next_calibration:
+            return (next_calibration.date() - now().date()).days
+        return None
+    
+    def get_asset_next_calibration(self, obj):
+        next_calibration = self.get_next_calibration_date(obj)
+        if next_calibration:
             return abs((next_calibration.date() - now().date()).days)
         return None
+    
     
     def get_is_calibration_date(self, obj):
         is_next_calibration = self.get_days_to_next_calibration(obj)
@@ -92,6 +100,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'next_calibration_date',
             'days_since_calibrated',
             'days_to_next_calibration',
+            'asset_next_calibration',
             'is_calibration_date',
             'asset_type',
             'asset_type_name',

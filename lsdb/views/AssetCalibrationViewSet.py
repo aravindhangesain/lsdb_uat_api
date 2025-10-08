@@ -172,7 +172,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                 "asset_name": data["asset_name"],
                 "calibration_days": data["calibration_days"],
                 "is_calibration": data["is_calibration"],
-                "days_to_next_calibration": data["days_to_next_calibration"]
+                "days_to_next_calibration": data["asset_next_calibration"]
             }, status=200)
         except AssetCalibration.DoesNotExist:
             return Response({"error": "Asset Calibration not found"}, status=404)
