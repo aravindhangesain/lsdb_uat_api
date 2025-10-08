@@ -150,7 +150,7 @@ class AssetViewSet(LoggingMixin, viewsets.ModelViewSet):
         Returns all assets that can perform procedures in the "Stressors" group
         """
         self.context={'request':request}
-        assets = Asset.objects.filter(asset_types__proceduredefinition__group__name__iexact='stressors')
+        assets = Asset.objects.filter(asset_types__proceduredefinition__group__name__iexact='stressors',disposition_id=16)
         serializer = self.serializer_class(assets.distinct(), many=True, context={'request': request})
         return Response(serializer.data)
 
