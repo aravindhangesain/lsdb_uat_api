@@ -138,7 +138,6 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         try:
             report_writer, created = ReportWriterAgenda.objects.get_or_create(report_result=obj)
             if report_writer.contractually_obligated_date:
-                print("trla",report_writer.contractually_obligated_date)
                 return report_writer.contractually_obligated_date
             report_type = obj.report_type_definition
             report_team = ReportTeam.objects.filter(report_type=report_type).first()
@@ -153,7 +152,6 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
             if not ntp_date:
                 return None
             calculated_date = ntp_date + timedelta(days=days_to_add)
-            print(calculated_date)
             report_writer.contractually_obligated_date = calculated_date
             report_writer.save()
             return calculated_date
