@@ -141,10 +141,10 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
                 return report_writer.contractually_obligated_date
             report_type = obj.report_type_definition
             report_team = ReportTeam.objects.filter(report_type=report_type).first()
-            if not report_team or not report_team.obligated_date:
+            if not report_team or not report_team.duration:
                 return None
             try:
-                days_to_add = int(report_team.obligated_date)
+                days_to_add = int(report_team.duration)
             except ValueError:
                 return None
             work_order = obj.work_order 
@@ -200,7 +200,9 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         try:
             report_type_id = obj.report_type_definition
             report_type = ReportTeam.objects.get(report_type = report_type_id)
-            return report_type.writer.username
+            if report_type.writer:
+                return report_type.writer.username
+            return None
         except ReportTeam.DoesNotExist:
             return None
     
@@ -208,7 +210,11 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         try:
             report_type_id = obj.report_type_definition
             report_type = ReportTeam.objects.get(report_type = report_type_id)
-            return report_type.reviewer.username
+            if report_type.reviewer_pm is True:
+                return obj.work_order.project.project_manager.username
+            elif report_type.reviewer:
+                return report_type.reviewer.username
+            return None
         except ReportTeam.DoesNotExist:
             return None
         
@@ -216,7 +222,9 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         try:
             report_type_id = obj.report_type_definition
             report_type = ReportTeam.objects.filter(report_type = report_type_id).values_list('writer_id',flat=True).first()
-            return report_type
+            if report_type:
+                return report_type
+            return None
         except ReportTeam.DoesNotExist:
             return None
     
@@ -224,7 +232,11 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
         try:
             report_type_id = obj.report_type_definition
             report_type = ReportTeam.objects.filter(report_type = report_type_id).values_list('reviewer_id',flat=True).first()
-            return report_type
+            if report_type.reviewer_pm is True:
+                return obj.work_order.project.project_manager.id
+            elif report_type.reviewer:
+                return report_type.reviewer.id
+            return None
         except ReportTeam.DoesNotExist:
             return None
     

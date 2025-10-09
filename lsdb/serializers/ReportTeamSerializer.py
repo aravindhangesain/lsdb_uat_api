@@ -20,6 +20,7 @@ class ReportTeamSerializer(serializers.ModelSerializer):
             'approver_name',
             'reviewer_name',
             'is_projmanager',
-            'obligated_date'
+            'duration',
+            'reviewer_pm'
         ]   
         

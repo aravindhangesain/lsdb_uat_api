@@ -6,5 +6,6 @@ class ReportTeam(models.Model):
     writer = models.ForeignKey('auth.User', related_name='writer', on_delete=models.CASCADE, null=True, blank=True)
     approver = models.ForeignKey('auth.User', related_name='approver', on_delete=models.CASCADE, null=True, blank=True)
     is_projmanager = models.BooleanField(default=False)
-    obligated_date = models.IntegerField(null=True, blank=True)
+    duration = models.IntegerField(null=True, blank=True)
+    reviewer_pm = models.BooleanField(default=False)
     
