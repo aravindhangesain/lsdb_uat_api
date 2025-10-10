@@ -66,7 +66,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
-                reviewer_user = report_team.reviewer
+                reviewer_user = report_team.reviewer or report_result.work_order.project.project_manager
                 approver_user = report_team.approver or report_result.work_order.project.project_manager
             except ReportTeam.DoesNotExist:
                 writer_user = reviewer_user = approver_user = None
@@ -158,7 +158,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
-                reviewer_user = report_team.reviewer
+                reviewer_user = report_team.reviewer or report_result.work_order.project.project_manager
                 approver_user = report_team.approver or report_result.work_order.project.project_manager
             except ReportTeam.DoesNotExist:
                 writer_user = reviewer_user = approver_user = None
@@ -245,7 +245,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
             try:
                 report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                 writer_user = report_team.writer
-                reviewer_user = report_team.reviewer
+                reviewer_user = report_team.reviewer or report_result.work_order.project.project_manager
                 approver_user = report_team.approver or report_result.work_order.project.project_manager
             except ReportTeam.DoesNotExist:
                 writer_user = reviewer_user = approver_user = None
@@ -327,7 +327,7 @@ class ReportApproverAgendaViewSet(viewsets.ModelViewSet):
                     try:
                         report_team = ReportTeam.objects.get(report_type=report_result.report_type_definition)
                         writer_user = report_team.writer
-                        reviewer_user = report_team.reviewer
+                        reviewer_user = report_team.reviewer or report_result.work_order.project.project_manager
                         approver_user = report_team.approver or report_result.work_order.project.project_manager
                     except ReportTeam.DoesNotExist:
                         writer_user = reviewer_user = approver_user = None

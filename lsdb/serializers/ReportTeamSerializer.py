@@ -5,6 +5,7 @@ class ReportTeamSerializer(serializers.ModelSerializer):
     writer_name = serializers.ReadOnlyField(source='writer.username')
     approver_name = serializers.ReadOnlyField(source='approver.username')
     reviewer_name = serializers.ReadOnlyField(source='reviewer.username')
+    report_name = serializers.ReadOnlyField(source='report_type.name')
 
 
     class Meta:
@@ -13,6 +14,7 @@ class ReportTeamSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'report_type',
+            'report_name',
             'reviewer', 
             'writer',
             'writer_name',
