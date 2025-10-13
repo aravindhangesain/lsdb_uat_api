@@ -23,10 +23,11 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                 last_action.action_name='Disposition Updated'
                 last_action.action_datetime=datetime.now()
                 last_action.user_id=request.user.id
+                last_action.save()
             else:
                 AssetLastActionDetails.objects.create(
                                                     asset_id=pk,
-                                                    action_name='Stress Exit',
+                                                    action_name='Disposition Updated',
                                                     action_datetime=datetime.now(),
                                                     user_id=request.user.id
                                                     )
