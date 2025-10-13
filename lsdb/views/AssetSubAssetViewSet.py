@@ -223,7 +223,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                     asset.disposition=Disposition.objects.get(id=16)
                     asset.save()
                     if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
-                        resume_run=StressRunResult.objects.get(stress_name='Test Resume',asset_id=asset_calibration.id)
+                        resume_run=StressRunResult.objects.get(step_result_id=step_result.id,stress_name='Test Resume',asset_id=asset_calibration.id)
                         resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)   
                         for sub_asset_id in resume_sub_asset_ids:
                             StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
