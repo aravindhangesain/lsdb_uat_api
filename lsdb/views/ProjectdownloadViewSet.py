@@ -49,9 +49,12 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                     }
                 if pname and pname not in procedures_dict[pid]["procedure_names"]:
                     procedures_dict[pid]["procedure_names"].append(pname)
+            serial_numbers = list(
+                Unit.objects.filter(procedureresult__work_order=workorder.id).values_list('serial_number', flat=True).distinct())
             workorder_data = {
                 "workorder_id": workorder.id,
                 "workorder_name": workorder.name,
+                "serial_numbers": serial_numbers,
                 "procedure_definitions": list(procedures_dict.values())
             }
             data["workorders"].append(workorder_data)
