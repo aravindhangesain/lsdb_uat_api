@@ -162,3 +162,4 @@ from .AssetSubAsset import AssetSubAsset as AssetSubAsset
 from .StressRunResult import StressRunResult as StressRunResult
 from .StressRunDetails import StressRunDetails as StressRunDetails
 from .ProjectFactoryWitness import ProjectFactoryWitness as ProjectFactoryWitness
+from .AssetLastActionDetails import AssetLastActionDetails as AssetLastActionDetails

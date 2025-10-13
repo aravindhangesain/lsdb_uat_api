@@ -166,6 +166,25 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         if sub_asset:
                             sub_asset.disposition=Disposition.objects.get(id=7)
                             sub_asset.save()
+                        if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
+                            last_action = AssetLastActionDetails.objects.get(asset_id=asset_id)
+                            if step_result.name == 'Test Start':
+                                last_action.action_name = 'Stress Started'
+                            else:
+                                last_action.action_name = 'Stress Resumed'
+                            last_action.action_datetime = datetime.now()
+                            last_action.user_id = request.user.id
+                            last_action.save()
+                        else:
+                            action_name = 'Stress Started' if step_result.name == 'Test Start' else 'Stress Resumed'
+                            AssetLastActionDetails.objects.create(
+                                asset_id=asset_id,
+                                action_name=action_name,
+                                action_datetime=datetime.now(),
+                                user_id=request.user.id
+                            )
+
+
                     return Response({"status": "stress run recorded successfully"})
             
             elif step_result.name=='Test Pause':
@@ -182,6 +201,18 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         if sub_asset:
                             sub_asset.disposition=Disposition.objects.get(id=7)
                             sub_asset.save()
+                        if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
+                            last_action=AssetLastActionDetails.objects.get(asset_id=asset_id)
+                            last_action.action_name='Stress Paused'
+                            last_action.action_datetime=datetime.now()
+                            last_action.user_id=request.user.id
+                        else:
+                            AssetLastActionDetails.objects.create(
+                                                                  asset_id=asset_id,
+                                                                  action_name='Stress Paused',
+                                                                  action_datetime=datetime.now(),
+                                                                  user_id=request.user.id
+                                                                )
                     return Response({"status": "stress run recorded successfully"})
 
             
@@ -199,6 +230,18 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=16)
                                 sub_asset.save()
+                                if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
+                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset_id)
+                                    last_action.action_name='stress exit'
+                                    last_action.action_datetime=datetime.now()
+                                    last_action.user_id=request.user.id
+                                else:
+                                    AssetLastActionDetails.objects.create(
+                                                                        asset_id=asset_id,
+                                                                        action_name='stress exit',
+                                                                        action_datetime=datetime.now(),
+                                                                        user_id=request.user.id
+                                                                        )
                         return Response({"status": "stress run recorded successfully"})
                             
                     elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
@@ -211,6 +254,18 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=16)
                                 sub_asset.save()
+                                if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
+                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset_id)
+                                    last_action.action_name='Stress Exit'
+                                    last_action.action_datetime=datetime.now()
+                                    last_action.user_id=request.user.id
+                                else:
+                                    AssetLastActionDetails.objects.create(
+                                                                        asset_id=asset_id,
+                                                                        action_name='Stress Exit',
+                                                                        action_datetime=datetime.now(),
+                                                                        user_id=request.user.id
+                                                                        )
                         return Response({"status": "stress run recorded successfully"})
             
             else:

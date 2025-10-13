@@ -180,3 +180,4 @@ from .StressRunResultViewSet import StressRunResultViewSet as StressRunResultVie
 from .ProjectdownloadViewSet import ProjectdownloadViewSet as ProjectdownloadViewSet
 from .ProjectFactoryWitnessViewSet import ProjectFactoryWitnessViewSet as ProjectFactoryWitnessViewSet
 from .TravelerPdfViewSet import TravelerPdfViewSet as TravelerPdfViewSet
+from .AssetLastActionDetailsViewSet import AssetLastActionDetailsViewSet as AssetLastActionDetailsViewSet

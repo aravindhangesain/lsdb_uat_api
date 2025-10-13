@@ -146,6 +146,7 @@ router.register(r'stress_run_result',StressRunResultViewSet,basename='stress_run
 router.register(r'projectdownload',ProjectdownloadViewSet, basename = 'projectdownload')
 router.register(r'project_factory_witness',ProjectFactoryWitnessViewSet, basename = 'project_factory_witness')
 router.register(r'traveler_pdf',TravelerPdfViewSet, basename = 'traveler_pdf')
+router.register(r'asset_last_action',AssetLastActionDetailsViewSet,basename='asset_last_action')
 
 
 

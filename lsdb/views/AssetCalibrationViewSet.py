@@ -5,11 +5,35 @@ from lsdb.serializers import *
 from django.db import connection
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from datetime import datetime
+
 
 class AssetCalibrationViewSet(viewsets.ModelViewSet):
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
     queryset = AssetCalibration.objects.all()
     serializer_class = AssetCalibrationSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        instance = self.get_object()
+
+        if 'disposition' in request.data:
+            if AssetLastActionDetails.objects.filter(asset_id=pk).exists():
+                last_action = AssetLastActionDetails.objects.get(asset_id=pk)
+                last_action.action_name='Disposition Updated'
+                last_action.action_datetime=datetime.now()
+                last_action.user_id=request.user.id
+            else:
+                AssetLastActionDetails.objects.create(
+                                                    asset_id=pk,
+                                                    action_name='Stress Exit',
+                                                    action_datetime=datetime.now(),
+                                                    user_id=request.user.id
+                                                    )
+                
+
+        return super().partial_update(request, *args, **kwargs)
+
 
     def perform_create(self, serializer):
         if self.request.method == 'POST':
