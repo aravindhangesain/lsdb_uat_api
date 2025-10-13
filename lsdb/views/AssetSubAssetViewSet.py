@@ -169,9 +169,10 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
                             last_action = AssetLastActionDetails.objects.get(asset_id=asset.id)
                             if step_result.name == 'Test Start':
-                                last_action.action_name = 'Stress Started'
+                                action = 'Stress Started'
                             else:
-                                last_action.action_name = 'Stress Resumed'
+                                action = 'Stress Resumed'
+                            last_action.action_name=action
                             last_action.action_datetime = datetime.now()
                             last_action.user_id = request.user.id
                             last_action.save()
