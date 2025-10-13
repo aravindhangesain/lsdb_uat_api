@@ -166,8 +166,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         if sub_asset:
                             sub_asset.disposition=Disposition.objects.get(id=7)
                             sub_asset.save()
-                        if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
-                            last_action = AssetLastActionDetails.objects.get(asset_id=asset_id)
+                        if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                            last_action = AssetLastActionDetails.objects.get(asset_id=asset.id)
                             if step_result.name == 'Test Start':
                                 last_action.action_name = 'Stress Started'
                             else:
@@ -178,7 +178,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         else:
                             action_name = 'Stress Started' if step_result.name == 'Test Start' else 'Stress Resumed'
                             AssetLastActionDetails.objects.create(
-                                asset_id=asset_id,
+                                asset_id=asset.id,
                                 action_name=action_name,
                                 action_datetime=datetime.now(),
                                 user_id=request.user.id
@@ -201,15 +201,15 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         if sub_asset:
                             sub_asset.disposition=Disposition.objects.get(id=7)
                             sub_asset.save()
-                        if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
-                            last_action=AssetLastActionDetails.objects.get(asset_id=asset_id)
+                        if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                            last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
                             last_action.action_name='Stress Paused'
                             last_action.action_datetime=datetime.now()
                             last_action.user_id=request.user.id
                             last_action.save()
                         else:
                             AssetLastActionDetails.objects.create(
-                                                                  asset_id=asset_id,
+                                                                  asset_id=asset.id,
                                                                   action_name='Stress Paused',
                                                                   action_datetime=datetime.now(),
                                                                   user_id=request.user.id
@@ -231,15 +231,15 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=16)
                                 sub_asset.save()
-                                if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
-                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset_id)
-                                    last_action.action_name='stress exit'
+                                if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                    last_action.action_name='Stress Exit'
                                     last_action.action_datetime=datetime.now()
                                     last_action.user_id=request.user.id
                                     last_action.save()
                                 else:
                                     AssetLastActionDetails.objects.create(
-                                                                        asset_id=asset_id,
+                                                                        asset_id=asset.id,
                                                                         action_name='stress exit',
                                                                         action_datetime=datetime.now(),
                                                                         user_id=request.user.id
@@ -256,15 +256,15 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=16)
                                 sub_asset.save()
-                                if AssetLastActionDetails.objects.filter(asset_id=asset_id).exists():
-                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset_id)
+                                if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
                                     last_action.action_name='Stress Exit'
                                     last_action.action_datetime=datetime.now()
                                     last_action.user_id=request.user.id
                                     last_action.save()
                                 else:
                                     AssetLastActionDetails.objects.create(
-                                                                        asset_id=asset_id,
+                                                                        asset_id=asset.id,
                                                                         action_name='Stress Exit',
                                                                         action_datetime=datetime.now(),
                                                                         user_id=request.user.id

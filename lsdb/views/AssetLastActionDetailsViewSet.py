@@ -5,3 +5,4 @@ from lsdb.serializers import *
 class AssetLastActionDetailsViewSet(viewsets.ModelViewSet):
     queryset=AssetLastActionDetails.objects.all()
     serializer_class=AssetLastActionDetailsSerializer
+    lookup_field='asset_id'
