@@ -206,6 +206,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                             last_action.action_name='Stress Paused'
                             last_action.action_datetime=datetime.now()
                             last_action.user_id=request.user.id
+                            last_action.save()
                         else:
                             AssetLastActionDetails.objects.create(
                                                                   asset_id=asset_id,
@@ -235,6 +236,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                     last_action.action_name='stress exit'
                                     last_action.action_datetime=datetime.now()
                                     last_action.user_id=request.user.id
+                                    last_action.save()
                                 else:
                                     AssetLastActionDetails.objects.create(
                                                                         asset_id=asset_id,
@@ -259,6 +261,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                     last_action.action_name='Stress Exit'
                                     last_action.action_datetime=datetime.now()
                                     last_action.user_id=request.user.id
+                                    last_action.save()
                                 else:
                                     AssetLastActionDetails.objects.create(
                                                                         asset_id=asset_id,
