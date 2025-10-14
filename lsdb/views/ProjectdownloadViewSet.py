@@ -14,13 +14,52 @@ from django.db.models import F, Value
 from django.db.models.functions import Replace, Lower
 from openpyxl import Workbook
 from io import BytesIO
-from django.http import HttpResponse
+from django.http import HttpResponse,StreamingHttpResponse
+import zipstream
 
 
 class ProjectdownloadViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectdownloadSerializer
     lookup_field = 'number'
+
+    # def retrieve(self, request, number=None):
+    #     project = self.get_object()
+    #     data = {
+    #         "project_id": project.id,
+    #         "project_number": project.number,
+    #         "workorders": []
+    #     }
+    #     for workorder in project.workorder_set.all():
+    #         procedures = ProcedureResult.objects.filter(
+    #             work_order=workorder.id
+    #         ).values(
+    #             'procedure_definition__id',
+    #             'procedure_definition__name',
+    #             'name'
+    #         ).exclude(group_id=45)
+    #         procedures_dict = {}
+    #         for proc in procedures:
+    #             pid = proc['procedure_definition__id']
+    #             pname = proc.get('name')
+    #             if pid not in procedures_dict:
+    #                 procedures_dict[pid] = {
+    #                     "procedure_definition_id": pid,
+    #                     "procedure_definition_name": proc['procedure_definition__name'],
+    #                     "procedure_names": []
+    #                 }
+    #             if pname and pname not in procedures_dict[pid]["procedure_names"]:
+    #                 procedures_dict[pid]["procedure_names"].append(pname)
+    #         serial_numbers = list(
+    #             Unit.objects.filter(procedureresult__work_order=workorder.id).values_list('serial_number', flat=True).distinct())
+    #         workorder_data = {
+    #             "workorder_id": workorder.id,
+    #             "workorder_name": workorder.name,
+    #             "serial_numbers": serial_numbers,
+    #             "procedure_definitions": list(procedures_dict.values())
+    #         }
+    #         data["workorders"].append(workorder_data)
+    #     return Response(data)
 
     def retrieve(self, request, number=None):
         project = self.get_object()
@@ -29,36 +68,53 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             "project_number": project.number,
             "workorders": []
         }
+
         for workorder in project.workorder_set.all():
-            procedures = ProcedureResult.objects.filter(
-                work_order=workorder.id
-            ).values(
-                'procedure_definition__id',
-                'procedure_definition__name',
-                'name'
-            ).exclude(group_id=45)
-            procedures_dict = {}
-            for proc in procedures:
-                pid = proc['procedure_definition__id']
-                pname = proc.get('name')
-                if pid not in procedures_dict:
-                    procedures_dict[pid] = {
-                        "procedure_definition_id": pid,
-                        "procedure_definition_name": proc['procedure_definition__name'],
-                        "procedure_names": []
-                    }
-                if pname and pname not in procedures_dict[pid]["procedure_names"]:
-                    procedures_dict[pid]["procedure_names"].append(pname)
-            serial_numbers = list(
-                Unit.objects.filter(procedureresult__work_order=workorder.id).values_list('serial_number', flat=True).distinct())
+            # Get distinct serial numbers for this work order
+            serial_numbers = Unit.objects.filter(
+                procedureresult__work_order=workorder.id
+            ).values_list('serial_number', flat=True).distinct()
+
+            details_list = []
+
+            for serial in serial_numbers:
+                # Get all procedure results for this serial number in this work order
+                procedures = ProcedureResult.objects.filter(
+                    work_order=workorder.id,
+                    unit__serial_number=serial
+                ).exclude(group_id=45).values(
+                    'procedure_definition__id',
+                    'procedure_definition__name',
+                    'name'
+                ).order_by('procedure_definition__id').distinct('procedure_definition__id')
+
+                procedure_def_details = []
+                procedure_names = set()
+
+                for proc in procedures:
+                    procedure_def_details.append({
+                        "procedure_definition_id": proc['procedure_definition__id'],
+                        "procedure_definition_name": proc['procedure_definition__name']
+                    })
+                    if proc.get('name'):
+                        procedure_names.add(proc['name'])
+
+                details_list.append({
+                    "serial_numbers": serial,
+                    "procedure_name": list(procedure_names),
+                    "procedure_definition_details": procedure_def_details
+                })
+
             workorder_data = {
                 "workorder_id": workorder.id,
                 "workorder_name": workorder.name,
-                "serial_numbers": serial_numbers,
-                "procedure_definitions": list(procedures_dict.values())
+                "details": details_list
             }
+
             data["workorders"].append(workorder_data)
+
         return Response(data)
+
     
     @action(detail=True, methods=['post'], url_path='download')
     def download(self, request, number=None):
@@ -450,12 +506,21 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             )
             response["Content-Disposition"] = f'attachment; filename="{file["name"]}"'
             return response
-        mem_zip = BytesIO()
-        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-            for file in files_to_return:
-                zf.writestr(file["name"], file["content"])
-        mem_zip.seek(0)
-        response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
+        # mem_zip = BytesIO()
+        # with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        #     for file in files_to_return:
+        #         zf.writestr(file["name"], file["content"])
+        # mem_zip.seek(0)
+        # response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
+        # response["Content-Disposition"] = (
+        #     f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
+        # )
+        # return response
+        z = zipstream.ZipFile(mode="w", compression=zipstream.ZIP_DEFLATED)
+        for file in files_to_return:
+            # file["content"] should be bytes or file-like
+            z.write_iter(file["name"], [file["content"]])
+        response = StreamingHttpResponse(z, content_type="application/zip")
         response["Content-Disposition"] = (
             f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
         )
