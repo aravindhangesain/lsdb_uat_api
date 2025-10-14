@@ -68,54 +68,50 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             "project_number": project.number,
             "workorders": []
         }
-
         for workorder in project.workorder_set.all():
-            # Get distinct serial numbers for this work order
             serial_numbers = Unit.objects.filter(
                 procedureresult__work_order=workorder.id
             ).values_list('serial_number', flat=True).distinct()
-
             details_list = []
-
             for serial in serial_numbers:
-                # Get all procedure results for this serial number in this work order
-                procedures = ProcedureResult.objects.filter(
+                procedure_names = ProcedureResult.objects.filter(
                     work_order=workorder.id,
                     unit__serial_number=serial
-                ).exclude(group_id=45).values(
-                    'procedure_definition__id',
-                    'procedure_definition__name',
-                    'name'
-                ).order_by('procedure_definition__id').distinct('procedure_definition__id')
-
-                procedure_def_details = []
-                procedure_names = set()
-
-                for proc in procedures:
-                    procedure_def_details.append({
-                        "procedure_definition_id": proc['procedure_definition__id'],
-                        "procedure_definition_name": proc['procedure_definition__name']
+                ).exclude(group_id=45).values_list('name', flat=True).distinct()
+                procedures_list = []
+                for proc_name in procedure_names:
+                    proc_defs = ProcedureResult.objects.filter(
+                        work_order=workorder.id,
+                        unit__serial_number=serial,
+                        name=proc_name
+                    ).exclude(group_id=45).values(
+                        'procedure_definition__id',
+                        'procedure_definition__name'
+                    ).order_by('procedure_definition__id').distinct('procedure_definition__id')
+                    procedure_def_details = [
+                        {
+                            "procedure_definition_id": p['procedure_definition__id'],
+                            "procedure_definition_name": p['procedure_definition__name']
+                        }
+                        for p in proc_defs
+                    ]
+                    procedures_list.append({
+                        "procedure_name": proc_name,
+                        "procedure_definition_details": procedure_def_details
                     })
-                    if proc.get('name'):
-                        procedure_names.add(proc['name'])
-
                 details_list.append({
                     "serial_numbers": serial,
-                    "procedure_name": list(procedure_names),
-                    "procedure_definition_details": procedure_def_details
+                    "procedures": procedures_list
                 })
-
             workorder_data = {
                 "workorder_id": workorder.id,
                 "workorder_name": workorder.name,
                 "details": details_list
             }
-
             data["workorders"].append(workorder_data)
-
         return Response(data)
 
-    
+
     @action(detail=True, methods=['post'], url_path='download')
     def download(self, request, number=None):
         """
@@ -156,9 +152,10 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                 return val
             return str(val)
         workorder_id = request.data.get("workorder_id")
-        procedure_def_id = proc.get("procedure_definition_id",[])
-        procedure_names = proc.get("procedure_names", [])
-        serial_numbers = proc.get("serial_numbers",[])
+        serial_numbers = request.data.get("serial_numbers", [])
+        procedure_names = request.data.get("procedure_names", [])
+        procedure_def_id = request.data.get("procedure_definition_id", [])
+
         adjust_images = False
         if not workorder_id:
             return Response({"error": "workorder id is required"}, status=400)
