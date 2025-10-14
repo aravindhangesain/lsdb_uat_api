@@ -111,7 +111,6 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             data["workorders"].append(workorder_data)
         return Response(data)
 
-
     @action(detail=True, methods=['post'], url_path='download')
     def download(self, request, number=None):
         """
@@ -119,18 +118,16 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
 
         Example Body JSON:
         {
-            "workorder_id": 1,
-            "procedures": [
-                {
-                    "serial_numbers": "SN12345",
-                    "procedure_definition_id": 2,
-                    "procedure_names": ["Pre-Stress","Post-Stress"]
-                },
-                {
-                    "serial_numbers": "SN67890",
-                    "procedure_definition_id": 3,
-                    "procedure_names": ["Pre Light Soak","Post Light Soak"]
-                }
+            "workorder_id": 1536,
+            "serial_numbers": [
+                "DEMO5",""DEMO6"
+            ],
+            "procedure_names": [
+                "Pre-Stress",""Post-Stress"
+            ],
+            "procedure_definition_id": [
+                2,
+                3
             ]
         }
         """
