@@ -107,23 +107,43 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         project = get_object_or_404(Project, number=number)
         work_order = get_object_or_404(project.workorder_set, id=workorder_id)
         allowed_proc_def = [2, 3, 14, 54, 50, 62, 33, 49, 21, 38, 48, 12, 18, 37]
+        # if not procedures:
+        #     procedure_results = ProcedureResult.objects.filter(
+        #         work_order=work_order,
+        #         procedure_definition_id__in=allowed_proc_def
+        #     ).exclude(group_id=45)
+        #     proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
+        #     for proc_def_id in proc_defs:
+        #         proc_names = (
+        #             procedure_results.filter(procedure_definition_id=proc_def_id)
+        #             .values_list("name", flat=True)
+        #             .distinct()
+        #         )
+        #         procedures.append({
+        #             "procedure_definition_id": proc_def_id,
+        #             "procedure_names": list(proc_names)
+        #         })
         if not procedures:
-            procedure_results = ProcedureResult.objects.filter(
-                work_order=work_order,
-                procedure_definition_id__in=allowed_proc_def
+            all_results = ProcedureResult.objects.filter(
+                work_order=work_order
             ).exclude(group_id=45)
-            proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
-            for proc_def_id in proc_defs:
+            all_proc_defs = all_results.values_list("procedure_definition_id", flat=True).distinct()
+            skipped_proc_defs = []
+            for proc_def_id in all_proc_defs:
+                if proc_def_id not in allowed_proc_def:
+                    skipped_proc_defs.append(proc_def_id)
+                    continue
+                procedure_results = all_results.filter(procedure_definition_id=proc_def_id)
                 proc_names = (
-                    procedure_results.filter(procedure_definition_id=proc_def_id)
-                    .values_list("name", flat=True)
+                    procedure_results.values_list("name", flat=True)
                     .distinct()
                 )
                 procedures.append({
                     "procedure_definition_id": proc_def_id,
                     "procedure_names": list(proc_names)
                 })
-        auto_generated = not request.data.get("procedures") or len(request.data.get("procedures")) == 0
+            if skipped_proc_defs:
+                print(f"Skipped unsupported procedure_definitions: {skipped_proc_defs}")
         files_to_return = []
         extra_files_exist = False
         for proc in procedures:
@@ -131,7 +151,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             procedure_names = proc.get("procedure_names", [])
             serial_number = proc.get("serial_numbers")
             procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
-            if auto_generated:
+            if not request.data.get("procedures"):
                 procedure_results = ProcedureResult.objects.filter(
                     work_order=work_order,
                     procedure_definition=procedure_def
