@@ -156,75 +156,52 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                 return val
             return str(val)
         workorder_id = request.data.get("workorder_id")
-        procedures = request.data.get("procedures", [])
+        procedure_def_id = proc.get("procedure_definition_id",[])
+        procedure_names = proc.get("procedure_names", [])
+        serial_numbers = proc.get("serial_numbers",[])
         adjust_images = False
         if not workorder_id:
             return Response({"error": "workorder id is required"}, status=400)
         project = get_object_or_404(Project, number=number)
         work_order = get_object_or_404(project.workorder_set, id=workorder_id)
         allowed_proc_def = [2, 3, 14, 54, 50, 62, 33, 49, 21, 38, 48, 12, 18, 37]
-        # if not procedures:
-        #     procedure_results = ProcedureResult.objects.filter(
-        #         work_order=work_order,
-        #         procedure_definition_id__in=allowed_proc_def
-        #     ).exclude(group_id=45)
-        #     proc_defs = procedure_results.values_list("procedure_definition_id", flat=True).distinct()
-        #     for proc_def_id in proc_defs:
-        #         proc_names = (
-        #             procedure_results.filter(procedure_definition_id=proc_def_id)
-        #             .values_list("name", flat=True)
-        #             .distinct()
-        #         )
-        #         procedures.append({
-        #             "procedure_definition_id": proc_def_id,
-        #             "procedure_names": list(proc_names)
-        #         })
-        if not procedures:
-            all_results = ProcedureResult.objects.filter(
-                work_order=work_order
-            ).exclude(group_id=45)
-            all_proc_defs = all_results.values_list("procedure_definition_id", flat=True).distinct()
-            skipped_proc_defs = []
-            for proc_def_id in all_proc_defs:
-                if proc_def_id not in allowed_proc_def:
-                    skipped_proc_defs.append(proc_def_id)
-                    continue
-                procedure_results = all_results.filter(procedure_definition_id=proc_def_id)
-                proc_names = (
-                    procedure_results.values_list("name", flat=True)
-                    .distinct()
-                )
-                procedures.append({
-                    "procedure_definition_id": proc_def_id,
-                    "procedure_names": list(proc_names)
-                })
-            if skipped_proc_defs:
-                print(f"Skipped unsupported procedure_definitions: {skipped_proc_defs}")
+        
+        all_results = ProcedureResult.objects.filter(
+            work_order=work_order
+        ).exclude(group_id=45)
+        # Apply filters progressively based on payload
+        if serial_numbers:
+            all_results = all_results.filter(unit__serial_number__in=serial_numbers)
+        if procedure_names:
+            all_results = all_results.filter(name__in=procedure_names)
+        if procedure_def_id:
+            all_results = all_results.filter(procedure_definition_id__in=procedure_def_id)
+        # Now restrict only to allowed definitions
+        all_results = all_results.filter(procedure_definition_id__in=allowed_proc_def)
+        # Prepare dynamic procedures list for Excel logic below
+        procedures = []
+        proc_defs = all_results.values_list("procedure_definition_id", flat=True).distinct()
+        for proc_def_id in proc_defs:
+            procedure_results = all_results.filter(procedure_definition_id=proc_def_id)
+            proc_names = procedure_results.values_list("name", flat=True).distinct()
+            procedures.append({
+                "procedure_definition_id": proc_def_id,
+                "procedure_names": list(proc_names)
+            })
+
         files_to_return = []
         extra_files_exist = False
         for proc in procedures:
+           
             procedure_def_id = proc.get("procedure_definition_id")
             procedure_names = proc.get("procedure_names", [])
-            serial_number = proc.get("serial_numbers")
             procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
-            if not request.data.get("procedures"):
-                procedure_results = ProcedureResult.objects.filter(
-                    work_order=work_order,
-                    procedure_definition=procedure_def
-                ).exclude(group_id=45)
-                units = Unit.objects.filter(procedureresult__in=procedure_results).distinct()
-                procedure_names_to_use = [None]
-            else:
-                procedure_names_to_use = procedure_names
-                units = Unit.objects.filter(
-                    procedureresult__work_order=work_order
-                ).distinct()
-                if serial_number:
-                    if isinstance(serial_number, list):
-                        units = units.filter(serial_number__in=serial_number)
-                    else:
-                        units = units.filter(serial_number=serial_number)
-            for procedure_name in procedure_names_to_use:
+        # Determine units based on filters
+            units = Unit.objects.filter(procedureresult__work_order=work_order).distinct()
+            if serial_numbers:
+                units = units.filter(serial_number__in=serial_numbers)
+
+            for procedure_name in procedure_names or [None]:
                 normalized_proc_name = normalize_value(procedure_name) if procedure_name else None
                 excel_file = Workbook()
                 sheet = excel_file.active
