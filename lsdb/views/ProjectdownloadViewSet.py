@@ -123,6 +123,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                     "procedure_definition_id": proc_def_id,
                     "procedure_names": list(proc_names)
                 })
+        auto_generated = not request.data.get("procedures") or len(request.data.get("procedures")) == 0
         files_to_return = []
         extra_files_exist = False
         for proc in procedures:
@@ -130,7 +131,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             procedure_names = proc.get("procedure_names", [])
             serial_number = proc.get("serial_numbers")
             procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
-            if not request.data.get("procedures"):
+            if auto_generated:
                 procedure_results = ProcedureResult.objects.filter(
                     work_order=work_order,
                     procedure_definition=procedure_def
