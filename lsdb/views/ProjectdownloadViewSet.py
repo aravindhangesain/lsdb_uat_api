@@ -208,16 +208,6 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             excel_file = Workbook()
             sheet = excel_file.active
 
-            # ----------------------------
-            # Existing procedure type blocks
-            # Replace each:
-            # if normalized_proc_name:
-            #     tests = tests.filter(normalized_name=normalized_proc_name)
-            # With:
-            # if normalized_proc_names != [None]:
-            #     tests = tests.filter(normalized_name__in=normalized_proc_names)
-            # ----------------------------
-
             # ========================================================
             # I-V Flash Procedure
             # ========================================================
@@ -500,6 +490,19 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                 "force_zip": False
             })
             file_stream.close()
+
+        # ----------------------------
+        # ✅ Remove duplicate Excel files
+        # ----------------------------
+        unique_files = []
+        seen_names = set()
+
+        for f in files_to_return:
+            if f["name"] not in seen_names:
+                unique_files.append(f)
+                seen_names.add(f["name"])
+
+        files_to_return = unique_files
 
         # ----------------------------
         # Return single Excel or ZIP
