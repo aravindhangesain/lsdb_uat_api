@@ -114,7 +114,6 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
     def download(self, request, number=None):
         """
         Endpoint: POST /api/1.0/projectdownload/<pk>/download/
-
         Example Body JSON:
         {
             "workorder_id": 1536,
@@ -151,36 +150,32 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         serial_numbers = request.data.get("serial_numbers", [])
         procedure_names = request.data.get("procedure_names", [])
         procedure_def_id = request.data.get("procedure_definition_id", [])
-
         adjust_images = False
+
         if not workorder_id:
             return Response({"error": "workorder id is required"}, status=400)
         project = get_object_or_404(Project, number=number)
         work_order = get_object_or_404(project.workorder_set, id=workorder_id)
         allowed_proc_def = [2, 3, 14, 54, 50, 62, 33, 49, 21, 38, 48, 12, 18, 37]
-        
         all_results = ProcedureResult.objects.filter(
             work_order=work_order
         ).exclude(group_id=45)
         if serial_numbers:
             all_results = all_results.filter(unit__serial_number__in=serial_numbers)
-        # Combine name + definition_id pair logic
         if procedure_names and procedure_def_id:
             combined_filter = Q()
-            for name in procedure_names:
-                for def_id in procedure_def_id:
+            if len(procedure_names) == len(procedure_def_id):
+                for name, def_id in zip(procedure_names, procedure_def_id):
                     combined_filter |= Q(name=name, procedure_definition_id=def_id)
+            else:
+                for def_id in procedure_def_id:
+                    combined_filter |= Q(procedure_definition_id=def_id, name__in=procedure_names)
             all_results = all_results.filter(combined_filter)
-        elif procedure_names:
-            all_results = all_results.filter(name__in=procedure_names)
-        elif procedure_def_id:
-            all_results = all_results.filter(procedure_definition_id__in=procedure_def_id)
 
         all_results = all_results.filter(procedure_definition_id__in=allowed_proc_def)
 
         procedures = []
         proc_defs = all_results.values_list("procedure_definition_id", flat=True).distinct()
-
         for proc_def_id in proc_defs:
             procedure_results = all_results.filter(procedure_definition_id=proc_def_id)
             proc_names = procedure_results.values_list("name", flat=True).distinct()
@@ -191,11 +186,12 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
 
         files_to_return = []
         extra_files_exist = False
+
         units = Unit.objects.filter(procedureresult__work_order=work_order).distinct()
         if serial_numbers:
                 units = units.filter(serial_number__in=serial_numbers)
+                
         for proc in procedures:
-           
             procedure_def_id = proc.get("procedure_definition_id")
             procedure_names = proc.get("procedure_names", [])
             procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
