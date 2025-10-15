@@ -157,9 +157,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         project = get_object_or_404(Project, number=number)
         work_order = get_object_or_404(project.workorder_set, id=workorder_id)
         allowed_proc_def = [2, 3, 14, 54, 50, 62, 33, 49, 21, 38, 48, 12, 18, 37]
-        all_results = ProcedureResult.objects.filter(
-            work_order=work_order
-        ).exclude(group_id=45)
+        all_results = (ProcedureResult.objects.filter(work_order=work_order).exclude(group_id=45).select_related("unit", "procedure_definition"))
         if serial_numbers:
             all_results = all_results.filter(unit__serial_number__in=serial_numbers)
         if procedure_names and procedure_def_id:
@@ -171,36 +169,40 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                 for def_id in procedure_def_id:
                     combined_filter |= Q(procedure_definition_id=def_id, name__in=procedure_names)
             all_results = all_results.filter(combined_filter)
-
         all_results = all_results.filter(procedure_definition_id__in=allowed_proc_def)
-
-        procedures = []
-        proc_defs = all_results.values_list("procedure_definition_id", flat=True).distinct()
-        for proc_def_id in proc_defs:
-            procedure_results = all_results.filter(procedure_definition_id=proc_def_id)
-            proc_names = procedure_results.values_list("name", flat=True).distinct()
-            procedures.append({
-                "procedure_definition_id": proc_def_id,
-                "procedure_names": list(proc_names)
-            })
-
+        # Prefetch related fields to avoid repeated DB hits later
+        all_results = all_results.prefetch_related(
+            "stepresult_set__measurementresult_set__result_files",
+            "stepresult_set__measurementresult_set__measurement_result_type",
+            "stepresult_set__measurementresult_set__result_defect",
+        )
+        #Group by procedure_definition_id efficiently in Python
+        results_by_def = {}
+        for result in all_results:
+            proc_def_id = result.procedure_definition_id
+            results_by_def.setdefault(proc_def_id, set()).add(result.name)
+        #Build the same `procedures` list (but faster, in-memory)
+        procedures = [
+            {"procedure_definition_id": def_id, "procedure_names": list(names)}
+            for def_id, names in results_by_def.items()
+        ]
+        #Prepare units (use one query)
+        units = Unit.objects.filter(procedureresult__work_order=work_order)
+        if serial_numbers:
+            units = units.filter(serial_number__in=serial_numbers)
+        units = units.distinct()
         files_to_return = []
         extra_files_exist = False
-
-        units = Unit.objects.filter(procedureresult__work_order=work_order).distinct()
-        if serial_numbers:
-                units = units.filter(serial_number__in=serial_numbers)
-                
+        #Loop through pre-grouped data
         for proc in procedures:
-            procedure_def_id = proc.get("procedure_definition_id")
-            procedure_names = proc.get("procedure_names", [])
-            procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
-
-            for procedure_name in procedure_names or [None]:
+            proc_def_id = proc["procedure_definition_id"]
+            proc_names = proc["procedure_names"]
+            procedure_def = get_object_or_404(ProcedureDefinition, id=proc_def_id)
+            for procedure_name in proc_names or [None]:
                 normalized_proc_name = normalize_value(procedure_name) if procedure_name else None
                 excel_file = Workbook()
                 sheet = excel_file.active
-
+                
                 # ========================================================
                 # I-V Flash Procedure
                 # ========================================================
