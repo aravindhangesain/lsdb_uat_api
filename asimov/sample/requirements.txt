@@ -79,4 +79,4 @@ urllib3==1.26.16
 virtualenv==20.23.0
 whitenoise==5.2.0
 reportlab==4.2.5
-zipstream==1.1.4
+zipstream-new==1.1.8
