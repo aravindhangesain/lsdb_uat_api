@@ -10,13 +10,12 @@ import zipfile
 from io import BytesIO
 from openpyxl import Workbook
 from PIL import Image, ImageOps
-from django.db.models import F, Value
+from django.db.models import F, Value,Q
 from django.db.models.functions import Replace, Lower
 from openpyxl import Workbook
 from io import BytesIO
 from django.http import HttpResponse,StreamingHttpResponse
 import zipstream
-
 
 class ProjectdownloadViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -163,18 +162,25 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         all_results = ProcedureResult.objects.filter(
             work_order=work_order
         ).exclude(group_id=45)
-        # Apply filters progressively based on payload
         if serial_numbers:
             all_results = all_results.filter(unit__serial_number__in=serial_numbers)
-        if procedure_names:
+        # Combine name + definition_id pair logic
+        if procedure_names and procedure_def_id:
+            combined_filter = Q()
+            for name in procedure_names:
+                for def_id in procedure_def_id:
+                    combined_filter |= Q(name=name, procedure_definition_id=def_id)
+            all_results = all_results.filter(combined_filter)
+        elif procedure_names:
             all_results = all_results.filter(name__in=procedure_names)
-        if procedure_def_id:
+        elif procedure_def_id:
             all_results = all_results.filter(procedure_definition_id__in=procedure_def_id)
-        # Now restrict only to allowed definitions
+
         all_results = all_results.filter(procedure_definition_id__in=allowed_proc_def)
-        # Prepare dynamic procedures list for Excel logic below
+
         procedures = []
         proc_defs = all_results.values_list("procedure_definition_id", flat=True).distinct()
+
         for proc_def_id in proc_defs:
             procedure_results = all_results.filter(procedure_definition_id=proc_def_id)
             proc_names = procedure_results.values_list("name", flat=True).distinct()
@@ -185,15 +191,14 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
 
         files_to_return = []
         extra_files_exist = False
+        units = Unit.objects.filter(procedureresult__work_order=work_order).distinct()
+        if serial_numbers:
+                units = units.filter(serial_number__in=serial_numbers)
         for proc in procedures:
            
             procedure_def_id = proc.get("procedure_definition_id")
             procedure_names = proc.get("procedure_names", [])
             procedure_def = get_object_or_404(ProcedureDefinition, id=procedure_def_id)
-        # Determine units based on filters
-            units = Unit.objects.filter(procedureresult__work_order=work_order).distinct()
-            if serial_numbers:
-                units = units.filter(serial_number__in=serial_numbers)
 
             for procedure_name in procedure_names or [None]:
                 normalized_proc_name = normalize_value(procedure_name) if procedure_name else None
@@ -477,6 +482,15 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
             )
             response["Content-Disposition"] = f'attachment; filename="{file["name"]}"'
             return response
+        z = zipstream.ZipFile(mode="w", compression=zipstream.ZIP_DEFLATED)
+        for file in files_to_return:
+            # file["content"] should be bytes or file-like
+            z.write_iter(file["name"], [file["content"]])
+        response = StreamingHttpResponse(z, content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
+        )
+        return response
         # mem_zip = BytesIO()
         # with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
         #     for file in files_to_return:
@@ -487,15 +501,7 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
         #     f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
         # )
         # return response
-        z = zipstream.ZipFile(mode="w", compression=zipstream.ZIP_DEFLATED)
-        for file in files_to_return:
-            # file["content"] should be bytes or file-like
-            z.write_iter(file["name"], [file["content"]])
-        response = StreamingHttpResponse(z, content_type="application/zip")
-        response["Content-Disposition"] = (
-            f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
-        )
-        return response
+
 
 
 
