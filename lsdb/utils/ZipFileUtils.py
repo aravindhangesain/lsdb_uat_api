@@ -545,3 +545,267 @@ def create_download_file(work_orders: QuerySet[WorkOrder], tsd_ids, unit_ids,
     response = HttpResponse(mem_zip.getvalue(), content_type='application/x-zip-compressed')
     response['Content-Disposition'] = f'attachment; filename={filename}.zip'
     return response
+
+
+
+
+
+
+def workorder_download_file(work_orders: QuerySet[WorkOrder],adjust_images=False):
+    mem_zip = BytesIO()
+
+    with zipfile.ZipFile(mem_zip, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
+        for work_order in work_orders:
+            # Create the Excel files and sheets for various data
+            excel_file_units = ExcelFile()
+            unit_sheet = excel_file_units.workbook.active
+            unit_sheet.title = "Units"
+            unit_sheet.append(["Manufacturer", "Technology", "Model",
+                               "Serial Number", "Calibration Device Used",
+                               "Maximum Voltage[V]", "Width [mm]", "Height [mm]",
+                               "Pmax [W]", "VOC [V]", "VMP[V]",
+                               "ISC [A]", "IMP [A]","final_result"])
+
+            excel_file_vi = ExcelFile()
+            vi_sheet = excel_file_vi.workbook.active
+            vi_sheet.title = "Visual Inspection"
+            vi_sheet.append(["Serial Number", "TSD", "LEG", "final_result", "Defect", "Category", "Notes", "Images:"])
+
+            excel_file_el = ExcelFile()
+            el_sheet = excel_file_el.workbook.active
+            el_sheet.title = "EL Image"
+            el_sheet.append(
+                ["Serial Number", "TSD", "LEG", "final_result","Aperture", "ISO", "Exposure Count", "Injection Current",
+                 "Exposure Time"])
+
+            excel_file_wl = ExcelFile()
+            wl_sheet = excel_file_wl.workbook.active
+            wl_sheet.title = "Wet Leakage"
+            wl_sheet.append(["Serial Number", "TSD", "LEG", "final_result","Insulation Resistance", "Passed?", "Test Voltage",
+                             "Leakage Current", "Current Trip Setpoint", "Water Temperature"])
+
+            excel_file_flash = ExcelFile()
+            flash_sheet = excel_file_flash.workbook.active
+            flash_sheet.title = "Flash"
+            flash_sheet.append(
+                ["Serial Number", "TSD", "LEG", "final_result","Pmp", "Voc", "Vmp", "Isc", "Imp", "Irradiance", "Temperature"])
+
+            excel_file_color = ExcelFile()
+            color_book = excel_file_color.workbook
+
+
+            
+            
+            units = Unit.objects.filter(procedureresult__work_order=work_order).distinct()
+
+            for unit in units:
+                unit_sheet.append([
+                    unit.unit_type.manufacturer.name,
+                    # unit.unit_type.module_property.module_technology,
+                    unit.unit_type.model,
+                    unit.serial_number,
+                    None,
+                    unit.unit_type.module_property.system_voltage,
+                    unit.unit_type.module_property.module_width,
+                    unit.unit_type.module_property.module_height,
+                    unit.unit_type.module_property.nameplate_pmax,
+                    unit.unit_type.module_property.voc,
+                    unit.unit_type.module_property.vmp,
+                    unit.unit_type.module_property.isc,
+                    unit.unit_type.module_property.imp
+                ])
+
+                
+                
+                procedure_query = ProcedureResult.objects.filter(unit=unit).order_by(
+                    'test_sequence_definition', 'linear_execution_group').select_related(
+                    'unit').prefetch_related('stepresult_set__measurementresult_set')
+
+                for test in procedure_query:
+                    final_result = ProcedureResult_FinalResult.objects.filter(procedure_result_id=test.id).values_list('final_result', flat=True).first()
+                    final_result_value = final_result if final_result else 'N/A'
+                    if "I-V" in test.procedure_definition.name:
+                        for step_result in test.stepresult_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name, final_result_value]
+                            for measurement in step_result.measurementresult_set.all().order_by('report_order'):
+                                if measurement.measurement_result_type.name == 'result_files':
+                                    if measurement.result_files.all().count():
+                                        has_result = step_result.measurementresult_set.filter(
+                                            result_files__name__icontains="Results")
+                                        
+                                        for azurefile in measurement.result_files.all():
+                                            if has_result and "Results" in azurefile.file.name:
+                                                path = "Flash Data/"
+                                                if "200" in step_result.name:
+                                                    path += "200W/"
+                                                elif "Rear" in test.procedure_definition.name:
+                                                    path += "Rear/"
+                                                path += "FLASH/{}/{}".format(
+                                                    test.test_sequence_definition.name,
+                                                    test.name
+                                                )
+                                                bytes = azurefile.file.file.read()
+                                                zf.writestr('{}/{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "Flash Data",
+                                                    path,
+                                                    azurefile.file.name,
+                                                ),
+                                                    bytes)
+                                            elif not has_result:
+                                                path = "Flash Data/"
+                                                if "200" in step_result.name:
+                                                    path += "200W/"
+                                                elif "Rear" in test.procedure_definition.name:
+                                                    path += "Rear/"
+                                                path += "FLASH/{}/{}".format(
+                                                    test.test_sequence_definition.name,
+                                                    test.name
+                                                )
+                                                bytes = azurefile.file.file.read()
+                                                zf.writestr('{}/{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "Flash Data",
+                                                    path,
+                                                    azurefile.file.name,
+                                                ),
+                                                    bytes)
+                                            else:
+                                                continue
+                                        
+                                elif measurement.measurement_result_type.name == 'result_datetime':
+                                    continue
+                                else:
+                                    data.append(getattr(measurement, measurement.measurement_result_type.name))
+                            flash_sheet.append(data)
+                    elif "Wet Leakage" in test.procedure_definition.name:
+                        for step_result in test.stepresult_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name,final_result_value]
+                            for measurement in step_result.measurementresult_set.all().order_by('report_order'):
+                                data.append(getattr(measurement, measurement.measurement_result_type.name))
+                            wl_sheet.append(data)
+                    elif "Visual Inspection" in test.procedure_definition.name:
+                        skip = False
+                        for step_result in test.stepresult_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name,final_result_value]
+                            for measurement in step_result.measurementresult_set.all().order_by('report_order'):
+                                if step_result.name == "Inspect Module":
+                                    if getattr(measurement, measurement.measurement_result_type.name):
+                                        skip = True
+                                        data.append("No Defects Observed")
+                                        vi_sheet.append(data)
+                                elif skip:
+                                    break
+                                else:
+                                        if measurement.measurement_result_type.name == 'result_files':
+                                            if measurement.result_files.all().count():
+                                                for azurefile in measurement.result_files.all():
+                                                    bytes = azurefile.file.file.read()
+                                                    zf.writestr('{}/{}/{}/{}'.format(
+                                                        work_order.project.number,
+                                                        work_order.name,
+                                                        "VI Images",
+                                                        azurefile.file.name,
+                                                    ),
+                                                        bytes)
+                                                    data.append(azurefile.file.name)
+                                    
+                                        else:
+                                            if measurement.result_defect != None and measurement.measurement_result_type.name == "result_defect":
+                                                print(test, step_result, measurement)
+                                                print(measurement.result_defect)
+                                                data.append(measurement.result_defect.short_name)
+                                                data.append(measurement.result_defect.category)
+                                            else:
+                                                data.append(
+                                                    getattr(measurement, measurement.measurement_result_type.name))
+                            if skip:
+                                break
+                            print(data)
+                            vi_sheet.append(data)
+                    elif "EL Image" in test.procedure_definition.name:
+                        for step_result in test.stepresult_set.all().exclude(archived=True):
+                            data = [unit.serial_number, test.test_sequence_definition.name, test.name,final_result_value]
+                            for measurement in step_result.measurementresult_set.all().order_by('report_order'):
+                                if measurement.measurement_result_type.name == 'result_files':
+                                    if measurement.result_files.all().count():                                    
+                                        for azurefile in measurement.result_files.all():
+                                            filetype = ''
+                                            if "RAW" in azurefile.file.name:
+                                                continue
+
+                                            if azurefile.file.name.lower().endswith(
+                                                    ('xls', 'xlsx', 'txt', 'csv')):
+                                                filetype = 'DataFiles'
+                                            else:
+                                                filetype = 'ImageFiles'
+
+                                            if filetype == 'ImageFiles':
+                                                temp = azurefile.file.name.split(".")
+                                                name = temp[0]
+                                                for sbstr in range(1, len(temp) - 1):
+                                                    name = name + "." + temp[sbstr]
+
+                                                name = "{}-{}-{}.{}".format(name,
+                                                                            test.test_sequence_definition.name,
+                                                                            test.name, temp[len(temp) - 1])
+
+                                            bytes = BytesIO(azurefile.file.file.read())
+                                            bytes.seek(0)
+
+                                            tempImage = Image.open(bytes)
+                                            try:
+                                                if adjust_images == True:
+                                                    width, height = tempImage.size
+                                                    tempImage = tempImage.rotate(-90, expand=True)
+                                                    tempImage = tempImage.resize((height, width))
+                                                    tempImage = ImageOps.grayscale(tempImage)
+                                                    tempImage = ImageOps.autocontrast(tempImage)
+                                                image_bytes = BytesIO()
+                                                tempImage.save(image_bytes, format='jpeg', quality=75)
+                                                tempImage.close()
+                                                content = image_bytes.getvalue()
+                                                image_bytes.close()
+                                            except:
+                                                bytes.seek(0)
+                                                content = bytes.getvalue()
+                                            bytes.close()
+
+                                            zf.writestr('{}/{}/{}/{}'.format(
+                                                    work_order.project.number,
+                                                    work_order.name,
+                                                    "EL Images",
+                                                    name,
+                                                ),
+                                                content)
+                                      
+                                else:
+                                    data.append(getattr(measurement, measurement.measurement_result_type.name))
+                        el_sheet.append(data)
+
+
+
+           
+                            
+            # Save the Excel files for each sheet to the zip file
+            for title, excel_file in [
+                ("Units", excel_file_units),
+                ("Visual Inspection", excel_file_vi),
+                ("EL Image", excel_file_el),
+                ("Wet Leakage", excel_file_wl),
+                # ("Diode Test", excel_file_dt),
+                ("Flash", excel_file_flash)
+                # ("Colorimeter",excel_file_color)
+            ]:
+                file_stream = BytesIO()
+                excel_file.workbook.save(file_stream)
+                file_stream.seek(0)
+                zf.writestr(f'{title}.xlsx', file_stream.read())
+                file_stream.close()
+
+    filename = timezone.now().strftime('%b-%d-%Y-%H%M%S')
+    response = HttpResponse(mem_zip.getvalue(), content_type='application/x-zip-compressed')
+    response['Content-Disposition'] = f'attachment; filename={filename}.zip'
+    return response
