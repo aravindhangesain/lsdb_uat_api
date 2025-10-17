@@ -15,7 +15,7 @@ from django.db.models.functions import Replace, Lower
 from openpyxl import Workbook
 from io import BytesIO
 from django.http import HttpResponse
-from zipstream import ZipFile
+# from zipstream import ZipFile
 from django.http import StreamingHttpResponse
 from lsdb.utils.ZipFileUtils import workorder_download_file
 
@@ -543,26 +543,28 @@ class ProjectdownloadViewSet(viewsets.ModelViewSet):
                     response["Content-Disposition"] = f'attachment; filename="{file["name"]}"'
                     return response
                 
-                z = ZipFile(mode='w', compression=zipfile.ZIP_DEFLATED)
-                for file in files_to_return:
-                    z.write_iter(file["name"], BytesIO(file["content"]))
-                response = StreamingHttpResponse(z, content_type='application/zip')
+                mem_zip = BytesIO()
+                with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+                    for file in files_to_return:
+                        zf.writestr(file["name"], file["content"])
+                mem_zip.seek(0)
+
+                response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
                 response["Content-Disposition"] = (
                     f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
                 )
                 return response
+                
+                # z = ZipFile(mode='w', compression=zipfile.ZIP_DEFLATED)
+                # for file in files_to_return:
+                #     z.write_iter(file["name"], BytesIO(file["content"]))
+                # response = StreamingHttpResponse(z, content_type='application/zip')
+                # response["Content-Disposition"] = (
+                #     f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
+                # )
+                # return response
 
-        # mem_zip = BytesIO()
-        # with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-        #     for file in files_to_return:
-        #         zf.writestr(file["name"], file["content"])
-        # mem_zip.seek(0)
-
-        # response = HttpResponse(mem_zip.getvalue(), content_type="application/x-zip-compressed")
-        # response["Content-Disposition"] = (
-        #     f'attachment; filename="{work_order.project.number}-{timezone.now().strftime("%b-%d-%Y-%H%M%S")}.zip"'
-        # )
-        # return response
+       
 
 
 
