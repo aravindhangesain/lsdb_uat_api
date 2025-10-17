@@ -37,7 +37,7 @@ class RetestReportListViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             disposition_id__in=[8],
             unit_id__in=unit_ids,
             start_datetime__date__range=[start_date, end_date]
-        ).distinct()
+        ).exclude(group_id=45).distinct()
         
         return {"retest_results": retest_results.order_by("-start_datetime")}
 

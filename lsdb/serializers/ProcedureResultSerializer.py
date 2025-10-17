@@ -901,6 +901,7 @@ class RetestReportListSerializer(serializers.HyperlinkedModelSerializer):
             'test_sequence_definition_name',
             'description',
             'customer_name',
+            'group_id'
             # 'note_id',
             # 'note_text',
             # 'note_subject',
