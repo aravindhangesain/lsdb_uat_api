@@ -158,43 +158,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'chinalocaldatabase',
-#         'HOST': '10.10.10.61',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         "PORT": "5432",
-#         # 'OPTIONS': {'sslmode': 'require'},
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'havebluedevdb',
-#         'HOST': '172.25.80.18',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         "PORT": "5432",
-#         # 'OPTIONS': {'sslmode': 'require'},
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'new_local',
-#         'HOST': 'localhost',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         "PORT": "5432",
-#         # 'OPTIONS': {'sslmode': 'require'},
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'HaveBlueDevDB_new',
+#         'NAME': 'LSDB_UAT_NEW',
 #         'HOST': 'uatlsdb.postgres.database.azure.com',
 #         'USER': 'haveblueflexible',
 #         'PASSWORD': 'Gesa@2023',
@@ -203,10 +167,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #     }
 # }
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'LSDB_UAT_NEW',
+        'NAME': 'UAT-New-DB',
         'HOST': 'uatlsdb.postgres.database.azure.com',
         'USER': 'haveblueflexible',
         'PASSWORD': 'Gesa@2023',
