@@ -181,3 +181,4 @@ from .ProjectdownloadViewSet import ProjectdownloadViewSet as ProjectdownloadVie
 from .ProjectFactoryWitnessViewSet import ProjectFactoryWitnessViewSet as ProjectFactoryWitnessViewSet
 from .TravelerPdfViewSet import TravelerPdfViewSet as TravelerPdfViewSet
 from .AssetLastActionDetailsViewSet import AssetLastActionDetailsViewSet as AssetLastActionDetailsViewSet
+from .RetestReportListViewSet import RetestReportListViewSet as RetestReportListViewSet

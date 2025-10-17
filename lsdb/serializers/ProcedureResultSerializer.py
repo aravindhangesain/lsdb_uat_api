@@ -773,6 +773,142 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             
         ]
 
+class RetestReportListSerializer(serializers.HyperlinkedModelSerializer):
+    work_order_name = serializers.ReadOnlyField(source='work_order.name')
+    unit_serial_number = serializers.ReadOnlyField(source='unit.serial_number')
+    project_number = serializers.ReadOnlyField(source='work_order.project.number')
+    test_sequence_definition_name = serializers.ReadOnlyField(source='test_sequence_definition.name')
+    procedure_definition_name = serializers.ReadOnlyField(source='procedure_definition.name')
+    description = serializers.ReadOnlyField(source='test_sequence_definition.description')
+    disposition_name = serializers.SerializerMethodField()
+    customer_name = serializers.ReadOnlyField(source='work_order.project.customer.name')
+    # note_id = serializers.SerializerMethodField()
+    # note_text = serializers.SerializerMethodField()
+    # note_subject  = serializers.SerializerMethodField()
+    # notes = serializers.SerializerMethodField()
+    # note_attachment_id = serializers.SerializerMethodField()
+
+    # def get_note_attachment_id(self, obj):
+    #     note_id = self.get_note_id(obj)
+    #     if not note_id:
+    #         return []
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT azurefile_id FROM lsdb_note_attachments WHERE note_id = %s
+    #         """, [note_id])
+    #         return [row[0] for row in cursor.fetchall()] 
+
+
+    def get_disposition_name(self, obj):
+        if obj.disposition:
+            return obj.disposition.name
+        else:
+            return None
+        
+    # def get_note_id(self, obj):
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT un.note_id 
+    #             FROM lsdb_unit_notes un 
+    #             JOIN lsdb_note n ON un.note_id = n.id 
+    #             WHERE n.note_type_id = 3 AND un.unit_id = %s
+    #             LIMIT 1
+    #         """, [obj.unit_id])
+    #         result = cursor.fetchone()
+    #     return result[0] if result else None
+    
+    # def get_note_text(self, obj):
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT n.text 
+    #             FROM lsdb_unit_notes un 
+    #             JOIN lsdb_note n ON un.note_id = n.id 
+    #             WHERE n.note_type_id = 3 AND un.unit_id = %s
+    #             LIMIT 1
+    #         """, [obj.unit_id])
+    #         result = cursor.fetchone()
+    #     return result[0].replace("\n", " ") if result else None
+    
+    # def get_note_subject(self, obj):
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT n.subject
+    #             FROM lsdb_unit_notes un 
+    #             JOIN lsdb_note n ON un.note_id = n.id 
+    #             WHERE n.note_type_id = 3 AND un.unit_id = %s
+    #             LIMIT 1
+    #         """, [obj.unit_id])
+    #         result = cursor.fetchone()
+    #     return result[0] if result else None
+    
+
+    # def get_notes(self, obj):
+    #     """Fetches and appends notes with the required fields."""
+    #     if not obj.unit_id:
+    #         return []
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT n.id, n.user_id, u.username, n.owner_id, o.username AS owner_name, 
+    #                    n.subject, n.text, n.note_type_id, nt.name AS note_type_name, 
+    #                    n.disposition_id, d.name AS disposition_name
+    #             FROM lsdb_note n
+    #             JOIN lsdb_unit_notes un ON n.id = un.note_id
+    #             JOIN auth_user u ON n.user_id = u.id
+    #             JOIN auth_user o ON n.owner_id = o.id
+    #             JOIN lsdb_notetype nt ON n.note_type_id = nt.id
+    #             JOIN lsdb_disposition d ON n.disposition_id = d.id
+    #             WHERE un.unit_id = %s
+    #         """, [obj.unit_id])
+    #         notes_data = [
+    #             {
+    #                 "id": row[0],
+    #                 "user": row[1],
+    #                 "username": row[2],
+    #                 "owner": row[3],
+    #                 "owner_name": row[4],
+    #                 "subject": row[5],
+    #                 "text": row[6],
+    #                 "note_type": row[7],
+    #                 "note_type_name": row[8],
+    #                 "disposition": row[9],
+    #                 "disposition_name": row[10],
+    #             }
+    #             for row in cursor.fetchall()
+    #         ]
+    #     return notes_data
+    
+    
+
+
+    class Meta:
+        model = ProcedureResult
+        fields = [
+            'id',
+            'url',
+            'name',
+            'unit',
+            'unit_serial_number',
+            'procedure_definition',
+            'procedure_definition_name',
+            'disposition',
+            'disposition_name',
+            'start_datetime',
+            'end_datetime',
+            'project_number',
+            'work_order',
+            'work_order_name',
+            'test_sequence_definition',
+            'test_sequence_definition_name',
+            'description',
+            'customer_name',
+            # 'note_id',
+            # 'note_text',
+            # 'note_subject',
+            # 'note_attachment_id',
+            # 'notes',
+            
+        ]
+
 
 class FlashTestSerializer(serializers.HyperlinkedModelSerializer):
     work_order_name = serializers.ReadOnlyField(source='work_order.name')
