@@ -553,6 +553,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 test_sequence_definition__group__name__iexact="control"
             ).exclude(
                 unit_id__in=excluded_units
+            ).exclude(
+                unit__disposition__name="Handling Damage"
             ).annotate(
                 last_action_date=Coalesce(
                     Max('unit__procedureresult__stepresult__measurementresult__date_time'),
@@ -689,6 +691,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             work_order__project__disposition__complete=True
             ).exclude(
             test_sequence_definition__group__name__iexact="control"
+            ).exclude(
+            unit__disposition__name="Handling Damage"
             ).annotate(
             last_action_date=Coalesce(
                 Max('unit__procedureresult__stepresult__measurementresult__date_time'),
@@ -844,7 +848,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 unit_ids.append(unit.id)
 
         # Filter final units by IDs
-        final_units = Unit.objects.filter(id__in=unit_ids)
+        final_units = Unit.objects.filter(id__in=unit_ids).exclude(unit__disposition__name__iexact="Handling Damage")
 
         # If location filter is provided, apply it
         if location_id:
@@ -917,7 +921,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             stepresult__disposition__isnull=False,
             stepresult__name__iexact="test start",
             group__name__iexact='stressors'
-        ).exclude(test_sequence_definition__group__name__iexact="control").distinct()
+        ).exclude(test_sequence_definition__group__name__iexact="control").exclude(unit__disposition__name__iexact="Handling Damage").distinct()
 
         # If location_id is provided, filter units by location
         if location_id:
