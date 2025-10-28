@@ -33,11 +33,10 @@ class RetestReportListViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         #     """)
         #     unit_ids = [row[0] for row in cursor.fetchall()]
         unit_ids=Unit.objects.all()
-        retest_results = ProcedureResult.objects.filter(
-            disposition_id__in=[8],
-            unit_id__in=unit_ids,
-            start_datetime__date__range=[start_date, end_date]
-        ).exclude(group_id=45).distinct()
+        retest_results = ProcedureResult.objects.filter(Q(disposition_id=8),
+                                                        Q(stepresult__measurementresult__disposition_id=8),
+                                                        Q(stepresult__measurementresult__date_time__date__range=[start_date,end_date])
+                                                        ).exclude(group_id=45).order_by('unit_id', 'id')
         
         return {"retest_results": retest_results.order_by("-start_datetime")}
 
