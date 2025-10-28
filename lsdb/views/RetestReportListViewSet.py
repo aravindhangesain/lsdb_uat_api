@@ -13,6 +13,8 @@ import re
 import csv
 from rest_framework.response import Response
 from django.db.models import Q
+from django.db.models import Subquery
+
 
 class RetestReportListViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = RetestReportListSerializer
@@ -33,10 +35,16 @@ class RetestReportListViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         #     """)
         #     unit_ids = [row[0] for row in cursor.fetchall()]
         unit_ids=Unit.objects.all()
-        retest_results = ProcedureResult.objects.filter(Q(disposition_id=8),
-                                                        Q(stepresult__measurementresult__disposition_id=8),
-                                                        Q(stepresult__measurementresult__date_time__date__range=[start_date,end_date])
-                                                        ).exclude(group_id=45).order_by('unit_id', 'id')
+        distinct_ids = (
+        ProcedureResult.objects.filter(
+            stepresult__disposition_id=8,
+            stepresult__measurementresult__date_time__date__range=[start_date, end_date],
+        )
+        .exclude(group_id=45)
+        .values('id')
+        .distinct())
+
+        retest_results = ProcedureResult.objects.filter(id__in=Subquery(distinct_ids)).order_by('id')
         
         return {"retest_results": retest_results.order_by("-start_datetime")}
 
