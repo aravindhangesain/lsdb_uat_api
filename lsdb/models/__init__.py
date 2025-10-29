@@ -157,9 +157,9 @@ from .ReportChecklistData import ReportChecklistData as ReportChecklistData
 from .ReportChecklistNote import ReportChecklistNote as ReportChecklistNote
 from .SubAsset import SubAsset as SubAsset
 from .AssetSubAsset import AssetSubAsset as AssetSubAsset
-
-
 from .StressRunResult import StressRunResult as StressRunResult
 from .StressRunDetails import StressRunDetails as StressRunDetails
 from .ProjectFactoryWitness import ProjectFactoryWitness as ProjectFactoryWitness
 from .AssetLastActionDetails import AssetLastActionDetails as AssetLastActionDetails
+from .RetestReasons import RetestReasons as RetestReasons
+from .RetestProcedures import RetestProcedures as RetestProcedures

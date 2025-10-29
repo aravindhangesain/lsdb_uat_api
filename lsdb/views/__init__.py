@@ -182,3 +182,4 @@ from .ProjectFactoryWitnessViewSet import ProjectFactoryWitnessViewSet as Projec
 from .TravelerPdfViewSet import TravelerPdfViewSet as TravelerPdfViewSet
 from .AssetLastActionDetailsViewSet import AssetLastActionDetailsViewSet as AssetLastActionDetailsViewSet
 from .RetestReportListViewSet import RetestReportListViewSet as RetestReportListViewSet
+from .RetestReasonsViewSet import RetestReasonsViewSet as RetestReasonsViewSet

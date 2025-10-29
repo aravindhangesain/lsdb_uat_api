@@ -148,6 +148,7 @@ router.register(r'project_factory_witness',ProjectFactoryWitnessViewSet, basenam
 router.register(r'traveler_pdf',TravelerPdfViewSet, basename = 'traveler_pdf')
 router.register(r'asset_last_action',AssetLastActionDetailsViewSet,basename='asset_last_action')
 router.register(r'retest_required_report',RetestReportListViewSet,basename='retest_required_report')
+router.register(r'retest_reasons',RetestReasonsViewSet,basename='retest_reasons')
 
 
 
