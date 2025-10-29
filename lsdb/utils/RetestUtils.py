@@ -3,10 +3,8 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 # from rest_framework.response import Response
 
-from lsdb.models import Disposition
-from lsdb.models import MeasurementResult
-from lsdb.models import ProcedureResult
-from lsdb.models import StepResult
+from lsdb.models import *
+
 
 from lsdb.serializers.ProcedureResultSerializer import ProcedureResultSerializer
 
@@ -100,6 +98,11 @@ class RetestUtils():
             result.reviewed_by_user = request.user
             result.review_datetime = timezone.now()
             result.save()
+            retest_reason = RetestProcedures.objects.create(
+                procedure_result = result,
+                retestreason = params.get('retest_id'),
+                updated_by = request.user
+            )
             # This should only be changing those dispositions of "requires retest"
             for stepresult in result.stepresult_set.filter(disposition__isnull=False):
                 stepresult.disposition = retest

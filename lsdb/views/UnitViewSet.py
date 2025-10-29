@@ -594,6 +594,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'last_action_date',
                 'group__name',
                 'unit__location__name',
+                'unit__location__id',
                 'id'  # Assuming 'id' represents procedure_result_id
             )))
             
