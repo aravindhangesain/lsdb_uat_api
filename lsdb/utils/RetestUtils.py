@@ -38,6 +38,7 @@ class RetestUtils():
             else:
                 try:
                     result = ProcedureResult.objects.get(id=params.get('procedure_result'))
+                    retest_id = RetestReasons.objects.get(id=params.get('retest_id'))
                 except:
                     errors.append(
                             "Error: requested procedure result {} does not exist".format(params.get('procedure_result'))
@@ -100,7 +101,7 @@ class RetestUtils():
             result.save()
             retest_reason = RetestProcedures.objects.create(
                 procedure_result = result,
-                retestreason = params.get('retest_id'),
+                retestreason = retest_id,
                 updated_by = request.user
             )
             # This should only be changing those dispositions of "requires retest"
