@@ -5,17 +5,10 @@ from rest_framework import serializers
 from django.db import IntegrityError, transaction
 from django.db.models import Q, Max, Count,Subquery, OuterRef
 
-from lsdb.models import ProcedureResult
-from lsdb.models import ExpectedUnitType
-from lsdb.models import Unit
-from lsdb.models import AzureFile
-from lsdb.models import ProcedureResult_FinalResult
-
-from lsdb.serializers import AzureFileSerializer
-from lsdb.serializers import NoteSerializer
-from lsdb.serializers import ProjectSerializer
-from lsdb.serializers import ProcedureResultSerializer
+from lsdb.models import *
+from lsdb.serializers import *
 from lsdb.serializers.UnitTypeSerializer import UnitTypeSerializer
+from collections import defaultdict
 
 
 from lsdb.utils.NoteUtils import get_note_counts
@@ -258,7 +251,7 @@ class UnitGroupedTravelerSerializer(serializers.ModelSerializer):
             'test_sequence_definition__hex_color',
             'open_notes',
             'final_result'
-            ]]
+            ]].copy()
         filtered.columns=[
             'id',
             'name',
@@ -280,6 +273,36 @@ class UnitGroupedTravelerSerializer(serializers.ModelSerializer):
             'open_notes',
             'final_result'
             ]
+        
+        # Retest Reasons response
+        retests = RetestProcedures.objects.filter(
+            procedure_result_id__in=filtered["id"].tolist()
+        ).select_related("retestreason", "updated_by").values(
+            "id",
+            "procedure_result",
+            "retestreason__reason",
+            "retestreason__description",
+            "datetime",
+            "updated_by__username"
+        )
+
+        retest_map = defaultdict(list)
+        for r in retests:
+            retest_map[r["procedure_result"]].append({
+                "id": r["id"],
+                "retest_reason": r["retestreason__reason"],
+                "short_name": r["retestreason__description"],
+                "datetime": r["datetime"],
+                "updated_by": r["updated_by__username"]
+            })
+
+        filtered.loc[:,"retest_reason"] = filtered["id"].apply(
+        lambda pid: (
+            None if len(retest_map.get(pid, [])) == 0
+            else retest_map[pid][0] if len(retest_map[pid]) == 1
+            else retest_map[pid]
+        ))
+
         # filtered.completion_date.astype(object).where(filtered.completion_date.notna(),None, inplace=True,)
         grouped = filtered.groupby('linear_execution_group')
         results = []
@@ -325,7 +348,7 @@ class UnitGroupedTravelerSerializer(serializers.ModelSerializer):
             'unit_images',
             'unit_type',
             'calibration_results',
-            'sequences_results',
+            'sequences_results'
         ]
 
 class UnitGroupedAssetTypeSerializer(serializers.ModelSerializer):

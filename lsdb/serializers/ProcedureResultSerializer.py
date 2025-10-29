@@ -111,6 +111,7 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     open_notes = serializers.SerializerMethodField()
     final_result = serializers.SerializerMethodField()
     last_calibration_date = serializers.SerializerMethodField()
+    retest_reasons = serializers.SerializerMethodField()
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -393,6 +394,22 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
 
         return last_calibration_date
 
+    def get_retest_reasons(self, obj):
+        try:
+            retest_reasons_qs = obj.retestprocedures_set.all()
+            reasons = []
+            for reason in retest_reasons_qs:
+                reasons.append({
+                    'id': reason.id,
+                    'retestreason': reason.retestreason.reason,
+                    'short_name': reason.retestreason.description,
+                    'updated_by': reason.updated_by.username if reason.updated_by else None,
+                    'date_time': reason.datetime,
+                })
+            return reasons
+        except:
+            return []
+        
     class Meta:
         model = ProcedureResult
         fields = [
@@ -409,7 +426,8 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
             'last_calibration_date',
             'has_notes',
             'open_notes',
-            'final_result'
+            'final_result',
+            'retest_reasons'
         ]
 
 
@@ -507,6 +525,7 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
                 reasons.append({
                     'id': reason.id,
                     'retestreason': reason.retestreason.reason,
+                    'short_name': reason.retestreason.description,
                     'updated_by': reason.updated_by.username if reason.updated_by else None,
                     'date_time': reason.datetime,
                 })
