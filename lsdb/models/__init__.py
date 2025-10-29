@@ -163,3 +163,4 @@ from .ProjectFactoryWitness import ProjectFactoryWitness as ProjectFactoryWitnes
 from .AssetLastActionDetails import AssetLastActionDetails as AssetLastActionDetails
 from .RetestReasons import RetestReasons as RetestReasons
 from .RetestProcedures import RetestProcedures as RetestProcedures
+from .UserAssignmentForProcedure import UserAssignmentForProcedure as UserAssignmentForProcedure
