@@ -11,9 +11,10 @@ class UserAssignmentForProcedureViewSet(viewsets.ModelViewSet):
 
     def create(self,request):
         user_ids=request.data.get('user_ids')
-        procedure_result_id=request.data.get('procedure_result_id')
+        procedure_result_ids=request.data.get('procedure_result_ids')
 
         for user_id in user_ids:
-            UserAssignmentForProcedure.objects.create(user_id=user_id,procedure_result_id=procedure_result_id,assigned_by_id=request.user.id)
+            for procedure_result_id in procedure_result_ids:
+                UserAssignmentForProcedure.objects.create(user_id=user_id,procedure_result_id=procedure_result_id,assigned_by_id=request.user.id)
         return Response({"detail":"Procedure assigned to selected user/users"}, status=status.HTTP_200_OK)
 

@@ -632,6 +632,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'last_action_date',
                 'last_action_days',
                 'unit__location__name',
+                'unit__location__id',
                 'id'  # procedure_result_id
             ]]
             
@@ -639,7 +640,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'serial_number', 'test_sequence', 'linear_execution_group',
                 'procedure_definition', 'customer', 'project_number', 'work_order',
                 'characterization', 'allow_skip',
-                'last_action_date', 'last_action_days', 'location', 'procedure_result_id'
+                'last_action_date', 'last_action_days', 'location', 'location_id','procedure_result_id'
             ]
             
             filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
@@ -732,6 +733,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'last_action_date',
                 'group__name',
                 'unit__location__name',
+                'unit__location__id',
+                'id'
             )))
 
             # Handle case where DataFrame is empty after values conversion
@@ -772,6 +775,9 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'last_action_date',
                 'last_action_days',
                 'unit__location__name',
+                'unit__location__id',
+                'id'
+                
             ]]
             filtered.columns = [
                 'serial_number', 'test_sequence', 'linear_execution_group',
@@ -780,6 +786,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'last_action_date',
                 'last_action_days',
                 'location',
+                'location_id',
+                'procedure_result_id'
             ]
             filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
             grouped = filtered.groupby('procedure_definition')
