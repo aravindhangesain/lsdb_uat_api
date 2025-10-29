@@ -30,13 +30,26 @@ from lsdb.utils.Crypto import encrypt
 
 class UserFilter(filters.FilterSet):
     # projects =
+    groups = filters.NumberFilter(method='filter_by_custom_group')
 
+    def filter_by_custom_group(self, queryset, name, value):
+        """
+        Custom filter to get all users linked to the given group ID.
+        """
+        try:
+            group = Group.objects.get(id=value)
+            user_ids = group.users.values_list('id', flat=True)
+            return queryset.filter(id__in=user_ids)
+        except Group.DoesNotExist:
+            return queryset.none()
+        
     class Meta:
         model = User
         fields = {
             'email': ['exact', 'icontains'],
             'username': ['exact', 'icontains'],
-            'is_active': ['exact']
+            'is_active': ['exact'],
+            'groups': ['exact']
         }
 
 
