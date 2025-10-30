@@ -184,7 +184,6 @@ router.register(r'user_assigment_for_procedure',UserAssignmentForProcedureViewSe
 # router.register(r'proceduredefinition_pichina',ProcedureDefinition_pichinaViewSet, basename = 'proceduredefinition_pichina')
 # router.register(r'azurefile_pichina',AzureFile_pichinaViewSet,basename = 'azurefile_pichina')
 # router.register(r'availabledefect_pichina',AvailableDefect_pichinaViewSet,basename = 'availabledefect_pichina')
-router.register(r'deletemoduleintake',DeleteModuleIntakeIDViewSet,basename = 'deletemoduleintake')
 # router.register(r'deliverablescoverdata',GetDeliverablesCoverPageViewSet, basename = 'deliverablescoverdata')
 # router.register(r'getproceduredefinitionlist',GetProcedureDefinitionListViewSet, basename = 'getproceduredefinitionlist')
 # router.register(r'flashdatadeliverables',GetDeliverablesDataViewSet, basename = 'flashdatadeliverables')
