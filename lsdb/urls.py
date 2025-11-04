@@ -150,7 +150,7 @@ router.register(r'traveler_pdf',TravelerPdfViewSet, basename = 'traveler_pdf')
 router.register(r'asset_last_action',AssetLastActionDetailsViewSet,basename='asset_last_action')
 router.register(r'retest_required_report',RetestReportListViewSet,basename='retest_required_report')
 router.register(r'retestreasons',RetestReasonsViewSet,basename='retestreasons')
-router.register(r'user_assigment_for_procedure',UserAssignmentForProcedureViewSet,basename='user_assigment_for_procedure')
+router.register(r'user_assignment_for_procedure',UserAssignmentForProcedureViewSet,basename='user_assignment_for_procedure')
 
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')
 # router.register(r'IAMTestFileUpload',IAMTestFileUploadViewSet, basename = 'IAMTestFileUpload')
