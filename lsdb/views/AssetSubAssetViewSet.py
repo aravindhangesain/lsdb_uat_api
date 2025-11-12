@@ -77,7 +77,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         comment=comment,
                                                                         stress_name=step_result.name,
-                                                                        disposition=Disposition.objects.get(id=7)
+                                                                        disposition=Disposition.objects.get(id=18)
                                                                         )
                     
                                                                     
@@ -97,7 +97,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         # comment=comment,
                                                                         stress_name=step_result.name,
-                                                                        disposition=Disposition.objects.get(id=7)
+                                                                        disposition=Disposition.objects.get(id=18)
                                                                         )
                           
                     
@@ -114,7 +114,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     run_date=datetime.now(),
                                                                     comment=comment,
                                                                     stress_name=step_result.name,
-                                                                    disposition=Disposition.objects.get(id=7)
+                                                                    disposition=Disposition.objects.get(id=18)
                                                                     )
                     
                 elif step_result.name=='Test End':
@@ -156,7 +156,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 
                 if AssetCalibration.objects.filter(asset_id=asset_id,is_main_asset=True).exists():
                     asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
-                    asset.disposition=Disposition.objects.get(id=7)
+                    asset.disposition=Disposition.objects.get(id=18)
                     asset.save()
                     for sub_asset_id in sub_asset_ids:
                         print("sub_asset_id",sub_asset_id)
@@ -164,7 +164,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
                         sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
                         if sub_asset:
-                            sub_asset.disposition=Disposition.objects.get(id=7)
+                            sub_asset.disposition=Disposition.objects.get(id=18)
                             sub_asset.save()
                         if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
                             last_action = AssetLastActionDetails.objects.get(asset_id=asset.id)
@@ -190,7 +190,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
             
             elif step_result.name=='Test Pause':
                 asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
-                asset.disposition=Disposition.objects.get(id=7)
+                asset.disposition=Disposition.objects.get(id=18)
                 asset.save()
                 if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
                     start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id)
@@ -200,7 +200,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                         StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
                         sub_asset=AssetCalibration.objects.get(id=subasset_id)
                         if sub_asset:
-                            sub_asset.disposition=Disposition.objects.get(id=7)
+                            sub_asset.disposition=Disposition.objects.get(id=18)
                             sub_asset.save()
                         if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
                             last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
