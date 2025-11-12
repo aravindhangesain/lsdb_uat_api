@@ -24,10 +24,10 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     id__in=subasset_ids
                 ).values_list("asset_name", flat=True)
                 linked_date = subasset_links.first().linked_date if subasset_links.exists() else None
-                in_use = asset.disposition_id == 7
+                in_use = asset.disposition_id == 18
                 if in_use:
                     stress_runs = StressRunResult.objects.filter(
-                        asset_id=asset.id, disposition_id=7
+                        asset_id=asset.id, disposition_id=18
                     )
                 else:
                     stress_runs = StressRunResult.objects.filter(
