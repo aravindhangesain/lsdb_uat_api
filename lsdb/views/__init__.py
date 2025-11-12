@@ -184,3 +184,4 @@ from .AssetLastActionDetailsViewSet import AssetLastActionDetailsViewSet as Asse
 from .RetestReportListViewSet import RetestReportListViewSet as RetestReportListViewSet
 from .RetestReasonsViewSet import RetestReasonsViewSet as RetestReasonsViewSet
 from .UserAssignmentForProcedureViewSet import UserAssignmentForProcedureViewSet as UserAssignmentForProcedureViewSet
+from .AssetRunHistoryViewSet import AssetRunHistoryViewSet as AssetRunHistoryViewSet

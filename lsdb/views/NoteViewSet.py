@@ -788,50 +788,51 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
                 
             for user_id in params.get('tagged_users'):
                 tagged_user = User.objects.get(id=user_id)
-                if tagged_user != request.user:
-                    note_id=new_note.id
-                    units=Unit.objects.all()
-                    note_unit=units.filter(notes__id=note_id).first()
-                    if note_unit:
-                        serial_number=note_unit.serial_number
 
-                        workorder=WorkOrder.objects.all()
-                        unit_workorder=workorder.filter(units__id=note_unit.id).first()
+                
+                note_id=new_note.id
+                units=Unit.objects.all()
+                note_unit=units.filter(notes__id=note_id).first()
+                if note_unit:
+                    serial_number=note_unit.serial_number
 
-                        note_procedure = ProcedureResult.objects.filter(notes__id=note_id).first()
-                        if note_procedure:
-                            test_name= note_procedure.procedure_definition.name
+                    workorder=WorkOrder.objects.all()
+                    unit_workorder=workorder.filter(units__id=note_unit.id).first()
 
-                        valid_workorder=WorkOrder.objects.filter(id=unit_workorder.id).first()
-                        valid_project=Project.objects.filter(id=valid_workorder.project_id).first()
-                        valid_customer=Customer.objects.filter(id=valid_project.customer_id).first()
-                        
+                    note_procedure = ProcedureResult.objects.filter(notes__id=note_id).first()
+                    if note_procedure:
+                        test_name= note_procedure.procedure_definition.name
+
+                    valid_workorder=WorkOrder.objects.filter(id=unit_workorder.id).first()
+                    valid_project=Project.objects.filter(id=valid_workorder.project_id).first()
+                    valid_customer=Customer.objects.filter(id=valid_project.customer_id).first()
+                    
+                    email_notify = Notification()
+                    email_notify.throttled_email(
+                        template='tagged_user',
+                        user=tagged_user,
+                        ticket_id=new_note.id,
+                        ticket_link=get_note_link(new_note),
+                        # ticket_link_pichina = get_note_link_pichina(new_note),
+                        ticket_subject=new_note.subject,
+                        ticket_body=new_note.text,
+                        bom=valid_workorder.name,
+                        project_number=valid_project.number,
+                        serial_number=serial_number,
+                        customer=valid_customer.name,
+                        test_name=test_name
+                    )
+                else:
                         email_notify = Notification()
                         email_notify.throttled_email(
-                            template='tagged_user',
-                            user=tagged_user,
-                            ticket_id=new_note.id,
-                            ticket_link=get_note_link(new_note),
-                            # ticket_link_pichina = get_note_link_pichina(new_note),
-                            ticket_subject=new_note.subject,
-                            ticket_body=new_note.text,
-                            bom=valid_workorder.name,
-                            project_number=valid_project.number,
-                            serial_number=serial_number,
-                            customer=valid_customer.name,
-                            test_name=test_name
+                        template='tagged_user',
+                        user=tagged_user,
+                        ticket_id=new_note.id,
+                        ticket_link=get_note_link(new_note),
+                        # ticket_link_pichina = get_note_link_pichina(new_note),
+                        ticket_subject=new_note.subject,
+                        ticket_body=new_note.text
                         )
-                    else:
-                         email_notify = Notification()
-                         email_notify.throttled_email(
-                            template='tagged_user',
-                            user=tagged_user,
-                            ticket_id=new_note.id,
-                            ticket_link=get_note_link(new_note),
-                            # ticket_link_pichina = get_note_link_pichina(new_note),
-                            ticket_subject=new_note.subject,
-                            ticket_body=new_note.text
-                            )
 
 
             serializer = NoteSerializer(new_note, many=False, context=self.context)

@@ -12,7 +12,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
     queryset = AssetCalibration.objects.all()
     serializer_class = AssetCalibrationSerializer
-    pagination_class = None
+    # pagination_class = None
 
     def partial_update(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
