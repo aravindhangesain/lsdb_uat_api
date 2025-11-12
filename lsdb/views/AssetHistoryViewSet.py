@@ -34,7 +34,7 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                         asset_id=asset.id, disposition_id=20
                     )
                 procedure_result_ids = [run.procedure_result_id for run in stress_runs]
-                procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids)
+                procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id = 45)
                 unit_serials_set = set()
                 for pr in procedure_results:
                     if hasattr(pr, "unit_id") and pr.unit:
