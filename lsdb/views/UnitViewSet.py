@@ -595,8 +595,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 assigned_users_map[pr_id].append({
                     "user_id": instance.user_id,
                     "username": instance.user.username if instance.user else "N/A",
-                    "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
-                    "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
+                    # "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
+                    # "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",d user assign logic
                     "assigned_by":instance.assigned_by.username if instance.assigned_by else "N/A"
                 })
             
@@ -647,7 +647,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             master_data_frame['last_action_days'] = (
                 (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
             ).astype(int)
-            master_data_frame.dropna(inplace=True)
+            # master_data_frame.dropna(inplace=True)
             
             filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
             
@@ -784,8 +784,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             assigned_users_map[pr_id].append({
                 "user_id": instance.user_id,
                 "username": instance.user.username if instance.user else "N/A",
-                "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
-                "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
+                # "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
+                # "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
                 "assigned_by":instance.assigned_by.username if instance.assigned_by else "N/A"
             })
 
@@ -839,7 +839,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         master_data_frame['last_action_days'] = (
             (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
         ).astype(int)
-        master_data_frame.dropna(inplace=True)
+        # master_data_frame.dropna(inplace=True)
 
         # Select everything in the current LEG or above
         filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
