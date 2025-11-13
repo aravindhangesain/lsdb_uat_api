@@ -594,10 +594,10 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     assigned_users_map[pr_id] = []
                 assigned_users_map[pr_id].append({
                     "user_id": instance.user_id,
-                    "username": instance.user.username if instance.user else None,
-                    "assigned_on":instance.assigned_on if instance.assigned_on else None,
+                    "username": instance.user.username if instance.user else "N/A",
+                    "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
                     "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
-                    "assigned_by":instance.assigned_by.username if instance.assigned_by else None
+                    "assigned_by":instance.assigned_by.username if instance.assigned_by else "N/A"
                 })
             
             assigned_dates_map = {}
@@ -607,11 +607,12 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 # Only set once per procedure_result, since dates are always same
                 if pr_id not in assigned_dates_map:
                     assigned_dates_map[pr_id] = {
-                        "assigned_on": instance.assigned_on if instance.assigned_on else None,
+                        "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
                         "due_on": (
                             instance.assigned_on + timedelta(days=instance.due_on)
-                            if instance.due_on else None
-                        )
+                            if instance.due_on else "N/A"
+                        ),
+                        "due_on_days":instance.due_on if instance.due_on else "N/A"
                     }
 
             
@@ -638,6 +639,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             master_data_frame['assigned_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("assigned_on"))
 
             master_data_frame['due_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on"))
+            master_data_frame['due_on_days'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on_days"))
             
             if master_data_frame.empty:
                 return {}, master_data_frame
@@ -676,7 +678,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'unit__location__id',
                 'id',
                 'assigned_on',
-                'due_on', 
+                'due_on',
+                'due_on_days', 
                 'assigned_users' # procedure_result_id
             ]]
             
@@ -685,7 +688,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'procedure_definition', 'customer', 'project_number', 'work_order',
                 'characterization', 'allow_skip',
                 'last_action_date', 'last_action_days', 'location', 'location_id','procedure_result_id','assigned_on',
-                'due_on','assigned_users'
+                'due_on','due_on_days','assigned_users'
             ]
             
             filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
@@ -780,10 +783,10 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 assigned_users_map[pr_id] = []
             assigned_users_map[pr_id].append({
                 "user_id": instance.user_id,
-                "username": instance.user.username if instance.user else None,
-                "assigned_on":instance.assigned_on if instance.assigned_on else None,
+                "username": instance.user.username if instance.user else "N/A",
+                "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
                 "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
-                "assigned_by":instance.assigned_by.username if instance.assigned_by else None
+                "assigned_by":instance.assigned_by.username if instance.assigned_by else "N/A"
             })
 
         assigned_dates_map = {}
@@ -793,13 +796,13 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             # Only set once per procedure_result, since dates are always same
             if pr_id not in assigned_dates_map:
                 assigned_dates_map[pr_id] = {
-                    "assigned_on": instance.assigned_on if instance.assigned_on else None,
+                    "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
                     "due_on": (
                         instance.assigned_on + timedelta(days=instance.due_on)
-                        if instance.due_on else None
-                    )
+                        if instance.due_on else "N/A"
+                    ),
+                    "due_on_days":instance.due_on if instance.due_on else "N/A"
                 }
-
         # 🔧 Create DataFrame from queryset
         master_data_frame = pd.DataFrame(list(queryset.values(
             'unit__serial_number',
@@ -820,11 +823,13 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         )))
 
         # 🔧 Map assigned users based on actual DataFrame IDs
-        master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, []))
+        master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, 'N/A'))
 
         master_data_frame['assigned_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("assigned_on"))
 
         master_data_frame['due_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on"))
+        
+        master_data_frame['due_on_days'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on_days"))
         
 
         # Handle case where DataFrame is empty after values conversion
@@ -869,6 +874,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'id',
             'assigned_on',
             'due_on', 
+            'due_on_days',
             'assigned_users'
         ]]
 
@@ -883,6 +889,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             'procedure_result_id',
             'assigned_on',
             'due_on', 
+            'due_on_days',
             'assigned_users',
             
         ]
