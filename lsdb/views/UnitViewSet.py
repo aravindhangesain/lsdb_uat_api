@@ -580,6 +580,22 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             if not queryset.exists():
                 return [], pd.DataFrame()
             
+        assigned_users_instances = UserAssignmentForProcedure.objects.filter(
+            procedure_result__in=queryset
+        ).select_related("user", "procedure_result")
+
+        # Build a mapping: procedure_result_id → list of assigned users
+        assigned_users_map = {}
+        for instance in assigned_users_instances:
+            pr_id = instance.procedure_result_id
+            if pr_id not in assigned_users_map:
+                assigned_users_map[pr_id] = []
+            assigned_users_map[pr_id].append({
+                "user_id": instance.user_id,
+                "username": instance.user.username if instance.user else None
+            })
+
+            
             master_data_frame = pd.DataFrame(list(queryset.values(
                 'unit__serial_number',
                 'test_sequence_definition__name',
@@ -597,6 +613,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'unit__location__id',
                 'id'  # Assuming 'id' represents procedure_result_id
             )))
+
+            master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, []))
             
             if master_data_frame.empty:
                 return {}, master_data_frame
@@ -633,14 +651,15 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'last_action_days',
                 'unit__location__name',
                 'unit__location__id',
-                'id'  # procedure_result_id
+                'id', 
+                'assigned_users' # procedure_result_id
             ]]
             
             filtered.columns = [
                 'serial_number', 'test_sequence', 'linear_execution_group',
                 'procedure_definition', 'customer', 'project_number', 'work_order',
                 'characterization', 'allow_skip',
-                'last_action_date', 'last_action_days', 'location', 'location_id','procedure_result_id'
+                'last_action_date', 'last_action_days', 'location', 'location_id','procedure_result_id','assigned_users'
             ]
             
             filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
