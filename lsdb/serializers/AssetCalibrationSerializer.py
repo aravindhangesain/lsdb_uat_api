@@ -64,7 +64,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     
     def get_in_use(self, obj):
         disposition = obj.disposition.id 
-        if disposition in [7]:
+        if disposition in [18]:
             return True
         return False
     
