@@ -823,7 +823,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         )))
 
         # 🔧 Map assigned users based on actual DataFrame IDs
-        master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, 'N/A'))
+        master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, []))
 
         master_data_frame['assigned_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("assigned_on"))
 
