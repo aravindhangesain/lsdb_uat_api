@@ -7,5 +7,6 @@ class UserAssignmentForProcedure(models.Model):
     procedure_result=models.ForeignKey('ProcedureResult', on_delete=models.CASCADE, blank=False, null=False)
     assigned_on=models.DateTimeField(auto_now_add=True, null=True, blank=True)
     assigned_by=models.ForeignKey('auth.User', on_delete=models.CASCADE,related_name='assigned_by', blank=True, null=True)
+    due_date=models.DateTimeField(null=True, blank=True)
 
     

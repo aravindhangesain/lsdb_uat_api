@@ -27,10 +27,11 @@ class UserAssignmentForProcedureViewSet(viewsets.ModelViewSet):
     def create(self,request):
         user_ids=request.data.get('user_ids')
         procedure_result_ids=request.data.get('procedure_result_ids')
+        due_date=request.data.get('due_date')
 
         for user_id in user_ids:
             for procedure_result_id in procedure_result_ids:
-                UserAssignmentForProcedure.objects.create(user_id=user_id,procedure_result_id=procedure_result_id,assigned_by_id=request.user.id)
+                UserAssignmentForProcedure.objects.create(user_id=user_id,procedure_result_id=procedure_result_id,assigned_by_id=request.user.id,due_date=due_date)
         return Response({"detail":"Procedure assigned to selected user/users"}, status=status.HTTP_200_OK)
     
     @transaction.atomic
@@ -41,6 +42,7 @@ class UserAssignmentForProcedureViewSet(viewsets.ModelViewSet):
         """
         procedure_result_id = request.data.get('procedure_result_id')
         user_ids = request.data.get('user_ids',[])
+        due_date=request.data.get('due_date')
 
         if not procedure_result_id:
             return Response(
@@ -56,7 +58,7 @@ class UserAssignmentForProcedureViewSet(viewsets.ModelViewSet):
         UserAssignmentForProcedure.objects.filter(procedure_result_id=procedure_result_id).delete()
         
         for user_id in user_ids:
-            UserAssignmentForProcedure.objects.create(user_id=user_id,procedure_result_id=procedure_result_id,assigned_by_id=request.user.id)
+            UserAssignmentForProcedure.objects.create(user_id=user_id,procedure_result_id=procedure_result_id,assigned_by_id=request.user.id,due_date=due_date)
        
 
         return Response(
