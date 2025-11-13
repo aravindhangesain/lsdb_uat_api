@@ -582,23 +582,23 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             if not queryset.exists():
                 return [], pd.DataFrame()
             
-        assigned_users_instances = UserAssignmentForProcedure.objects.filter(
-            procedure_result__in=queryset
-        ).select_related("user", "procedure_result")
+            assigned_users_instances = UserAssignmentForProcedure.objects.filter(
+                procedure_result__in=queryset
+            ).select_related("user", "procedure_result")
 
-        # Build a mapping: procedure_result_id → list of assigned users
-        assigned_users_map = {}
-        for instance in assigned_users_instances:
-            pr_id = instance.procedure_result_id
-            if pr_id not in assigned_users_map:
-                assigned_users_map[pr_id] = []
-            assigned_users_map[pr_id].append({
-                "user_id": instance.user_id,
-                "username": instance.user.username if instance.user else None,
-                "assigned_on":instance.assigned_on,
-                "due_date": instance.assigned_on + timedelta(days=instance.due_date),
-                "assigned_by":instance.assigned_by
-            })
+            # Build a mapping: procedure_result_id → list of assigned users
+            assigned_users_map = {}
+            for instance in assigned_users_instances:
+                pr_id = instance.procedure_result_id
+                if pr_id not in assigned_users_map:
+                    assigned_users_map[pr_id] = []
+                assigned_users_map[pr_id].append({
+                    "user_id": instance.user_id,
+                    "username": instance.user.username if instance.user else None,
+                    "assigned_on":instance.assigned_on if instance.assigned_on else None,
+                    "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
+                    "assigned_by":instance.assigned_by.username if instance.assigned_by else None
+                })
 
             
             master_data_frame = pd.DataFrame(list(queryset.values(
@@ -760,9 +760,9 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             assigned_users_map[pr_id].append({
                 "user_id": instance.user_id,
                 "username": instance.user.username if instance.user else None,
-                "assigned_on":instance.assigned_on,
-                "due_date": instance.assigned_on + timedelta(days=instance.due_date),
-                "assigned_by":instance.assigned_by
+                "assigned_on":instance.assigned_on if instance.assigned_on else None,
+                "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
+                "assigned_by":instance.assigned_by.username if instance.assigned_by else None
             })
 
         # 🔧 Create DataFrame from queryset

@@ -11,7 +11,7 @@ class UserAssignmentForProcedureSerializer(serializers.ModelSerializer):
                 'procedure_result_id',
                 'assigned_on',
                 'assigned_by',
-                'due_date'
+                'due_on'
             ]
         read_only_fields = ('assigned_by',)
     
