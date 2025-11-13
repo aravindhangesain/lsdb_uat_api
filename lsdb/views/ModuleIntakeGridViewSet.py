@@ -6,4 +6,4 @@ class ModuleIntakeGridViewSet(viewsets.ReadOnlyModelViewSet):
     
     queryset = ModuleIntakeDetails.objects.all()
     serializer_class = ModuleIntakeGridSerializer
-    pagination_class=None
+    # pagination_class=None
