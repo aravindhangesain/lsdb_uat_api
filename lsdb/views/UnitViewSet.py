@@ -48,6 +48,8 @@ from lsdb.models import TestSequenceDefinition
 from lsdb.models import Unit,Location,LocationLog
 from lsdb.models import UnitType
 from django.contrib.auth.models import User
+from datetime import timedelta
+
 
 from lsdb.permissions import ConfiguredPermission
 # from lsdb.utils.NoteUtils import create_note
@@ -592,7 +594,10 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 assigned_users_map[pr_id] = []
             assigned_users_map[pr_id].append({
                 "user_id": instance.user_id,
-                "username": instance.user.username if instance.user else None
+                "username": instance.user.username if instance.user else None,
+                "assigned_on":instance.assigned_on,
+                "due_date": instance.assigned_on + timedelta(days=instance.due_date),
+                "assigned_by":instance.assigned_by
             })
 
             
@@ -754,7 +759,10 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 assigned_users_map[pr_id] = []
             assigned_users_map[pr_id].append({
                 "user_id": instance.user_id,
-                "username": instance.user.username if instance.user else None
+                "username": instance.user.username if instance.user else None,
+                "assigned_on":instance.assigned_on,
+                "due_date": instance.assigned_on + timedelta(days=instance.due_date),
+                "assigned_by":instance.assigned_by
             })
 
         # 🔧 Create DataFrame from queryset
