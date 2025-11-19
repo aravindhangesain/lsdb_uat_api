@@ -41,6 +41,6 @@ class CronStatusViewSet(ViewSet):
                 })
 
         # If flag is true, return True
-        return Response({'status': True})
+        return Response({'status': True,'datetime':None})
 
 
