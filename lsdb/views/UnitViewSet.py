@@ -570,14 +570,17 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     Min('unit__procedureresult__linear_execution_group')
                 ),
             ).distinct().order_by('last_action_date')
-            
+
+           
             if asset:
                 queryset = queryset.filter(
                     procedure_definition__asset_types__in=asset.asset_types.all(),
                     unit__location__id=asset.location.id,
                 )
-                if location_id:
-                    queryset = queryset.filter(unit__location__id=location_id)
+                
+            if location_id:
+                
+                queryset = queryset.filter(unit__location__id=location_id)
             
             if not queryset.exists():
                 return [], pd.DataFrame()
@@ -610,7 +613,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                         "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
                         "due_on": (
                             instance.assigned_on + timedelta(days=instance.due_on)
-                            if instance.due_on else "N/A"
+                            if instance.due_on and instance.assigned_on else "N/A"
                         ),
                         "due_on_days":instance.due_on if instance.due_on else "N/A"
                     }
@@ -764,6 +767,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 unit__location__id=asset.location.id,
             )
         if location_id:
+            print(location_id)
             queryset = queryset.filter(unit__location__id=location_id)
 
         # If queryset is empty, return an empty response
@@ -799,7 +803,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                     "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
                     "due_on": (
                         instance.assigned_on + timedelta(days=instance.due_on)
-                        if instance.due_on else "N/A"
+                        if instance.due_on and instance.assigned_on else "N/A"
                     ),
                     "due_on_days":instance.due_on if instance.due_on else "N/A"
                 }
