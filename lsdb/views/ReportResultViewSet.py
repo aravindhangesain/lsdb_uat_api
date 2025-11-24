@@ -28,7 +28,6 @@ class ReportResultViewSet(viewsets.ModelViewSet):
     def create_report_result(self, request):
         work_order_id=request.data.get('work_order_id')
         report_sequence_definition_id=request.data.get('report_sequence_definition_id')
-        # tsd_id=request.data.get('test_definition_id')
         if ReportResult.objects.filter(work_order_id=work_order_id).exists():
                 return Response({"message":"Report already assigned for the given work-order"}, status=status.HTTP_404_NOT_FOUND)
         report_results=ReportExecutionOrder.objects.filter(report_sequence_definition_id=report_sequence_definition_id).order_by('execution_group_number')
@@ -42,6 +41,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             color_code=self.color_code(result_id,work_order_id,tsd_id)
 
             if color_code and color_code is not None:
+            
                 ReportResult.objects.create(work_order=workorder,report_sequence_definition=report_definition,
                                                 report_execution_order_number=result.execution_group_number,
                                                 product_type_definition=result.product_definition,
