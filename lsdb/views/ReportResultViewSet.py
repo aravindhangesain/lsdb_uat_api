@@ -130,10 +130,11 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                         email.send(fail_silently=False)
 
                     except Exception as e:
-                        return Response(
-                            {"error": "Module Intake completed but failed to send email.", "details": str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                        )
+                        # return Response(
+                        #     {"error": "Module Intake completed but failed to send email.", "details": str(e)},
+                        #     status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        # )
+                        print({"error": "Module Intake Completed, but failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                     
                     return '#4ef542'
                 else:
@@ -230,10 +231,11 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                             email.send(fail_silently=False)
 
                         except Exception as e:
-                            return Response(
-                                {"error": "Module Intake completed but failed to send email.", "details": str(e)},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                            )
+                            # return Response(
+                            #     {"error": "Module Intake completed but failed to send email.", "details": str(e)},
+                            #     status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                            # )
+                            print({"error": "TSd Completed, but failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                     elif not is_completed:
                         return '#f51111'
 
