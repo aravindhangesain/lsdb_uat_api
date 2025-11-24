@@ -152,13 +152,13 @@ class ReportSequenceDefinitionViewSet(LoggingMixin, viewsets.ModelViewSet):
                     azure_instance=AzureFile.objects.get(id=azure_id)
                 else:
                     azure_instance=None
-
-                ReportExecutionOrder.objects.create(execution_group_name=execution.get('execution_group_name'),
-                                                    report_definition=report_definition,
-                                                    product_definition=product_definition,
-                                                    execution_group_number=execution.get('execution_group_number'),
-                                                    test_definition=test_definition,
-                                                    report_sequence_definition=report_sequence,azure_file=azure_instance,data_ready_status=execution.get('data_ready_status',None))
+                if execution.get('data_ready_status') is not None:
+                    ReportExecutionOrder.objects.create(execution_group_name=execution.get('execution_group_name'),
+                                                        report_definition=report_definition,
+                                                        product_definition=product_definition,
+                                                        execution_group_number=execution.get('execution_group_number'),
+                                                        test_definition=test_definition,
+                                                        report_sequence_definition=report_sequence,azure_file=azure_instance,data_ready_status=execution.get('data_ready_status'))
         serializer = ReportSequenceDefinitionSerializer(report_sequence, many=False, context=self.context)
         return Response(serializer.data)
     
