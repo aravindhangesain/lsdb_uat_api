@@ -3,7 +3,7 @@ from django.db.models import Max
 
 from lsdb.models import AzureFile
 from lsdb.models import Project
-from lsdb.models import UnitType
+from lsdb.models import *
 from lsdb.models import WorkOrder
 from lsdb.models import ExpectedUnitType,LocationLog
 from lsdb.models import Note
@@ -35,6 +35,8 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
     last_action_datetime = serializers.SerializerMethodField()
 
     note_count = serializers.SerializerMethodField()
+
+    factory_witness = serializers.SerializerMethodField()
 
     # sri_notes = NoteSerializer(many=True, read_only=True)
 
@@ -75,7 +77,13 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
         if latest_location_log:
             location= latest_location_log.location_id
             return ("https://lsdbhaveblueuat.azurewebsites.net/api/1.0/locations/"+str(location)+"/")
-        return None 
+        return None
+    
+    def get_factory_witness(self, obj):
+        if ProjectFactoryWitness.objects.filter(project=obj).exists():
+            return True
+        return False
+
 
     class Meta:
         model = Project
@@ -103,6 +111,7 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
             # 'crates',
             'proposal_price',
             'location',
+            'factory_witness'
             # 'sri_notes',
             # 'expected_unit_types',
         ]
