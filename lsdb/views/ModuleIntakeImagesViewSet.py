@@ -82,21 +82,21 @@ class ModuleIntakeImagesViewSet(viewsets.ModelViewSet):
             moduleintake.is_complete = True
             moduleintake.save()
 
-            project_id=moduleintake.projects.id
-            workorder=WorkOrder.objects.get(project_id=project_id)
+            # project_id=moduleintake.projects.id
+            # workorder=WorkOrder.objects.get(project_id=project_id)
 
-            if ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").exists():
+            # if ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").exists():
 
-                valid_intakes=ModuleIntakeDetails.objects.filter(project_id=project_id,bom=workorder.name)
-                if all("step 3" in intake.steps for intake in valid_intakes):
-                    datetime=timezone.now()
+            #     valid_intakes=ModuleIntakeDetails.objects.filter(project_id=project_id,bom=workorder.name)
+            #     if all("step 3" in intake.steps for intake in valid_intakes):
+            #         datetime=timezone.now()
 
-                    report=ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").first()
+            #         report=ReportResult.objects.filter(work_order_id=workorder.id,data_ready_status="Module Intake").first()
 
-                    report.hex_color='#4ef542'
-                    report.ready_datetime=datetime
+            #         report.hex_color='#4ef542'
+            #         report.ready_datetime=datetime
 
-                    report.save()
+            #         report.save()
                     
             return Response({'status': 'success', 'path': azure_blob_url})
         except Exception as e:
