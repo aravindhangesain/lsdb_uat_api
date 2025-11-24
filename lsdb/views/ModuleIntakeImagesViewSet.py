@@ -100,4 +100,5 @@ class ModuleIntakeImagesViewSet(viewsets.ModelViewSet):
                     
             return Response({'status': 'success', 'path': azure_blob_url})
         except Exception as e:
+            
             return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
