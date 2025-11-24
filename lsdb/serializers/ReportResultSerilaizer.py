@@ -167,8 +167,3 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             'azurefile_download',
             'reportexecution_azurefile'
         ]
-
-
-
-
-
