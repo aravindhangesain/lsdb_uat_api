@@ -93,7 +93,7 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             report_type = obj.report_type_definition
             report_team = ReportTeam.objects.filter(report_type=report_type).first()
             if not report_team or not report_team.duration:
-                return "No Report Team or Duration"
+                return None
             try:
                 days_to_add = int(report_team.duration)
             except ValueError:
@@ -101,7 +101,7 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             work_order = obj.work_order
             ntp_date = getattr(work_order, "start_datetime", None)
             if not ntp_date:
-                return "No NTP Date"
+                return None
             calculated_date = ntp_date + timedelta(days=days_to_add)
             return calculated_date
         except Exception as e:
@@ -167,5 +167,4 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             'azurefile_download',
             'reportexecution_azurefile'
         ]
-        
         
