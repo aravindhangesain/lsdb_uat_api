@@ -168,3 +168,4 @@ class ReportResultSerilaizer(serializers.HyperlinkedModelSerializer):
             'reportexecution_azurefile'
         ]
         
+        
