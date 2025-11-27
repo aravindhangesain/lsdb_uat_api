@@ -4,13 +4,44 @@ from lsdb.models import *
 from lsdb.serializers import *
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+
 
 class NewFlashTestViewSet(viewsets.ModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = NewFlashTestSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticated]          
+
+    @action(detail=False, methods=['post'])
+    def flash(self, request):
+        serial_number = request.data.get("serial_number")
+        try:
+            units = Unit.objects.get(serial_number=serial_number)
+        except Unit.DoesNotExist:
+            return Response("Serial Number not found", status=404)
+        serializer = NewFlashTestSerializer(units, context={"request": request})
+        return Response({"status": "success", "data": [serializer.data]})
+
+    # ALLOWED_USERS = {
+    #     "IAMTestUser": "xxxxx"
+    # }
+
+    # @action(detail=False, methods=['post'])
+    # def flash(self, request):
+    #     serial_number = request.data.get("serial_number")
+    #     username = request.data.get("username")
+    #     password = request.data.get("password")
+    #     if not username or not password:
+    #         return Response({"error": "username and password are required"}, status=400)
+    #     allowed_password = self.ALLOWED_USERS.get(username)
+    #     if allowed_password != password:
+    #         return Response({"error": "Invalid username or password"}, status=403)
+    #     try:
+    #         unit = Unit.objects.get(serial_number=serial_number)
+    #     except Unit.DoesNotExist:
+    #         return Response({"error": "Serial Number not found"}, status=404)
+    #     serializer = NewFlashTestSerializer(unit, context={"request": request})
+    #     return Response({"status": "success", "data": [serializer.data]})
     
     # @action(detail=False, methods=['post'])
     # def flash(self, request):
@@ -31,12 +62,6 @@ class NewFlashTestViewSet(viewsets.ModelViewSet):
     #     except Exception as e:
     #         return Response(f"An error occurred: {str(e)}", status=500)
 
-    @action(detail=False, methods=['post'])
-    def flash(self, request):
-        serial_number = request.data.get("serial_number")
-        units = Unit.objects.get(serial_number=serial_number)
-        if not units:
-            return Response("Serial Number not found", status=404)
-        serializer = NewFlashTestSerializer(units, context={"request": request})
-        return Response({"status": "success", "data": serializer.data})
+
+
         
