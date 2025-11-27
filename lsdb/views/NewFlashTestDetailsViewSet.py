@@ -20,13 +20,26 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
         date_time = request.data.get("date_time")
         json_file = request.FILES.get("json_file")
         pdf_file = request.FILES.get("pdf_file")
+        sweep_type = request.data.get("sweep_type")
 
         if not all([serial_number, date_time, json_file, pdf_file]):
             return Response(
                 {"error": "serial_number, date_time, json_file_path, and pdf_file_path are required."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         try:
+            # ------------------------------------------------
+            # 1) Extract values from JSON BEFORE Azure upload
+            # ------------------------------------------------
+            self.extract_ivparams_and_save(json_file, serial_number, sweep_type)
+
+            # Reset pointer after reading
+            json_file.seek(0)
+
+            # ------------------------------------------------
+            # 2) Azure Upload
+            # ------------------------------------------------
             azure_connection_string = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
             azure_container = 'flashfiles'
             blob_service_client = BlobServiceClient.from_connection_string(azure_connection_string)
@@ -43,6 +56,9 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             pdf_blob_client.upload_blob(pdf_file, overwrite=True)
             pdf_blob_url = pdf_blob_client.url
 
+            # ------------------------------------------------
+            # 3) Save main NewFlashTestDetails record
+            # ------------------------------------------------
             instance = NewFlashTestDetails.objects.create(
                 serial_number=serial_number,
                 date_time=date_time,
@@ -51,7 +67,38 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
                 pdf_file=pdf_filename,
                 pdf_file_path=pdf_blob_url
             )
+
             serializer = self.get_serializer(instance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def extract_ivparams_and_save(self, json_file, serial_number, sweep_type):
+        import json
+        from lsdb.models import NewFlashTestPoints
+
+        try:
+            parsed_json = json.load(json_file)
+            iv = parsed_json.get("IVParams", {})
+
+            v_oc_raw = iv.get("v_oc_raw", None)
+            v_oc_corr = iv.get("v_oc_corr", None)
+            kappa = iv.get("kappa", None)
+
+            point = NewFlashTestPoints.objects.create(
+                serial_number=serial_number,
+                v_oc_raw=v_oc_raw,
+                v_oc_corr=v_oc_corr,
+                kappa=kappa,
+                sweep_type=sweep_type
+            )
+
+            return point
+
+        except Exception as e:
+            print("IVParams Parsing Error:", str(e))
+            return None
+
+
