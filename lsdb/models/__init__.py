@@ -164,3 +164,4 @@ from .AssetLastActionDetails import AssetLastActionDetails as AssetLastActionDet
 from .RetestReasons import RetestReasons as RetestReasons
 from .RetestProcedures import RetestProcedures as RetestProcedures
 from .UserAssignmentForProcedure import UserAssignmentForProcedure as UserAssignmentForProcedure
+from .NewFlashTestPoints import NewFlashTestPoints as NewFlashTestPoints
