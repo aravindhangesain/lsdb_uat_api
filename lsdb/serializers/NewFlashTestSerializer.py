@@ -8,8 +8,19 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
     # procedure_definition_name = serializers.ReadOnlyField(source='procedure_definition.name')
     # serial_number = serializers.ReadOnlyField(source='unit.serial_number')
     module_property = serializers.SerializerMethodField()
+    unit_type = serializers.SerializerMethodField()
     # filename = serializers.SerializerMethodField()
     # test_sequence_definition_name = serializers.ReadOnlyField(source='test_sequence_definition.name')
+
+    def get_unit_type(self, obj):
+        unit_type_id = Unit.objects.filter(id=obj.id).values_list('unit_type_id', flat=True).first()
+        if unit_type_id:
+            unit_type = UnitType.objects.get(id=unit_type_id)
+            full_data = UnitTypeSerializer(unit_type, context=self.context).data
+            required_fields = ['model', 'manufacturer_name', 'unit_type_family_name']
+            filtered_data = {key: full_data[key] for key in required_fields}
+            return filtered_data
+        return None
 
     def get_module_property(self, obj):
         unit_type_id = Unit.objects.filter(id=obj.id).values_list('unit_type_id', flat=True).first()
@@ -44,6 +55,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             # 'test_sequence_definition',
             # 'test_sequence_definition_name',
             'module_property',
+            'unit_type'
             # 'filename',
             # 'name',
             # 'procedure_definition',

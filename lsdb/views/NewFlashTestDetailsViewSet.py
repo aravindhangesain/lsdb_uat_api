@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from azure.storage.blob import BlobServiceClient
 from rest_framework.parsers import MultiPartParser, FormParser
 import uuid
-from lsdb.models import NewFlashTestDetails,NewFlashTestPoints
+from lsdb.models import *
 from lsdb.serializers import NewFlashTestDetailsSerializer
 from rest_framework.permissions import IsAuthenticated
 import json
@@ -69,16 +69,20 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             v_oc_corr = iv.get("v_oc_corr", None)
             kappa = iv.get("kappa", None)
             sweep_type = iv.get("sweep_type", None)
+            spectral_mismatch = iv.get("spectral_mismatch", None)
+
+            unit_type = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
+
             point = NewFlashTestPoints.objects.create(
                 serial_number=serial_number,
                 v_oc_raw=v_oc_raw,
                 v_oc_corr=v_oc_corr,
                 kappa=kappa,
-                sweep_type=sweep_type
+                sweep_type=sweep_type,
+                spectral_mismatch=spectral_mismatch,
+                unit_type = unit_type
             )
             return point
         except Exception as e:
             print("IVParams Parsing Error:", str(e))
             return None
-
-

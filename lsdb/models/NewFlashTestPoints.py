@@ -7,3 +7,5 @@ class NewFlashTestPoints(models.Model):
     v_oc_corr = models.FloatField(blank=True, null=True)
     kappa = models.FloatField(blank=True, null=True)
     sweep_type = models.CharField(max_length=64, blank=True, null=True)
+    spectral_mismatch = models.FloatField(blank=True, null=True)
+    unit_type = models.ForeignKey('UnitType', on_delete=models.CASCADE, blank=True, null=True)
