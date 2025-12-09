@@ -71,7 +71,8 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             sweep_type = iv.get("sweep_type", None)
             spectral_mismatch = iv.get("spectral_mismatch", None)
 
-            unit_type = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
+            unit_type_id = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
+            print("Unit Type ID:", unit_type_id)
 
             point = NewFlashTestPoints.objects.create(
                 serial_number=serial_number,
@@ -80,7 +81,7 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
                 kappa=kappa,
                 sweep_type=sweep_type,
                 spectral_mismatch=spectral_mismatch,
-                unit_type = unit_type
+                unit_type_id = unit_type_id
             )
             return point
         except Exception as e:
