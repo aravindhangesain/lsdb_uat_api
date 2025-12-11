@@ -4,18 +4,36 @@ from lsdb.serializers import NewCrateIntakeSerializer
 from django_filters import rest_framework as filters
 # from lsdb.permissions import ConfiguredPermission
 from datetime import datetime
+from django.db.models import Q
 
 class NewCrateIntakeFilter(filters.FilterSet):
+    search = filters.CharFilter(method='search_filter')
+
     class Meta:
         model = NewCrateIntake
         fields = [
-            
             'customer',
             'manufacturer',
             'project',
             'crate_intake_date'
-
         ]
+
+    def search_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(customer__name__icontains=value) |
+            Q(project__number__icontains=value) )
+
+# class NewCrateIntakeFilter(filters.FilterSet):
+#     class Meta:
+#         model = NewCrateIntake
+#         fields = [
+            
+#             'customer',
+#             'manufacturer',
+#             'project',
+#             'crate_intake_date'
+
+#         ]
 
 class NewCrateIntakeViewSet(viewsets.ModelViewSet):
     
