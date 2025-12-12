@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 class CrateIntakeGridViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = NewCrateIntake.objects.all()
+    queryset = NewCrateIntake.objects.all().order_by('-crate_intake_date')
     serializer_class = CrateIntakeGridSerializer
     # pagination_class = MyCustomPagination
 
