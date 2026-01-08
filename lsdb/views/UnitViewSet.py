@@ -7,7 +7,7 @@ from django.db import IntegrityError, transaction
 from django_filters import rest_framework as filters
 from django.http import HttpResponse
 from django.utils import timezone
-from django.db.models import F, Q, Max, Min
+from django.db.models import F, Q, Max, Min, OuterRef, Exists
 from django.db.models.functions import Coalesce
 # from openpyxl.writer.excel import save_virtual_workbook
 # from openpyxl import Workbook
@@ -538,11 +538,13 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         if group == "characterizations":
             priority_procedure_ids = set(OpsQueuePriority.objects.values_list('procedure_result_id', flat=True))
             
-            excluded_units = ProcedureResult.objects.filter(
-                group_id=45
+            blocking_previous_execution = ProcedureResult.objects.filter(
+                unit_id=OuterRef("unit_id"),
+                group_id=45,
+                linear_execution_group__lt=OuterRef("linear_execution_group"),
             ).filter(
                 Q(disposition_id=7) | Q(disposition_id__isnull=True)
-            ).values_list("unit_id", flat=True)
+            )
             
             queryset = ProcedureResult.objects.filter(
                 disposition__isnull=True,
@@ -554,7 +556,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             ).exclude(
                 test_sequence_definition__group__name__iexact="control"
             ).exclude(
-                unit_id__in=excluded_units
+               Exists(blocking_previous_execution) 
             ).exclude(
                 unit__disposition__name="Handling Damage"
             ).annotate(
