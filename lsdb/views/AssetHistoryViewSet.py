@@ -1,3 +1,4 @@
+from datetime import timezone
 from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -35,24 +36,24 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     )
                 procedure_result_ids = [run.procedure_result_id for run in stress_runs]
                 procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id = 45)
-                unit_serials_set = set()
-                for pr in procedure_results:
-                    if hasattr(pr, "unit_id") and pr.unit:
-                        unit_serials_set.add(pr.unit.serial_number)
-                    elif hasattr(pr, "units"):
-                        unit_serials_set.update(pr.units.values_list("serial_number", flat=True))
                 stressrun_data = []
                 for run in stress_runs:
                     pr = procedure_results.filter(id=run.procedure_result_id).first()
                     if not pr:
                         continue
+                    unit_serials = set()
+                    if hasattr(pr, "unit") and pr.unit:
+                        unit_serials.add(pr.unit.serial_number)
+                    elif hasattr(pr, "units"):
+                        unit_serials.update(pr.units.values_list("serial_number", flat=True))
                     stressrun_data.append({
                         "run_name": run.run_name,
-                        "units": list(unit_serials_set),
+                        "units": list(unit_serials),
                         "start_date": pr.start_datetime,
                         "end_date": pr.end_datetime,
                         "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
                     })
+                stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or timezone.datetime.min,reverse=True)
                 response_data.append({
                     "id": asset.id,
                     "asset_name": asset.asset_name,
