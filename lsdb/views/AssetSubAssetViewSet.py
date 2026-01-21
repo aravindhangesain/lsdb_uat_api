@@ -172,6 +172,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                 action = 'Stress Started'
                             else:
                                 action = 'Stress Resumed'
+
                             last_action.action_name=action
                             last_action.action_datetime = datetime.now()
                             last_action.user_id = request.user.id
@@ -190,8 +191,14 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
             
             elif step_result.name=='Test Pause':
                 asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
-                asset.disposition=Disposition.objects.get(id=18)
-                asset.save()
+
+                prev_stressrunresults=StressRunResult.objects.filter(asset_id=asset.id).exclude(procedure_result_id=step_result.procedure_result_id)
+                #temporary condition(needs to be changed!!!)
+                if all(prev_stressrunresult.disposition_id==16 or prev_stressrunresult.disposition_id==20  for prev_stressrunresult in prev_stressrunresults):
+                    asset.disposition=Disposition.objects.get(id=16)
+                    asset.save()
+                    
+
                 if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
                     start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id)
                     start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)
