@@ -34,26 +34,46 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     stress_runs = StressRunResult.objects.filter(
                         asset_id=asset.id, disposition_id=20
                     )
-                procedure_result_ids = [run.procedure_result_id for run in stress_runs]
-                procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id = 45)
-                stressrun_data = []
+                procedure_result_ids = stress_runs.values_list("procedure_result_id", flat=True)
+                procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id=45).select_related("procedure_definition").prefetch_related("units")
+                # 🔹 Grouped container
+                stressrun_map = {}
                 for run in stress_runs:
                     pr = procedure_results.filter(id=run.procedure_result_id).first()
-                    if not pr:
+                    if not pr or not pr.procedure_definition:
                         continue
-                    unit_serials = set()
+                    key = pr.procedure_definition.name  # "TC 200"
+                    if key not in stressrun_map:
+                        stressrun_map[key] = {
+                            "run_name": run.run_name.strip(),
+                            "units": set(),
+                            "start_date": pr.start_datetime,
+                            "end_date": pr.end_datetime,
+                            "procedure_definition": key
+                        }
+                    # collect units
                     if hasattr(pr, "unit") and pr.unit:
-                        unit_serials.add(pr.unit.serial_number)
+                        stressrun_map[key]["units"].add(pr.unit.serial_number)
                     elif hasattr(pr, "units"):
-                        unit_serials.update(pr.units.values_list("serial_number", flat=True))
-                    stressrun_data.append({
-                        "run_name": run.run_name,
-                        "units": list(unit_serials),
-                        "start_date": pr.start_datetime,
-                        "end_date": pr.end_datetime,
-                        "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
-                    })
-                stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or timezone.datetime.min,reverse=True)
+                        stressrun_map[key]["units"].update(
+                            pr.units.values_list("serial_number", flat=True)
+                        )
+                    # optional: keep latest end_date
+                    if pr.end_datetime:
+                        stressrun_map[key]["end_date"] = max(
+                            stressrun_map[key]["end_date"] or pr.end_datetime,
+                            pr.end_datetime
+                        )
+                # convert sets → lists
+                stressrun_data = []
+                for value in stressrun_map.values():
+                    value["units"] = list(value["units"])
+                    stressrun_data.append(value)
+                stressrun_data = sorted(
+                    stressrun_data,
+                    key=lambda x: x["start_date"] or timezone.datetime.min,
+                    reverse=True
+                )
                 response_data.append({
                     "id": asset.id,
                     "asset_name": asset.asset_name,
@@ -64,7 +84,7 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     "inUse": in_use,
                     "stressrun_results": stressrun_data
                 })
-        return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
 
 
     # @action(detail=False, methods=['get'])
