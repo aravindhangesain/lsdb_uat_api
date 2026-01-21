@@ -134,7 +134,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                         #     {"error": "Module Intake completed but failed to send email.", "details": str(e)},
                         #     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                         # )
-                        print({"error": "Module Intake Completed, but failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        print({"error": "Module Intake Completed, but failed to send email.", "details": str(e)})
                     
                     return '#4ef542'
                 else:
@@ -235,7 +235,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                             #     {"error": "Module Intake completed but failed to send email.", "details": str(e)},
                             #     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                             # )
-                            print({"error": "TSd Completed, but failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            print({"error": "TSd Completed, but failed to send email.", "details": str(e)})
                     elif not is_completed:
                         return '#f51111'
 
