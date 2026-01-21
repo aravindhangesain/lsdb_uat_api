@@ -221,8 +221,12 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
             elif step_result.name=='Test End':
                 if AssetCalibration.objects.filter(asset_id=asset_id,is_main_asset=True).exists():
                     asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
-                    asset.disposition=Disposition.objects.get(id=16)
-                    asset.save()
+
+                    prev_stressrunresults=StressRunResult.objects.filter(asset_id=asset.id).exclude(procedure_result_id=step_result.procedure_result_id)
+                    #temporary condition(needs to be changed!!!)
+                    if all(prev_stressrunresult.disposition_id==16 or prev_stressrunresult.disposition_id==20  for prev_stressrunresult in prev_stressrunresults):
+                        asset.disposition=Disposition.objects.get(id=16)
+                        asset.save()
                     if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
                         resume_run=StressRunResult.objects.get(procedure_result_id=step_result.procedure_result_id,stress_name='Test Resume',asset_id=asset_calibration.id)
                         resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)   
@@ -241,7 +245,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                 else:
                                     AssetLastActionDetails.objects.create(
                                                                         asset_id=asset.id,
-                                                                        action_name='stress exit',
+                                                                        action_name='Stress Exit',
                                                                         action_datetime=datetime.now(),
                                                                         user_id=request.user.id
                                                                         )

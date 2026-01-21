@@ -168,10 +168,22 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'UAT-New-DB',
+#         'HOST': 'uatlsdb.postgres.database.azure.com',
+#         'USER': 'haveblueflexible',
+#         'PASSWORD': 'Gesa@2023',
+#         "PORT": "5432",
+#         # 'OPTIONS': {'sslmode': 'require'},
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'UAT-New-DB',
+        'NAME': 'uattestdb',
         'HOST': 'uatlsdb.postgres.database.azure.com',
         'USER': 'haveblueflexible',
         'PASSWORD': 'Gesa@2023',
