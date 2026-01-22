@@ -201,7 +201,22 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                 "days_to_next_calibration": data["asset_next_calibration"]
             }, status=200)
         except AssetCalibration.DoesNotExist:
-            return Response({"error": "Asset Calibration not found"}, status=404)
+            asset=Asset.objects.get(id=asset_id)
+            AssetCalibration.objects.create(asset_id=asset.id,asset_number=asset.name,asset_name=asset.name,last_action_datetime=asset.last_action_datetime,
+                                            location_id=asset.location_id,is_calibration_required=False,schedule_for_calibration=0,external_asset_required=False,
+                                            is_main_asset=True,is_sub_asset=False,is_rack=False,disposition_id=16,last_calibrated_date=None)
+            asset_calibration = AssetCalibration.objects.get(asset_id=asset_id)
+            serializer = self.get_serializer(asset_calibration)
+            data = serializer.data
+            return Response({
+                "last_calibrated_date": data["last_calibrated_date"],
+                "next_calibration_date": data["next_calibration_date"],
+                "asset_name": data["asset_name"],
+                "calibration_days": data["calibration_days"],
+                "is_calibration": data["is_calibration"],
+                "days_to_next_calibration": data["asset_next_calibration"]
+            }, status=200)
+            
         
     @action(detail=False, methods=['get', ],
             serializer_class=DispositionCodeListSerializer)

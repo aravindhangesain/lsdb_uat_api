@@ -158,36 +158,64 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                     asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
                     asset.disposition=Disposition.objects.get(id=18)
                     asset.save()
-                    for sub_asset_id in sub_asset_ids:
-                        print("sub_asset_id",sub_asset_id)
-                        # print("stress_run_result_id",stress_run_result.id)
-                        StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
-                        sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
-                        if sub_asset:
-                            sub_asset.disposition=Disposition.objects.get(id=18)
-                            sub_asset.save()
-                        if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
-                            last_action = AssetLastActionDetails.objects.get(asset_id=asset.id)
-                            if step_result.name == 'Test Start':
-                                action = 'Stress Started'
+                    if sub_asset_ids and sub_asset_ids is not None :
+                        for sub_asset_id in sub_asset_ids:
+
+                            #The below "if" loop is for verifying whether a asset and subasset is linked in master table, if not then a new link is being created.
+                            if not AssetSubAsset.objects.filter(asset_id=asset_id,sub_asset_id=sub_asset_id).exists():
+                                AssetSubAsset.objects.create(asset_id=asset_id,sub_asset_id=sub_asset_id,linked_date=datetime.now())
+
+                           
+                            StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
+                            sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+                            if sub_asset:
+                                sub_asset.disposition=Disposition.objects.get(id=18)
+                                sub_asset.save()
+                            if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                last_action = AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                if step_result.name == 'Test Start':
+                                    action = 'Stress Started'
+                                else:
+                                    action = 'Stress Resumed'
+
+                                last_action.action_name=action
+                                last_action.action_datetime = datetime.now()
+                                last_action.user_id = request.user.id
+                                last_action.save()
                             else:
-                                action = 'Stress Resumed'
-
-                            last_action.action_name=action
-                            last_action.action_datetime = datetime.now()
-                            last_action.user_id = request.user.id
-                            last_action.save()
-                        else:
-                            action_name = 'Stress Started' if step_result.name == 'Test Start' else 'Stress Resumed'
-                            AssetLastActionDetails.objects.create(
-                                asset_id=asset.id,
-                                action_name=action_name,
-                                action_datetime=datetime.now(),
-                                user_id=request.user.id
-                            )
+                                action_name = 'Stress Started' if step_result.name == 'Test Start' else 'Stress Resumed'
+                                AssetLastActionDetails.objects.create(
+                                    asset_id=asset.id,
+                                    action_name=action_name,
+                                    action_datetime=datetime.now(),
+                                    user_id=request.user.id
+                                )
 
 
-                    return Response({"status": "stress run recorded successfully"})
+                        return Response({"status": "stress run recorded successfully"})
+                    else:
+                            StressRunDetails.objects.create(sub_asset_id=None,stress_run_result_id=stress_run_result.id)
+                            
+                            if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                last_action = AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                if step_result.name == 'Test Start':
+                                    action = 'Stress Started'
+                                else:
+                                    action = 'Stress Resumed'
+
+                                last_action.action_name=action
+                                last_action.action_datetime = datetime.now()
+                                last_action.user_id = request.user.id
+                                last_action.save()
+                            else:
+                                action_name = 'Stress Started' if step_result.name == 'Test Start' else 'Stress Resumed'
+                                AssetLastActionDetails.objects.create(
+                                    asset_id=asset.id,
+                                    action_name=action_name,
+                                    action_datetime=datetime.now(),
+                                    user_id=request.user.id
+                                )
+                            return Response({"status": "stress run recorded successfully"})
             
             elif step_result.name=='Test Pause':
                 asset=AssetCalibration.objects.get(asset_id=asset_id,is_main_asset=True)
@@ -202,27 +230,44 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 if StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
                     start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id)
                     start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)
-                    for subasset_id in start_sub_asset_ids:
-                        
-                        StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
-                        sub_asset=AssetCalibration.objects.get(id=subasset_id)
-                        if sub_asset:
-                            sub_asset.disposition=Disposition.objects.get(id=18)
-                            sub_asset.save()
+
+                    if start_sub_asset_ids and start_sub_asset_ids is not None:
+                        for subasset_id in start_sub_asset_ids:
+                            
+                            StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
+                            sub_asset=AssetCalibration.objects.get(id=subasset_id)
+                            if sub_asset:
+                                sub_asset.disposition=Disposition.objects.get(id=18)
+                                sub_asset.save()
+                            if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                last_action.action_name='Stress Paused'
+                                last_action.action_datetime=datetime.now()
+                                last_action.user_id=request.user.id
+                                last_action.save()
+                            else:
+                                AssetLastActionDetails.objects.create(
+                                                                    asset_id=asset.id,
+                                                                    action_name='Stress Paused',
+                                                                    action_datetime=datetime.now(),
+                                                                    user_id=request.user.id
+                                                                    )
+                        return Response({"status": "stress run recorded successfully"})
+                    else:
+                        StressRunDetails.objects.create(sub_asset_id=None,stress_run_result_id=stress_run_result.id)
                         if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
-                            last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
-                            last_action.action_name='Stress Paused'
-                            last_action.action_datetime=datetime.now()
-                            last_action.user_id=request.user.id
-                            last_action.save()
+                                last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                last_action.action_name='Stress Paused'
+                                last_action.action_datetime=datetime.now()
+                                last_action.user_id=request.user.id
+                                last_action.save()
                         else:
-                            AssetLastActionDetails.objects.create(
-                                                                  asset_id=asset.id,
-                                                                  action_name='Stress Paused',
-                                                                  action_datetime=datetime.now(),
-                                                                  user_id=request.user.id
-                                                                )
-                    return Response({"status": "stress run recorded successfully"})
+                                AssetLastActionDetails.objects.create(asset_id=asset.id,
+                                                                    action_name='Stress Paused',
+                                                                    action_datetime=datetime.now(),
+                                                                    user_id=request.user.id
+                                                                    )
+                        return Response({"status": "stress run recorded successfully"})
 
             
             elif step_result.name=='Test End':
@@ -237,51 +282,93 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                     if StressRunResult.objects.filter(stress_name='Test Resume',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
                         resume_run=StressRunResult.objects.get(procedure_result_id=step_result.procedure_result_id,stress_name='Test Resume',asset_id=asset_calibration.id)
                         resume_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=resume_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)   
-                        for sub_asset_id in resume_sub_asset_ids:
-                            StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
-                            sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
-                            if sub_asset:
-                                sub_asset.disposition=Disposition.objects.get(id=16)
-                                sub_asset.save()
-                                if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
-                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
-                                    last_action.action_name='Stress Exit'
-                                    last_action.action_datetime=datetime.now()
-                                    last_action.user_id=request.user.id
-                                    last_action.save()
-                                else:
-                                    AssetLastActionDetails.objects.create(
-                                                                        asset_id=asset.id,
-                                                                        action_name='Stress Exit',
-                                                                        action_datetime=datetime.now(),
-                                                                        user_id=request.user.id
-                                                                        )
-                        return Response({"status": "stress run recorded successfully"})
+                        
+                        if resume_sub_asset_ids and resume_sub_asset_ids is not None:
+
+                            for sub_asset_id in resume_sub_asset_ids:
+                                StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
+                                sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+                                if sub_asset:
+                                    sub_asset.disposition=Disposition.objects.get(id=16)
+                                    sub_asset.save()
+                                    if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                        last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                        last_action.action_name='Stress Exit'
+                                        last_action.action_datetime=datetime.now()
+                                        last_action.user_id=request.user.id
+                                        last_action.save()
+                                    else:
+                                        AssetLastActionDetails.objects.create(
+                                                                            asset_id=asset.id,
+                                                                            action_name='Stress Exit',
+                                                                            action_datetime=datetime.now(),
+                                                                            user_id=request.user.id
+                                                                            )
+                            return Response({"status": "stress run recorded successfully"})
+                        
+                        else:
+                            StressRunDetails.objects.create(sub_asset_id=None,stress_run_result_id=stress_run_result.id)
+                            if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                        last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                        last_action.action_name='Stress Exit'
+                                        last_action.action_datetime=datetime.now()
+                                        last_action.user_id=request.user.id
+                                        last_action.save()
+                            else:
+                                AssetLastActionDetails.objects.create(
+                                                                    asset_id=asset.id,
+                                                                    action_name='Stress Exit',
+                                                                    action_datetime=datetime.now(),
+                                                                    user_id=request.user.id
+                                                                    )
+                            
+                            return Response({"status": "stress run recorded successfully"})
+
+
                             
                     elif StressRunResult.objects.filter(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id).exists():
                         start_run=StressRunResult.objects.get(stress_name='Test Start',asset_id=asset_calibration.id,procedure_result_id=step_result.procedure_result_id)
                         start_sub_asset_ids=StressRunDetails.objects.filter(stress_run_result_id=start_run.id,sub_asset_id=asset_calibration.id).values_list('sub_asset_id',flat=True)
-                        for subasset_id in start_sub_asset_ids:
-                            
-                            StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
-                            sub_asset=AssetCalibration.objects.get(id=subasset_id)
-                            if sub_asset:
-                                sub_asset.disposition=Disposition.objects.get(id=16)
-                                sub_asset.save()
-                                if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
-                                    last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
-                                    last_action.action_name='Stress Exit'
-                                    last_action.action_datetime=datetime.now()
-                                    last_action.user_id=request.user.id
-                                    last_action.save()
-                                else:
-                                    AssetLastActionDetails.objects.create(
-                                                                        asset_id=asset.id,
-                                                                        action_name='Stress Exit',
-                                                                        action_datetime=datetime.now(),
-                                                                        user_id=request.user.id
-                                                                        )
-                        return Response({"status": "stress run recorded successfully"})
+                        
+                        if start_sub_asset_ids and start_sub_asset_ids is not None:
+                            for subasset_id in start_sub_asset_ids:
+                                
+                                StressRunDetails.objects.create(sub_asset_id=subasset_id,stress_run_result_id=stress_run_result.id)
+                                sub_asset=AssetCalibration.objects.get(id=subasset_id)
+                                if sub_asset:
+                                    sub_asset.disposition=Disposition.objects.get(id=16)
+                                    sub_asset.save()
+                                    if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                        last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                        last_action.action_name='Stress Exit'
+                                        last_action.action_datetime=datetime.now()
+                                        last_action.user_id=request.user.id
+                                        last_action.save()
+                                    else:
+                                        AssetLastActionDetails.objects.create(
+                                                                            asset_id=asset.id,
+                                                                            action_name='Stress Exit',
+                                                                            action_datetime=datetime.now(),
+                                                                            user_id=request.user.id
+                                                                            )
+                            return Response({"status": "stress run recorded successfully"})
+                        
+                        else:
+                            StressRunDetails.objects.create(sub_asset_id=None,stress_run_result_id=stress_run_result.id)
+                            if AssetLastActionDetails.objects.filter(asset_id=asset.id).exists():
+                                        last_action=AssetLastActionDetails.objects.get(asset_id=asset.id)
+                                        last_action.action_name='Stress Exit'
+                                        last_action.action_datetime=datetime.now()
+                                        last_action.user_id=request.user.id
+                                        last_action.save()
+                            else:
+                                AssetLastActionDetails.objects.create(
+                                                                    asset_id=asset.id,
+                                                                    action_name='Stress Exit',
+                                                                    action_datetime=datetime.now(),
+                                                                    user_id=request.user.id
+                                                                    )
+                            return Response({"status": "stress run recorded successfully"})
             
             else:
                 return Response({"status": "stress run recorded successfully"})
