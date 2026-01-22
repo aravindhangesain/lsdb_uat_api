@@ -15,7 +15,7 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def asset_list(self, request):
         self.context = {'request': request}
-        assets = AssetCalibration.objects.all()
+        assets = AssetCalibration.objects.filter(is_main_asset=True)
         response_data = []
         for asset in assets:
             if AssetSubAsset.objects.filter(asset_id=asset.id).exists():
@@ -25,61 +25,66 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     id__in=subasset_ids
                 ).values_list("asset_name", flat=True)
                 linked_date = subasset_links.first().linked_date if subasset_links.exists() else None
-                in_use = asset.disposition_id == 18
-                if in_use:
-                    stress_runs = StressRunResult.objects.filter(
-                        asset_id=asset.id, disposition_id=18
-                    )
-                else:
-                    stress_runs = StressRunResult.objects.filter(
-                        asset_id=asset.id, disposition_id=20
-                    )
-                procedure_result_ids = [run.procedure_result_id for run in stress_runs]
-                procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id = 45)
-                stressrun_data = []
-                for run in stress_runs:
-                    pr = procedure_results.filter(id=run.procedure_result_id).first()
-                    if not pr:
-                        continue
-                    unit_serials = set()
-                    if hasattr(pr, "unit") and pr.unit:
-                        unit_serials.add(pr.unit.serial_number)
-                    elif hasattr(pr, "units"):
-                        unit_serials.update(pr.units.values_list("serial_number", flat=True))
-                    stressrun_data.append({
-                        "run_name": run.run_name,
-                        "units": list(unit_serials),
-                        "start_date": pr.start_datetime,
-                        "end_date": pr.end_datetime,
-                        "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
-                    })
-                stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or timezone.datetime.min,reverse=True)
-                grouped_data = {}
-                for item in stressrun_data:
-                    key = item["procedure_definition"]
-                    if key not in grouped_data:
-                        grouped_data[key] = {
-                            "run_name": item["run_name"],
-                            "units": set(),
-                            "start_date": item["start_date"],
-                            "end_date": item["end_date"],
-                            "procedure_definition": key
-                        }
-                    grouped_data[key]["units"].update(item["units"])
-                stressrun_data = []
-                for value in grouped_data.values():
-                    value["units"] = list(value["units"])
-                    stressrun_data.append(value)
-                response_data.append({
-                    "id": asset.id,
-                    "asset_name": asset.asset_name,
-                    "asset_number": asset.asset_number,
-                    "linkedsubassets": len(subasset_ids),
-                    "linked_date": linked_date,
-                    "subassets": list(subasset_names),
-                    "inUse": in_use,
-                    "stressrun_results": stressrun_data
+            else:
+                subasset_ids = []
+                subasset_names = []
+                linked_date = None  
+                
+            in_use = asset.disposition_id == 18
+            if in_use:
+                stress_runs = StressRunResult.objects.filter(
+                    asset_id=asset.id, disposition_id=18
+                )
+            else:
+                stress_runs = StressRunResult.objects.filter(
+                    asset_id=asset.id, disposition_id=20
+                )
+            procedure_result_ids = [run.procedure_result_id for run in stress_runs]
+            procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id = 45)
+            stressrun_data = []
+            for run in stress_runs:
+                pr = procedure_results.filter(id=run.procedure_result_id).first()
+                if not pr:
+                    continue
+                unit_serials = set()
+                if hasattr(pr, "unit") and pr.unit:
+                    unit_serials.add(pr.unit.serial_number)
+                elif hasattr(pr, "units"):
+                    unit_serials.update(pr.units.values_list("serial_number", flat=True))
+                stressrun_data.append({
+                    "run_name": run.run_name,
+                    "units": list(unit_serials),
+                    "start_date": pr.start_datetime,
+                    "end_date": pr.end_datetime,
+                    "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
                 })
+            stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or timezone.datetime.min,reverse=True)
+            grouped_data = {}
+            for item in stressrun_data:
+                key = item["procedure_definition"]
+                if key not in grouped_data:
+                    grouped_data[key] = {
+                        "run_name": item["run_name"],
+                        "units": set(),
+                        "start_date": item["start_date"],
+                        "end_date": item["end_date"],
+                        "procedure_definition": key
+                    }
+                grouped_data[key]["units"].update(item["units"])
+            stressrun_data = []
+            for value in grouped_data.values():
+                value["units"] = list(value["units"])
+                stressrun_data.append(value)
+            response_data.append({
+                "id": asset.id,
+                "asset_name": asset.asset_name,
+                "asset_number": asset.asset_number,
+                "linkedsubassets": len(subasset_ids),
+                "linked_date": linked_date,
+                "subassets": list(subasset_names),
+                "inUse": in_use,
+                "stressrun_results": stressrun_data
+            })
         return Response(response_data, status=status.HTTP_200_OK)
 
 
