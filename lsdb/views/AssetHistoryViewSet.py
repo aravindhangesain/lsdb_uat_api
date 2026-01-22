@@ -75,6 +75,8 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
             for value in grouped_data.values():
                 value["units"] = list(value["units"])
                 stressrun_data.append(value)
+            if not stressrun_data:
+                continue     
             response_data.append({
                 "id": asset.id,
                 "asset_name": asset.asset_name,
