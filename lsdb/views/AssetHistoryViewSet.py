@@ -54,6 +54,7 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                 stressrun_data.append({
                     "run_name": run.run_name,
                     "units": list(unit_serials),
+                    "duration":pr.procedure_definition.aggregate_duration,
                     "start_date": pr.start_datetime,
                     "end_date": pr.end_datetime,
                     "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
@@ -66,6 +67,7 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     grouped_data[key] = {
                         "run_name": item["run_name"],
                         "units": set(),
+                        "duration": item["duration"],
                         "start_date": item["start_date"],
                         "end_date": item["end_date"],
                         "procedure_definition": key
