@@ -59,10 +59,4 @@ class UpdateProjectforCustomerViewSet(viewsets.ModelViewSet):
                     LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
                 else:
                     LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
-
-        if 'factory_witness' in serializer.validated_data:
-            pfw = ProjectFactoryWitness.objects.filter(project=project).first()
-            if pfw:
-                pfw.factory_witness = serializer.validated_data['factory_witness']
-                pfw.save(update_fields=['factory_witness'])
         return Response(serializer.data)

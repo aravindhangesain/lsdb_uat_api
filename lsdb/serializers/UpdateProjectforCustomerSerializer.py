@@ -6,7 +6,6 @@ class UpdateProjectforCustomerSerializer(serializers.HyperlinkedModelSerializer)
     project_manager_name = serializers.ReadOnlyField(source='project_manager.username', read_only=True)
     disposition_name = serializers.ReadOnlyField(source='disposition.name', read_only=True)
     location=serializers.SerializerMethodField()
-    factory_witness = serializers.BooleanField(write_only=True, required=False)
 
 
     def get_location(self, instance):
@@ -29,5 +28,4 @@ class UpdateProjectforCustomerSerializer(serializers.HyperlinkedModelSerializer)
             'disposition_name',
             'proposal_price',
             'location',
-            'factory_witness',
         ]
