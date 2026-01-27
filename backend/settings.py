@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     'rest_framework_tracking',
     'rest_framework.authtoken',
     'storages',
+    'graphene_django',
 ]
 
 
@@ -179,6 +180,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #         # 'OPTIONS': {'sslmode': 'require'},
 #     }
 # }
+
+GRAPHENE = {
+    "SCHEMA": "backend.schema.schema"
+}
 
 DATABASES = {
     'default': {

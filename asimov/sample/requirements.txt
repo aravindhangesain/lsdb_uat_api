@@ -80,3 +80,4 @@ virtualenv==20.23.0
 whitenoise==5.2.0
 reportlab==4.2.5
 zipstream-new==1.1.8
+graphene-django==2.15.0
