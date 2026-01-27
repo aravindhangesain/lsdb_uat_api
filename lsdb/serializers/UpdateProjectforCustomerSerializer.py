@@ -6,13 +6,12 @@ class UpdateProjectforCustomerSerializer(serializers.HyperlinkedModelSerializer)
     project_manager_name = serializers.ReadOnlyField(source='project_manager.username', read_only=True)
     disposition_name = serializers.ReadOnlyField(source='disposition.name', read_only=True)
     location=serializers.SerializerMethodField()
+    factory_witness = serializers.BooleanField(write_only=True, required=False)
+
 
     def get_location(self, instance):
         project_id = instance.id
-        
-        
         latest_location_log = LocationLog.objects.filter(project_id=project_id, is_latest=True).first()
-        
         if latest_location_log:
             return latest_location_log.location_id 
         return None 
@@ -29,5 +28,6 @@ class UpdateProjectforCustomerSerializer(serializers.HyperlinkedModelSerializer)
             'disposition',
             'disposition_name',
             'proposal_price',
-            'location'
+            'location',
+            'factory_witness',
         ]

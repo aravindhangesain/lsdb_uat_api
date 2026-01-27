@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from lsdb.models import LocationLog, Project, WorkOrder, Unit, TestSequenceDefinition
+from lsdb.models import LocationLog, Project, WorkOrder, Unit, ProjectFactoryWitness
 from lsdb.serializers import UpdateProjectforCustomerSerializer
 from lsdb.permissions import ConfiguredPermission
 from django.utils import timezone
@@ -42,16 +42,14 @@ class UpdateProjectforCustomerViewSet(viewsets.ModelViewSet):
                         unit.disposition = new_disposition
                         unit.save()
                     # Update test sequence definition of units
-                    test_sequence_defs = TestSequenceDefinition.objects.filter(
-                        testsequenceexecutiondata__work_order=work_order
-                    )
-                    for test_sequence_def in test_sequence_defs:
-                        if test_sequence_def.disposition_id not in [3, 8]:
-                            test_sequence_def.disposition = new_disposition
-                            test_sequence_def.save()
-            
-                    
-        
+                    # test_sequence_defs = TestSequenceDefinition.objects.filter(
+                    #     testsequenceexecutiondata__work_order=work_order
+                    # )
+                    # for test_sequence_def in test_sequence_defs:
+                    #     if test_sequence_def.disposition_id not in [3, 8]:
+                    #         test_sequence_def.disposition = new_disposition
+                    #         test_sequence_def.save()
+
         if 'location' in request.data:
             location_url = request.data.get('location')
             location_id = location_url.rstrip('/').split('/')[-1] 
@@ -62,6 +60,9 @@ class UpdateProjectforCustomerViewSet(viewsets.ModelViewSet):
                 else:
                     LocationLog.objects.create(location_id=location_id,project_id=project.id,datetime=timezone.now(),flag=2,is_latest=True,username=self.request.user.username)
 
-                
-        
+        if 'factory_witness' in serializer.validated_data:
+            pfw = ProjectFactoryWitness.objects.filter(project=project).first()
+            if pfw:
+                pfw.factory_witness = serializer.validated_data['factory_witness']
+                pfw.save(update_fields=['factory_witness'])
         return Response(serializer.data)
