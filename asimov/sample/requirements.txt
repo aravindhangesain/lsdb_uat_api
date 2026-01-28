@@ -80,4 +80,7 @@ virtualenv==20.23.0
 whitenoise==5.2.0
 reportlab==4.2.5
 zipstream-new==1.1.8
+graphene==2.1.9
 graphene-django==2.15.0
+graphql-core==2.3.2
+graphql-relay==2.0.1
