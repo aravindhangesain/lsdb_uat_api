@@ -27,6 +27,6 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY . /usr/src/HaveBlue
-# CMD ["gunicorn", "-b", "0.0.0.0:8000", "--workers=4", "backend.wsgi:application", "--timeout", "1200", "--access-logfile", "-", "--error-logfile", "-"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "--workers=4", "backend.wsgi:application", "--timeout", "1200", "--access-logfile", "-", "--error-logfile", "-"]
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
