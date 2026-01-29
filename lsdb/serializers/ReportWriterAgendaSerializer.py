@@ -257,7 +257,7 @@ class ReportWriterAgendaSerializer(serializers.ModelSerializer):
                 for unit in workorder_units:
 
                     
-                    bom_procedure_results=ProcedureResult.objects.filter(unit_id=unit.id,linear_execution_group=1).order_by('procedure_definition__name')
+                    bom_procedure_results=ProcedureResult.objects.filter(unit_id=unit.id,linear_execution_group=1).order_by('procedure_definition__name').exclude(test_sequence_definition_id__in=[134,26,90,56,154,27])
 
                     
 

@@ -435,7 +435,7 @@ class ManageResultViewSet(LoggingMixin, viewsets.ModelViewSet):
             if ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exists():
                 valid_report=ReportResult.objects.filter(work_order=result.work_order,hex_color='#f51111').exclude(data_ready_status__in=["Factory Witness","Define"]).first()
                 if valid_report and valid_report.data_ready_status in ['Module Intake']:
-                        procedure_results1= ProcedureResult.objects.filter(work_order=result.work_order,linear_execution_group=1).order_by('linear_execution_group')
+                        procedure_results1= ProcedureResult.objects.filter(work_order=result.work_order,linear_execution_group=1).order_by('linear_execution_group').exclude(test_sequence_definition_id__in=[134,26,90,56,154,27])
                         if all(procedure.disposition_id in [2, 10, 20, 8] for procedure in procedure_results1):
                             
                         

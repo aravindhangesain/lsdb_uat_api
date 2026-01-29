@@ -80,9 +80,11 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
         return None
     
     def get_factory_witness(self, obj):
-        if ProjectFactoryWitness.objects.filter(project=obj).exists():
-            return True
-        return False
+        try:
+            record = ProjectFactoryWitness.objects.get(project=obj)
+            return record.factory_witness   
+        except ProjectFactoryWitness.DoesNotExist:
+            return False
 
 
     class Meta:

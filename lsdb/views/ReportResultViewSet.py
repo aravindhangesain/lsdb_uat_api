@@ -27,6 +27,8 @@ class ReportResultViewSet(viewsets.ModelViewSet):
     @action(detail=False,serializer_class=ReportResultSerilaizer,methods=['post','get'],)
     def create_report_result(self, request):
         work_order_id=request.data.get('work_order_id')
+        if not TestSequenceExecutionData.objects.filter(work_order_id=work_order_id).exists():
+            return Response({"message":"Please Map a TSD for this Work-Order"}, status=status.HTTP_404_NOT_FOUND)
         report_sequence_definition_id=request.data.get('report_sequence_definition_id')
         if ReportResult.objects.filter(work_order_id=work_order_id).exists():
                 return Response({"message":"Report already assigned for the given work-order"}, status=status.HTTP_404_NOT_FOUND)
@@ -62,7 +64,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
             
             project_id = WorkOrder.objects.filter(id=work_order_id).values_list('project_id', flat=True).first()
             
-            bom_procedure_results=ProcedureResult.objects.filter(work_order_id=work_order_id,linear_execution_group=1).order_by('linear_execution_group')
+            bom_procedure_results=ProcedureResult.objects.filter(work_order_id=work_order_id,linear_execution_group=1).order_by('linear_execution_group').exclude(test_sequence_definition_id__in=[134,26,90,56,154,27])
             
             if all(procedure_result.disposition_id in [2,20,10,8] for procedure_result in bom_procedure_results):
                 procedure_results_with_8 = [pr for pr in bom_procedure_results if pr.disposition_id == 8]
@@ -368,7 +370,7 @@ class ReportResultViewSet(viewsets.ModelViewSet):
                 for unit in workorder_units:
 
                     
-                    bom_procedure_results=ProcedureResult.objects.filter(unit_id=unit.id,linear_execution_group=1).order_by('procedure_definition__name')
+                    bom_procedure_results=ProcedureResult.objects.filter(unit_id=unit.id,linear_execution_group=1).order_by('procedure_definition__name').exclude(test_sequence_definition_id__in=[134,26,90,56,154,27])
 
                     
 
