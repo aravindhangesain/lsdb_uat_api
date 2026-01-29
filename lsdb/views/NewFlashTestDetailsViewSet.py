@@ -65,15 +65,12 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
         try:
             parsed_json = json.load(json_file)
             iv = parsed_json.get("IVParams", {})
-            v_oc_raw = iv.get("v_oc_raw", None)
+            v_oc_raw = iv.get("v_oc", None)
             v_oc_corr = iv.get("v_oc_corr", None)
 
             lsdb_payload=parsed_json.get("LSDB Payload",{})
             lsdb_payload_module_property=lsdb_payload.get("Module Property",{})
             lsdb_payload_reference_device=lsdb_payload.get("Reference Device",{})
-
-
-           
 
             unit_type_id = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
             print("Unit Type ID:", unit_type_id)
@@ -89,7 +86,6 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
                 flash_parameters=lsdb_payload_module_property.get("flash_parameters",None),
                 spectral_mismatch=lsdb_payload_reference_device.get("Spectral MM",None),
                 sweep_type=lsdb_payload_reference_device.get("sweep_type",None),
-               
                 unit_type_id = unit_type_id
             )
             return point
