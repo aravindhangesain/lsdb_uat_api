@@ -18,10 +18,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from graphene_django.views import GraphQLView
+from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     path('api/1.0/', include('lsdb.urls')),
-    path("graphql/", GraphQLView.as_view(graphiql=True))
+    path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True)),),
     # For later versions:
     # path('api/2.0/', include('lsdb.urls2')),
 ]
