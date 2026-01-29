@@ -67,9 +67,13 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             iv = parsed_json.get("IVParams", {})
             v_oc_raw = iv.get("v_oc_raw", None)
             v_oc_corr = iv.get("v_oc_corr", None)
-            kappa = iv.get("kappa", None)
-            sweep_type = iv.get("sweep_type", None)
-            spectral_mismatch = iv.get("spectral_mismatch", None)
+
+            lsdb_payload=parsed_json.get("LSDB Payload",{})
+            lsdb_payload_module_property=lsdb_payload.get("Module Property",{})
+            lsdb_payload_reference_device=lsdb_payload.get("Reference Device",{})
+
+
+           
 
             unit_type_id = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
             print("Unit Type ID:", unit_type_id)
@@ -78,9 +82,14 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
                 serial_number=serial_number,
                 v_oc_raw=v_oc_raw,
                 v_oc_corr=v_oc_corr,
-                kappa=kappa,
-                sweep_type=sweep_type,
-                spectral_mismatch=spectral_mismatch,
+                alpha_stc_correction_A_per_C=lsdb_payload_module_property.get("alpha_stc_correction_A_per_C",None),
+                beta_stc_correction_V_per_C=lsdb_payload_module_property.get("beta_stc_correction_V_per_C",None),
+                kappa_stc_correction_Ohm_per_C=lsdb_payload_module_property.get("kappa_stc_correction_Ohm_per_C",None),
+                R_s_stc_correction_Ohm=lsdb_payload_module_property.get("R_s_stc_correction_Ohm",None),
+                flash_parameters=lsdb_payload_module_property.get("flash_parameters",None),
+                spectral_mismatch=lsdb_payload_reference_device.get("Spectral MM",None),
+                sweep_type=lsdb_payload_reference_device.get("sweep_type",None),
+               
                 unit_type_id = unit_type_id
             )
             return point

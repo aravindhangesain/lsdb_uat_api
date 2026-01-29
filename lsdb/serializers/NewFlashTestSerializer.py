@@ -2,7 +2,8 @@ from rest_framework import serializers
 from lsdb.models import *
 import random
 from lsdb.serializers import *
-
+from django.db.models import Max, Min, Q
+from django.db.models.functions import Coalesce
 
 class NewFlashTestSerializer(serializers.ModelSerializer):
     # procedure_definition_name = serializers.ReadOnlyField(source='procedure_definition.name')
@@ -23,16 +24,200 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
         return None
 
     def get_module_property(self, obj):
-        unit_type_id = Unit.objects.filter(id=obj.id).values_list('unit_type_id', flat=True).first()
-        module_property_id = UnitType.objects.filter(id=unit_type_id).values_list('module_property_id', flat=True).first()
-        if module_property_id:
-            module_property = ModuleProperty.objects.get(id=module_property_id)
-            desired_fields = ['id', 'number_of_cells', 'nameplate_pmax','module_width','module_height','system_voltage','module_technology_name','isc','voc','imp','vmp','alpha_isc','beta_voc','gamma_pmp','cells_in_series','cells_in_parallel','cell_area','bifacial']
-            module_property_serializer = ModulePropertySerializer(module_property, context=self.context)
-            full_data = module_property_serializer.data
-            filtered_data = {field: full_data[field] for field in desired_fields if field in full_data}
-            return filtered_data
-        return None
+        unit_type_id = Unit.objects.filter(id=obj.id)\
+            .values_list('unit_type_id', flat=True)\
+            .first()
+
+        module_property_id = UnitType.objects.filter(id=unit_type_id)\
+            .values_list('module_property_id', flat=True)\
+            .first()
+
+        if not module_property_id:
+            return None
+
+        module_property = ModuleProperty.objects.get(id=module_property_id)
+
+        desired_fields = [
+            'id', 'number_of_cells', 'nameplate_pmax',
+            'module_width', 'module_height', 'system_voltage',
+            'module_technology_name', 'isc', 'voc', 'imp', 'vmp',
+            'alpha_isc', 'beta_voc', 'gamma_pmp',
+            'cells_in_series', 'cells_in_parallel',
+            'cell_area', 'bifacial'
+        ]
+
+        module_property_serializer = ModulePropertySerializer(
+            module_property,
+            context=self.context
+        )
+
+        full_data = module_property_serializer.data
+        filtered_data = {
+            field: full_data.get(field)
+            for field in desired_fields
+        }
+
+        # 🔹 Defaults (NULL if not present)
+        flash_defaults = {
+            'alpha_stc_correction_A_per_C': None,
+            'beta_stc_correction_V_per_C': None,
+            'kappa_stc_correction_Ohm_per_C': None,
+            'R_s_stc_correction_Ohm': None,
+            'flash_parameters': None,
+        }
+
+        filtered_data.update(flash_defaults)
+
+        # 🔹 Fetch flash test points
+        new_flashtest_points = NewFlashTestPoints.objects.filter(
+            unit_type_id=unit_type_id
+        ).values(
+            'alpha_stc_correction_A_per_C',
+            'beta_stc_correction_V_per_C',
+            'kappa_stc_correction_Ohm_per_C',
+            'R_s_stc_correction_Ohm',
+            'flash_parameters'
+        ).first()
+        
+
+        # 🔹 Overwrite defaults if data exists
+        if new_flashtest_points:
+            filtered_data.update(new_flashtest_points)
+
+        flash_data=self.flash(serial_number=obj.serial_number)
+
+        if flash_data:
+            filtered_data.update({
+                'procedure_result_id': flash_data.get('id'),
+                'linear_exec_grp_number': flash_data.get('linear_exec_grp_number'),
+                'procedure_definition_name': flash_data.get('procedure_definition'),
+            })
+        else:
+            filtered_data.update({
+                'flash_procedure_id': None,
+                'flash_linear_exec_grp_number': None,
+                'flash_procedure_definition': None,
+            })
+
+        return filtered_data
+    
+
+    
+    def flash(self,serial_number=None):
+        serial_number = serial_number
+       
+
+        # Use filter to avoid MultipleObjectsReturned if serial numbers aren't unique
+        units = Unit.objects.filter(serial_number=serial_number)
+        unit = units.first()  # Use the first match if there are multiple units
+
+        if not unit:
+            return None
+
+
+        try:
+            # Fetch unit_type_id and module_property_id
+            unit_type_id = unit.unit_type_id
+            
+
+            
+
+
+            # Determine procedure definitions to include
+            procedure_definitions = [14, 54, 50, 62, 33, 49, 21, 38, 48]
+           
+
+            # Filter procedure results based on your criteria
+            procedure_results = unit.procedureresult_set.filter(
+                Q(disposition__isnull=True) | Q(disposition__complete=False) 
+            ).exclude(supersede=True).filter(procedure_definition__id__in=procedure_definitions)
+
+            # Aggregate done_to value
+            done_to = unit.procedureresult_set.aggregate(
+                done_to=Coalesce(
+                    Max(
+                        "linear_execution_group",
+                        filter=Q(
+                            disposition__isnull=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede__isnull=True,
+                        )
+                        | Q(
+                            disposition__isnull=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede=False,
+                        ),
+                    ),
+                    0.0,
+                )
+            ).get("done_to")
+            
+
+            previous_group = unit.procedureresult_set.filter(
+                linear_execution_group=done_to,
+                test_sequence_definition__group__name__iexact="sequences",
+                # supersede=False
+            ).filter(disposition_id=7)
+            
+            if previous_group.exists():
+                group = previous_group.last()
+                group_name = group.name if hasattr(group, "name") else group.linear_execution_group
+                return None
+
+            if done_to != 0.0:
+                procedure_results = procedure_results.exclude(
+                    linear_execution_group__lt=done_to,
+                    test_sequence_definition__group__name__iexact="sequences",
+                )
+                
+
+            # Aggregate highest leg value
+            highest_leg = unit.procedureresult_set.aggregate(
+                highest_leg=Coalesce(
+                    Min(
+                        "linear_execution_group",
+                        filter=Q(
+                            disposition__isnull=True,
+                            linear_execution_group__gt=done_to,
+                            allow_skip=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede__isnull=True,
+                        )
+                        | Q(
+                            disposition__isnull=True,
+                            allow_skip=False,
+                            linear_execution_group__gt=done_to,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede=False,
+                        ),
+                    ),
+                    99.0,
+                )
+            ).get("highest_leg")
+            
+
+            procedure_results = procedure_results.exclude(
+                linear_execution_group__gt=highest_leg,
+                test_sequence_definition__group__name__iexact="sequences",
+            ).values_list('id',flat=True)
+
+            procedure_results = list(procedure_results)
+
+            if procedure_results is None:
+                None
+
+            procedure=ProcedureResult.objects.filter(id__in=procedure_results).first()
+            current_procedure={
+                'id':procedure.id,
+                'linear_exec_grp_number':procedure.linear_execution_group,
+                'procedure_definition':procedure.procedure_definition.name
+            }
+            return current_procedure
+
+            
+
+        except Exception as e:
+            None
 
     # def get_filename(self, obj):
     #     test_generated_number = random.randint(10000, 99999)
