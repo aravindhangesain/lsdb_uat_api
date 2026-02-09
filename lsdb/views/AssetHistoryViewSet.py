@@ -17,7 +17,11 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def asset_list(self, request):
         self.context = {'request': request}
-        assets = AssetCalibration.objects.filter(is_main_asset=True)
+        asset_calibration_id = request.query_params.get('asset_calibration_id')
+        if asset_calibration_id and asset_calibration_id is not None:
+            assets = AssetCalibration.objects.filter(id=int(asset_calibration_id))
+        else:
+            assets = AssetCalibration.objects.filter(is_main_asset=True)
         response_data = []
         for asset in assets:
             if AssetSubAsset.objects.filter(asset_id=asset.id).exists():
