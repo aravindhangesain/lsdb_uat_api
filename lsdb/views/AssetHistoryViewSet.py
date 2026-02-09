@@ -4,7 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from lsdb.models import *
 from lsdb.serializers import * 
-
+from datetime import datetime
+from datetime import datetime
+from django.utils import timezone
 
 class AssetHistoryViewSet(viewsets.ModelViewSet):    
     queryset = ProcedureResult.objects.none()
@@ -59,7 +61,9 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                     "end_date": pr.end_datetime,
                     "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
                 })
-            stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or timezone.datetime.min,reverse=True)
+            min_dt = datetime.min.replace(tzinfo=timezone.utc)
+
+            stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or min_dt)
             grouped_data = {}
             for item in stressrun_data:
                 key = item["procedure_definition"]
