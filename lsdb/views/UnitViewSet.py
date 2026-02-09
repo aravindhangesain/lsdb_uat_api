@@ -1460,10 +1460,15 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
 
 
                         if flag == 1:
-                           
-                            if step_result_notes_start:
-                                
-                                    return Response({'message': 'The Stress Test Already started for the Unit: {}'.format(serial_number)},status=HTTP_400_BAD_REQUEST)
+                            step_result_instance=StepResult.objects.filter(id=step_start['id']).first()
+
+                            procedureresult_disposition=step_result_instance.procedure_result.disposition_id
+                            stepresult_disposition=step_result_instance.disposition_id
+
+                            if step_result_notes_start and procedureresult_disposition is None and stepresult_disposition is None:
+                                StepResultNotes.objects.filter(step_result_id=step_start['id']).delete()
+                            elif step_result_notes_start and procedureresult_disposition is not None and stepresult_disposition is not None:
+                                return Response({'message': 'The Stress Test Already started for the Unit: {}'.format(serial_number)},status=HTTP_400_BAD_REQUEST)
                                 
     
     
