@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django_filters import rest_framework as filters
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST)
@@ -16,7 +16,7 @@ from rest_framework.decorators import action
 import pandas as pd
 import re
 from django.db import connection
-
+import requests
 from lsdb.models import AzureFile
 from lsdb.models import Disposition
 from lsdb.models import DispositionCode
@@ -36,6 +36,9 @@ from lsdb.serializers import NoteSerializer
 from lsdb.utils.NoteUtils import get_note_link
 from lsdb.utils.Notification import Notification
 from itertools import chain
+from graphene.test import Client
+from django.contrib.auth import get_user_model
+from lsdb import schema
 
 class NoteFilter(filters.FilterSet):
     class Meta:
@@ -845,7 +848,7 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=False, methods=['get','post'])
-    def download_note_csv(self, request):
+    def download_note_csv(self, request,note_ids=None):
         '''
         Include Mode - only these note id downloads
         {
@@ -865,7 +868,7 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
             "exclude": true
         } '''
         
-        note_ids = request.data.get('note_ids',[])
+        # note_ids = request.data.get('note_ids',[])
         flag = bool(request.data.get('exclude', False))
         
         if not isinstance(note_ids, list):
@@ -986,3 +989,50 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="Note_Report.csv"'
 
         return response
+    
+
+  
+    @action(detail=False, methods=["post", "get"])
+    def fetch_notes(self, request):
+
+        select_all=request.data.get("select_all")
+        note_ids=request.data.get("note_ids",[])
+        operation_name = request.data.get("operationName")
+        variables = request.data.get("variables", {})
+        query = request.data.get("query")
+
+        url = "https://lsdbhaveblueuat.azurewebsites.net/graphql/"
+
+        
+
+        payload = {
+            "operationName": operation_name,
+            "variables": variables,
+            "query": query,
+        }
+
+
+        response = requests.post(url, json=payload)
+        resp_json = response.json()
+
+        items = resp_json.get("data", {}).get("notes", {}).get("items", [])
+        ids = [item.get("id") for item in items]
+
+        if select_all == "true":
+            ids = [i for i in ids if i not in note_ids]
+            note_ids=ids
+            return self.download_note_csv(request,note_ids)
+
+        elif select_all == "false":
+            return self.download_note_csv(request,note_ids)
+        else:
+            return Response({"error": "select_all must be true/false"},status=400)
+        
+        
+        
+
+        
+
+
+
+
