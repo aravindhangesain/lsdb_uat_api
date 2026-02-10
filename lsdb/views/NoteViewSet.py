@@ -846,14 +846,32 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get','post'])
     def download_note_csv(self, request):
+        '''
+        Include Mode - only these note id downloads
+        {
+            "note_ids": [13322, 13323],
+            "exclude": false
+        }
+        
+        Exclude Mode -  exclude this ids and downlaod all
+        {
+            "note_ids": [13322, 13323],
+            "exclude": true
+        }
+        
+        Download All Notes
+        {
+            "note_ids": [],
+            "exclude": true
+        } '''
+        
         note_ids = request.data.get('note_ids',[])
         flag = bool(request.data.get('exclude', False))
         
         if not isinstance(note_ids, list):
             return Response({"error": "note_ids must be a list"},status=400)
         
-        note_ids = [int(nid) for nid in note_ids if str(nid).isdigit()]
-
+        note_ids = [int(nid) for nid in note_ids if isinstance(nid, (int, str)) and str(nid).isdigit()]
 
         if not note_ids and not flag:
             return Response(
