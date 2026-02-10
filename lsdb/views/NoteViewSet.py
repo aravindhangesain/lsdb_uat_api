@@ -868,7 +868,6 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
             "exclude": true
         } '''
         
-        # note_ids = request.data.get('note_ids',[])
         flag = bool(request.data.get('exclude', False))
         
         if not isinstance(note_ids, list):
@@ -995,22 +994,45 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
     @action(detail=False, methods=["post", "get"])
     def fetch_notes(self, request):
 
-        select_all=request.data.get("select_all")
-        note_ids=request.data.get("note_ids",[])
-        operation_name = request.data.get("operationName")
-        variables = request.data.get("variables", {})
-        query = request.data.get("query")
+        select_all = request.data.get("select_all")
+        note_ids = request.data.get("note_ids", [])
+        filters = request.data.get("filters", {})
 
         url = "https://lsdbhaveblueuat.azurewebsites.net/graphql/"
 
-        
+        # ✅ GraphQL query using variables
+        query = """
+        query Notes($filters: NoteFilterInput, $limit: Int, $offset: Int) {
+        notes(filters: $filters, limit: $limit, offset: $offset) {
+            totalCount
+            items {
+            id
+            subject
+            ownerName
+            noteTypeName
+            labels { id name hexColor }
+            dispositionComplete
+            taggedUsers { username }
+            project
+            datetime
+            lastUpdateDatetime
+            username
+            }
+        }
+        }
+        """
 
-        payload = {
-            "operationName": operation_name,
-            "variables": variables,
-            "query": query,
+        variables = {
+            "filters": filters,
+            "limit": -1,
+            "offset": 0
         }
 
+        payload = {
+            "operationName": "Notes",
+            "variables": variables,
+            "query": query
+        }
 
         response = requests.post(url, json=payload)
         resp_json = response.json()
@@ -1018,15 +1040,15 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
         items = resp_json.get("data", {}).get("notes", {}).get("items", [])
         ids = [item.get("id") for item in items]
 
+        
         if select_all == "true":
             ids = [i for i in ids if i not in note_ids]
-            note_ids=ids
-            return self.download_note_csv(request,note_ids)
+            return self.download_note_csv(request, ids)
 
         elif select_all == "false":
-            return self.download_note_csv(request,note_ids)
-        else:
-            return Response({"error": "select_all must be true/false"},status=400)
+            return self.download_note_csv(request, note_ids)
+
+        return Response({"error": "select_all must be true/false"}, status=400)
         
         
         
