@@ -13,6 +13,9 @@ from rest_framework_tracking.mixins import LoggingMixin
 import csv
 from django.http import HttpResponse
 from rest_framework.decorators import action
+import pandas as pd
+import re
+from django.db import connection
 
 from lsdb.models import AzureFile
 from lsdb.models import Disposition
@@ -28,10 +31,11 @@ from lsdb.models.Project import Project
 from lsdb.models.WorkOrder import WorkOrder
 from lsdb.permissions import ConfiguredPermission
 from lsdb.serializers import DispositionCodeListSerializer
+from lsdb.serializers.NoteSerializer import ReportBuildSerializer
 from lsdb.serializers import NoteSerializer
 from lsdb.utils.NoteUtils import get_note_link
 from lsdb.utils.Notification import Notification
-
+from itertools import chain
 
 class NoteFilter(filters.FilterSet):
     class Meta:
@@ -839,3 +843,128 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
         else:
             serializer = NoteSerializer([], many=True, context=self.context)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get','post'])
+    def download_note_csv(self, request):
+        note_ids = request.data.get('note_ids',[])
+        flag = bool(request.data.get('exclude', False))
+        
+        if not isinstance(note_ids, list):
+            return Response({"error": "note_ids must be a list"},status=400)
+        
+        note_ids = [int(nid) for nid in note_ids if str(nid).isdigit()]
+
+
+        if not note_ids and not flag:
+            return Response(
+                {"error": "note_id is required"},
+                status=400
+            )
+            
+        notes_qs = Note.objects.all()
+
+        if note_ids:
+            if flag:
+                notes_qs = notes_qs.exclude(id__in=note_ids)
+            else:
+                notes_qs = notes_qs.filter(id__in=note_ids)
+        else:
+            if not flag:
+                notes_qs = Note.objects.none()
+
+
+        serializer = ReportBuildSerializer(
+            # Note.objects.filter(id=note_id),
+            notes_qs,
+            many=True,
+            context={'request': request}
+        )
+
+        azure_file_base_url = (
+            "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
+        )
+
+        columns = [
+            'serial_number',
+            'project_number',
+            'bom',
+            'customer_name',
+            'manufacturer',
+            'module_model',
+            'pmax',
+            'test_sequence',
+            'note_id',
+            'note_subject',
+            'note_text',
+            'note_type',
+            'author',
+            'owner',
+            'tagged_user',
+            'creation_date',
+            'image_urls',
+            'Audit year',
+            'connector_vendor',
+            'connector_model',
+            'failure_description',
+            'category',
+        ]
+
+        rows = []
+
+        for item in serializer.data:
+
+            row = {
+                'note_id': item.get('id', ''),
+                'serial_number': item.get('serial_number', ''),
+                'bom': item.get('bom', ''),
+                'customer_name': item.get('customer_name', ''),
+                'manufacturer': item.get('manufacturer', ''),
+                'module_model': item.get('module_model', ''),
+                'pmax': item.get('pmax', ''),
+                'project_number': item.get('project_number', ''),
+                'test_sequence': item.get('test_sequence_name', ''),
+                'note_subject': item.get('subject', ''),
+                'note_text': item.get('text', ''),
+                'note_type': item.get('note_type_name', ''),
+                'author': item.get('author_name', ''),
+                'owner': item.get('owner_name', ''),
+                'creation_date': item.get('datetime', ''),
+                'image_urls': '',
+                'tagged_user': '',
+            }
+            
+            tagged_users =[]
+            tagged_user = item.get('tagged_users', [])
+            for user in tagged_user:
+                tagged_users.append(user.get('username', ''))
+            row['tagged_user'] = ", ".join(tagged_users)
+            
+            # ---------- Azure image URLs ----------
+            image_links = []
+            attachment_ids = item.get('note_attachment_id', [])
+
+            for azurefile_id in attachment_ids:
+                image_links.append(
+                    azure_file_base_url.format(azurefile_id)
+                )
+
+            row['image_urls'] = ", ".join(image_links)
+
+            rows.append(row)
+
+
+        # ---------------- CSV ----------------
+        df = pd.DataFrame(rows, columns=columns)
+
+        html_pattern = re.compile(r'<.*?>')
+        df = df.applymap(
+            lambda x: re.sub(html_pattern, '', str(x)) if isinstance(x, str) else x
+        )
+
+        response = HttpResponse(
+            df.to_csv(index=False, quoting=csv.QUOTE_MINIMAL),
+            content_type='text/csv'
+        )
+        response['Content-Disposition'] = 'attachment; filename="Note_Report.csv"'
+
+        return response
