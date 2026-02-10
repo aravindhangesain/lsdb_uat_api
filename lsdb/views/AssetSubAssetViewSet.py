@@ -63,6 +63,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
             comment=request.data.get('comment')
 
             asset_calibration=AssetCalibration.objects.filter(asset_id=asset_id).first()
+            calibration_details=AssetCalibrationSerializer(asset_calibration,many=False)
             for step_result_id in step_result_ids:
                 step_result=StepResult.objects.get(id=step_result_id)
                 procedure_result_id=step_result.procedure_result_id
@@ -77,7 +78,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                         run_date=datetime.now(),
                                                                         comment=comment,
                                                                         stress_name=step_result.name,
-                                                                        disposition=Disposition.objects.get(id=18)
+                                                                        disposition=Disposition.objects.get(id=18),
+                                                                        is_calibrated = calibration_details.data.get("is_calibration")
                                                                         )
                     
                                                                     

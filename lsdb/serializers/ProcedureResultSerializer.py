@@ -12,7 +12,7 @@ from lsdb.serializers.StepResultSerializer import StepResultStressSerializer
 from lsdb.serializers.UnitTypeSerializer import UnitTypeSerializer
 from django.db import connection
 
-
+from lsdb.serializers.AssetCalibrationSerializer import AssetCalibrationSerializer
 
 # class IVCurveMeasurementSerializer(serializers.HyperlinkedModelSerializer):
 #     ### DEPRECATED
@@ -112,6 +112,49 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     final_result = serializers.SerializerMethodField()
     last_calibration_date = serializers.SerializerMethodField()
     retest_reasons = serializers.SerializerMethodField()
+
+    asset_details = serializers.SerializerMethodField()
+    calibrated_during_test= serializers.SerializerMethodField()
+
+    def get_calibrated_during_test(self,obj):
+        calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
+        if calibrated_during_test:
+            return calibrated_during_test.is_calibrated
+        else:
+            return None
+    
+    def get_asset_details(self, obj):
+        request = self.context.get('request')
+
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement:
+            return None
+
+        asset = AssetCalibration.objects.filter(
+            asset_id=measurement.asset_id
+        ).first()
+
+        if not asset:
+            return None
+
+        serializer = AssetCalibrationSerializer(
+            asset,
+            context={'request': request}
+        )
+
+        return serializer.data
+
+    
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -427,7 +470,9 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
             'has_notes',
             'open_notes',
             'final_result',
-            'retest_reasons'
+            'retest_reasons',
+            'asset_details',
+            'calibrated_during_test'
         ]
 
 
@@ -446,6 +491,46 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
     final_result = serializers.SerializerMethodField()
     last_calibration_date = serializers.SerializerMethodField()
     retest_reasons = serializers.SerializerMethodField()
+    asset_details = serializers.SerializerMethodField()
+    calibrated_during_test= serializers.SerializerMethodField()
+
+    def get_calibrated_during_test(self,obj):
+        calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
+        if calibrated_during_test:
+            return calibrated_during_test.is_calibrated
+        else:
+            return None
+    
+    def get_asset_details(self, obj):
+        request = self.context.get('request')
+
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement:
+            return None
+
+        asset = AssetCalibration.objects.filter(
+            asset_id=measurement.asset_id
+        ).first()
+
+        if not asset:
+            return None
+
+        serializer = AssetCalibrationSerializer(
+            asset,
+            context={'request': request}
+        )
+
+        return serializer.data
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -564,6 +649,8 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
             'visualizer',
             'assets',
             'last_calibration_date',
+            'asset_details',
+            'calibrated_during_test',
             'has_notes',
             'open_notes',
             'final_result',
@@ -585,6 +672,47 @@ class ProcedureResultStressSerializer(serializers.HyperlinkedModelSerializer):
     open_notes = serializers.SerializerMethodField()
     final_result = serializers.SerializerMethodField()
     last_calibration_date = serializers.SerializerMethodField()
+
+    asset_details = serializers.SerializerMethodField()
+    calibrated_during_test= serializers.SerializerMethodField()
+
+    def get_calibrated_during_test(self,obj):
+        calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
+        if calibrated_during_test:
+            return calibrated_during_test.is_calibrated
+        else:
+            return None
+    
+    def get_asset_details(self, obj):
+        request = self.context.get('request')
+
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement:
+            return None
+
+        asset = AssetCalibration.objects.filter(
+            asset_id=measurement.asset_id
+        ).first()
+
+        if not asset:
+            return None
+
+        serializer = AssetCalibrationSerializer(
+            asset,
+            context={'request': request}
+        )
+
+        return serializer.data
 
     def get_has_notes(self, obj):
         if obj.notes.count() > 0:
@@ -667,6 +795,8 @@ class ProcedureResultStressSerializer(serializers.HyperlinkedModelSerializer):
             'visualizer',
             'assets',
             'last_calibration_date',
+            'asset_details',
+            'calibrated_during_test',
             'has_notes',
             'open_notes',
             'final_result'
@@ -687,6 +817,46 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     note_subject  = serializers.SerializerMethodField()
     notes = serializers.SerializerMethodField()
     note_attachment_id = serializers.SerializerMethodField()
+    asset_details = serializers.SerializerMethodField()
+    calibrated_during_test= serializers.SerializerMethodField()
+
+    def get_calibrated_during_test(self,obj):
+        calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
+        if calibrated_during_test:
+            return calibrated_during_test.is_calibrated
+        else:
+            return None
+    
+    def get_asset_details(self, obj):
+        request = self.context.get('request')
+
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement:
+            return None
+
+        asset = AssetCalibration.objects.filter(
+            asset_id=measurement.asset_id
+        ).first()
+
+        if not asset:
+            return None
+
+        serializer = AssetCalibrationSerializer(
+            asset,
+            context={'request': request}
+        )
+
+        return serializer.data
 
     def get_note_attachment_id(self, obj):
         note_id = self.get_note_id(obj)
@@ -806,6 +976,8 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'note_subject',
             'note_attachment_id',
             'notes',
+            'asset_details',
+            'calibrated_during_test'
             
         ]
 
@@ -818,6 +990,46 @@ class RetestReportListSerializer(serializers.HyperlinkedModelSerializer):
     description = serializers.ReadOnlyField(source='test_sequence_definition.description')
     disposition_name = serializers.SerializerMethodField()
     customer_name = serializers.ReadOnlyField(source='work_order.project.customer.name')
+    asset_details = serializers.SerializerMethodField()
+    calibrated_during_test= serializers.SerializerMethodField()
+
+    def get_calibrated_during_test(self,obj):
+        calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
+        if calibrated_during_test:
+            return calibrated_during_test.is_calibrated
+        else:
+            return None
+    
+    def get_asset_details(self, obj):
+        request = self.context.get('request')
+
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement:
+            return None
+
+        asset = AssetCalibration.objects.filter(
+            asset_id=measurement.asset_id
+        ).first()
+
+        if not asset:
+            return None
+
+        serializer = AssetCalibrationSerializer(
+            asset,
+            context={'request': request}
+        )
+
+        return serializer.data
     # note_id = serializers.SerializerMethodField()
     # note_text = serializers.SerializerMethodField()
     # note_subject  = serializers.SerializerMethodField()
@@ -938,6 +1150,8 @@ class RetestReportListSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'customer_name',
             'group_id'
+            'asset_details',
+            'calibrated_during_test'
             # 'note_id',
             # 'note_text',
             # 'note_subject',
@@ -964,6 +1178,47 @@ class FlashTestSerializer(serializers.HyperlinkedModelSerializer):
     old_correction_value = serializers.SerializerMethodField()
     date_time=serializers.SerializerMethodField()
     # bom=serializers.SerializerMethodField()
+
+    asset_details = serializers.SerializerMethodField()
+    calibrated_during_test= serializers.SerializerMethodField()
+
+    def get_calibrated_during_test(self,obj):
+        calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
+        if calibrated_during_test:
+            return calibrated_during_test.is_calibrated
+        else:
+            return None
+    
+    def get_asset_details(self, obj):
+        request = self.context.get('request')
+
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement:
+            return None
+
+        asset = AssetCalibration.objects.filter(
+            asset_id=measurement.asset_id
+        ).first()
+
+        if not asset:
+            return None
+
+        serializer = AssetCalibrationSerializer(
+            asset,
+            context={'request': request}
+        )
+
+        return serializer.data
 
     def get_correction_factor(self, obj):
         # Get the first step result ID for the given procedure result
@@ -1118,5 +1373,7 @@ class FlashTestSerializer(serializers.HyperlinkedModelSerializer):
             'is_updated',
             'old_correction_value',
             'date_time',
-            'module_property'
+            'module_property',
+            'asset_details',
+            'calibrated_during_test'
         ]
