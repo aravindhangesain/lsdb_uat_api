@@ -849,47 +849,16 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get','post'])
     def download_note_csv(self, request,note_ids=None):
-        '''
-        Include Mode - only these note id downloads
-        {
-            "note_ids": [13322, 13323],
-            "exclude": false
-        }
-        
-        Exclude Mode -  exclude this ids and downlaod all
-        {
-            "note_ids": [13322, 13323],
-            "exclude": true
-        }
-        
-        Download All Notes
-        {
-            "note_ids": [],
-            "exclude": true
-        } '''
-        
-        flag = bool(request.data.get('exclude', False))
         
         if not isinstance(note_ids, list):
             return Response({"error": "note_ids must be a list"},status=400)
         
         note_ids = [int(nid) for nid in note_ids if isinstance(nid, (int, str)) and str(nid).isdigit()]
-
-        if not note_ids and not flag:
-            return Response(
-                {"error": "note_id is required"},
-                status=400
-            )
-            
-        notes_qs = Note.objects.all()
-
+        
         if note_ids:
-            if flag:
-                notes_qs = notes_qs.exclude(id__in=note_ids)
-            else:
-                notes_qs = notes_qs.filter(id__in=note_ids)
+            notes_qs = Note.objects.filter(id__in=note_ids)
         else:
-            if not flag:
+            if not note_ids:
                 notes_qs = Note.objects.none()
 
 
@@ -1000,7 +969,7 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
 
         url = "https://lsdbhaveblueuat.azurewebsites.net/graphql/"
 
-        # ✅ GraphQL query using variables
+        
         query = """
         query Notes($filters: NoteFilterInput, $limit: Int, $offset: Int) {
         notes(filters: $filters, limit: $limit, offset: $offset) {
@@ -1050,11 +1019,3 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
 
         return Response({"error": "select_all must be true/false"}, status=400)
         
-        
-        
-
-        
-
-
-
-
