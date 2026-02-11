@@ -967,50 +967,51 @@ class NoteViewSet(LoggingMixin, viewsets.ModelViewSet):
         note_ids = request.data.get("note_ids", [])
         filters = request.data.get("filters", {})
 
-        url = "https://lsdbhaveblueuat.azurewebsites.net/graphql/"
-
         
-        query = """
-        query Notes($filters: NoteFilterInput, $limit: Int, $offset: Int) {
-        notes(filters: $filters, limit: $limit, offset: $offset) {
-            totalCount
-            items {
-            id
-            subject
-            ownerName
-            noteTypeName
-            labels { id name hexColor }
-            dispositionComplete
-            taggedUsers { username }
-            project
-            datetime
-            lastUpdateDatetime
-            username
-            }
-        }
-        }
-        """
-
-        variables = {
-            "filters": filters,
-            "limit": -1,
-            "offset": 0
-        }
-
-        payload = {
-            "operationName": "Notes",
-            "variables": variables,
-            "query": query
-        }
-
-        response = requests.post(url, json=payload)
-        resp_json = response.json()
-
-        items = resp_json.get("data", {}).get("notes", {}).get("items", [])
-        ids = [item.get("id") for item in items]
 
         
         if select_all == "true":
+            url = "https://lsdbhaveblueuat.azurewebsites.net/graphql/"
+
+        
+            query = """
+            query Notes($filters: NoteFilterInput, $limit: Int, $offset: Int) {
+            notes(filters: $filters, limit: $limit, offset: $offset) {
+                totalCount
+                items {
+                id
+                subject
+                ownerName
+                noteTypeName
+                labels { id name hexColor }
+                dispositionComplete
+                taggedUsers { username }
+                project
+                datetime
+                lastUpdateDatetime
+                username
+                }
+            }
+            }
+            """
+
+            variables = {
+                "filters": filters,
+                "limit": -1,
+                "offset": 0
+            }
+
+            payload = {
+                "operationName": "Notes",
+                "variables": variables,
+                "query": query
+            }
+
+            response = requests.post(url, json=payload)
+            resp_json = response.json()
+
+            items = resp_json.get("data", {}).get("notes", {}).get("items", [])
+            ids = [item.get("id") for item in items]
             ids = [i for i in ids if i not in note_ids]
             return self.download_note_csv(request, ids)
 
