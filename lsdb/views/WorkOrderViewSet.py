@@ -48,6 +48,17 @@ class WorkOrderViewSet(
     # serializer_detail_class = WorkOrderDetailSerializer
     permission_classes = [ConfiguredPermission]
 
+    def perform_update(self, serializer):
+        with transaction.atomic():
+            instance = serializer.instance
+            old_disposition = instance.disposition
+            updated_instance = serializer.save()
+            new_disposition = updated_instance.disposition
+            if old_disposition != new_disposition:
+                updated_instance.units.update(
+                    disposition=new_disposition
+                )
+
     def perform_create(self, serializer):
         is_template = self.request.data.get('is_template')
         template_name = self.request.data.get('template_name')
@@ -57,20 +68,10 @@ class WorkOrderViewSet(
                 workorder=created_workorder, 
                 template_name=template_name
             )
-
         else:
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
        
-
-
-                
-
-
-
-
-
-
     @action(detail=False, methods=['get', ],
             serializer_class=DispositionCodeListSerializer,
             permission_classes=(ConfiguredPermission,)
