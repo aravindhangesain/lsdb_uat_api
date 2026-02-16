@@ -95,6 +95,7 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                 "linked_date": linked_date,
                 "subassets": list(subasset_names),
                 "inUse": in_use,
+                "calibration_required": asset.is_calibration_required,
                 "stressrun_results": stressrun_data
             })
         return Response(response_data, status=status.HTTP_200_OK)
