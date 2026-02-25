@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lsdb.models import AssetCalibration
+from lsdb.models import *
 from datetime import timedelta
 from django.utils.timezone import now
 
@@ -15,6 +15,47 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     is_calibration_date = serializers.SerializerMethodField()
     in_use = serializers.SerializerMethodField()
     asset_next_calibration  = serializers.SerializerMethodField()
+    last_action_datetime = serializers.SerializerMethodField()
+    notes = serializers.SerializerMethodField()
+    calibrated_by = serializers.SerializerMethodField()
+    requested_last_calibrated_date=serializers.SerializerMethodField()
+    requested_schedule_for_calibration=serializers.SerializerMethodField()
+
+    def get_last_action_datetime(self, obj):
+        if AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').exists():
+            var=AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').last()
+            return var.action_datetime
+        else:
+            return None
+    def get_notes(self,obj):
+        if AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').exists():
+            var=AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').last()
+            return var.notes
+        else:
+            return None
+    def get_calibrated_by(self,obj):
+        if AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').exists():
+            var=AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').last()
+            return var.user.username
+        else:
+            return None
+        
+    def get_requested_last_calibrated_date(self, obj):
+        if AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').exists():
+            var=AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').last()
+            return var.requested_last_calibrated_date
+        else:
+            return None
+    
+    def get_requested_schedule_for_calibration(self, obj):
+        if AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').exists():
+            var=AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').last()
+            return var.requested_schedule_for_calibration
+        else:
+            return None
+
+    
+    
     
     def get_calibration_days(self, obj):
         if obj.last_calibrated_date:
@@ -115,4 +156,8 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'is_rack',
             'disposition',
             'disposition_id',
+            'notes',
+            'calibrated_by',
+            'requested_last_calibrated_date',
+            'requested_schedule_for_calibration'
         ]

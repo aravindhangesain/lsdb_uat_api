@@ -86,7 +86,26 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                 value["units"] = list(value["units"])
                 stressrun_data.append(value)
             if not stressrun_data:
-                continue     
+                continue
+            serializer = AssetCalibrationSerializer()
+
+            asset_last_action_instance=AssetLastActionDetails.objects.filter(asset_id=asset.id,action_name='Calibration Date Updated').order_by('-id').first()
+            is_updated = False  # default
+
+            if asset_last_action_instance:
+                if asset_last_action_instance.requested_last_calibrated_date is not None:
+                    if asset_last_action_instance.status == 'approved':
+                        is_updated = True
+                    elif asset_last_action_instance.status == 'reject':
+                        is_updated = False
+                    elif asset_last_action_instance.status is None:
+                        is_updated = True
+                    
+                else:
+                    is_updated = False
+
+           
+            
             response_data.append({
                 "id": asset.id,
                 "asset_name": asset.asset_name,
@@ -95,8 +114,108 @@ class AssetHistoryViewSet(viewsets.ModelViewSet):
                 "linked_date": linked_date,
                 "subassets": list(subasset_names),
                 "inUse": in_use,
-                "calibration_required": asset.is_calibration_required,
+                "is_updated": is_updated,
+                "in_calibration": serializer.get_is_calibration(asset),
                 "stressrun_results": stressrun_data
+            })
+        return Response(response_data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def asset_list_calibration(self, request):
+        self.context = {'request': request}
+        asset_calibration_id = request.query_params.get('asset_calibration_id')
+        if asset_calibration_id and asset_calibration_id is not None:
+            assets = AssetCalibration.objects.filter(id=int(asset_calibration_id))
+        
+        response_data = []
+        for asset in assets:
+            if AssetSubAsset.objects.filter(asset_id=asset.id).exists():
+                subasset_links = AssetSubAsset.objects.filter(asset_id=asset.id)
+                subasset_ids = [link.sub_asset_id for link in subasset_links]
+                subasset_names = AssetCalibration.objects.filter(
+                    id__in=subasset_ids
+                ).values_list("asset_name", flat=True)
+                linked_date = subasset_links.first().linked_date if subasset_links.exists() else None
+            else:
+                subasset_ids = []
+                subasset_names = []
+                linked_date = None  
+                
+           
+            stress_runs = StressRunResult.objects.filter(asset_id=asset.id)
+           
+            procedure_result_ids = [run.procedure_result_id for run in stress_runs]
+            procedure_results = ProcedureResult.objects.filter(id__in=procedure_result_ids,group_id = 45)
+            stressrun_data = []
+            for run in stress_runs:
+                pr = procedure_results.filter(id=run.procedure_result_id).first()
+                if not pr:
+                    continue
+                unit_serials = set()
+                if hasattr(pr, "unit") and pr.unit:
+                    unit_serials.add(pr.unit.serial_number)
+                elif hasattr(pr, "units"):
+                    unit_serials.update(pr.units.values_list("serial_number", flat=True))
+                stressrun_data.append({
+                    "run_name": run.run_name if run.run_name else None,
+                    "units": list(unit_serials) if list(unit_serials) else None ,
+                    "duration":pr.procedure_definition.aggregate_duration if pr.procedure_definition.aggregate_duration else None ,
+                    "start_date": pr.start_datetime if pr.start_datetime else None,
+                    "end_date": pr.end_datetime if pr.end_datetime else None ,
+                    "procedure_definition": pr.procedure_definition.name if pr.procedure_definition else None
+                })
+            min_dt = datetime.min.replace(tzinfo=timezone.utc)
+
+            stressrun_data = sorted(stressrun_data,key=lambda x: x["start_date"] or min_dt)
+            grouped_data = {}
+            for item in stressrun_data:
+                key = item["procedure_definition"]
+                if key not in grouped_data:
+                    grouped_data[key] = {
+                        "run_name": item["run_name"] ,
+                        "units": set(),
+                        "duration": item["duration"] ,
+                        "start_date": item["start_date"] ,
+                        "end_date": item["end_date"] ,
+                        "procedure_definition": key 
+                    }
+                grouped_data[key]["units"].update(item["units"])
+            stressrun_data = []
+            for value in grouped_data.values():
+                value["units"] = list(value["units"])
+                stressrun_data.append(value)
+            # if not stressrun_data:
+            #     continue
+            serializer = AssetCalibrationSerializer()
+
+            asset_last_action_instance=AssetLastActionDetails.objects.filter(asset_id=asset.id,action_name='Calibration Date Updated').order_by('-id').first()
+            is_updated = False  # default
+
+            if asset_last_action_instance:
+                if asset_last_action_instance.requested_last_calibrated_date is not None:
+                    if asset_last_action_instance.status == 'approved':
+                        is_updated = True
+                    elif asset_last_action_instance.status == 'reject':
+                        is_updated = False
+                    elif asset_last_action_instance.status is None:
+                        is_updated = True
+                    
+                else:
+                    is_updated = False
+
+           
+            
+            response_data.append({
+                "id": asset.id,
+                "asset_name": asset.asset_name,
+                "asset_number": asset.asset_number,
+                "schedule_for_calibration":asset.schedule_for_calibration if asset.schedule_for_calibration else 0,
+                "linkedsubassets": len(subasset_ids),
+                "linked_date": linked_date if linked_date else None,
+                "subassets": list(subasset_names) if subasset_names else [],
+                "is_updated": is_updated,
+                "in_calibration": serializer.get_is_calibration(asset),
+                "stressrun_results": stressrun_data if stressrun_data else None 
             })
         return Response(response_data, status=status.HTTP_200_OK)
 

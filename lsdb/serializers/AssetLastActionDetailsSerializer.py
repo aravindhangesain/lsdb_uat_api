@@ -17,5 +17,9 @@ class AssetLastActionDetailsSerializer(serializers.HyperlinkedModelSerializer):
             'action_datetime',
             'user',
             'user_id',
-            'username'
+            'username',
+            'notes',
+            'status',
+            'verified_by_id',
+            'requested_last_calibrated_date'
         ]

@@ -507,6 +507,7 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
         step_result = StepResult.objects.filter(
             procedure_result_id=obj.id
         ).first()
+        print(step_result)
 
         if not step_result:
             return None
@@ -515,13 +516,15 @@ class ProcedureResultSerializer(serializers.HyperlinkedModelSerializer):
             step_result_id=step_result.id
         ).first()
 
+        print(measurement)
         if not measurement:
             return None
 
         asset = AssetCalibration.objects.filter(
             asset_id=measurement.asset_id
         ).first()
-
+        print(asset)
+        
         if not asset:
             return None
 

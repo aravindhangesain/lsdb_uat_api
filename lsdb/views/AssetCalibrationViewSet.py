@@ -18,6 +18,9 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         pk = kwargs.get('pk')
         instance = self.get_object()
 
+        notes = request.data.pop('notes', None)
+        
+
         if 'disposition' in request.data:
             if AssetLastActionDetails.objects.filter(asset_id=pk).exists():
                 last_action = AssetLastActionDetails.objects.get(asset_id=pk)
@@ -32,9 +35,72 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                                                     action_datetime=datetime.now(),
                                                     user_id=request.user.id
                                                     )
-                
+        elif 'last_calibrated_date' in request.data:
+            last_calibrated_date=request.data.pop('last_calibrated_date', None)
+            requested_schedule_for_calibration=request.data.pop('requested_schedule_for_calibration')
+            AssetLastActionDetails.objects.create(asset_id=pk,
+                                                  action_name='Calibration Date Updated',
+                                                  action_datetime=datetime.now(),
+                                                  user_id=request.user.id,
+                                                  notes=notes,
+                                                  requested_last_calibrated_date=last_calibrated_date,
+                                                  requested_schedule_for_calibration=requested_schedule_for_calibration
+                                                  )
 
         return super().partial_update(request, *args, **kwargs)
+    
+    @action(detail=False, methods=['post'])
+    def update_calibration_status(self, request):
+
+        status=request.data.get('status')
+        asset_id=request.data.get('asset_id')
+        
+
+        asset=AssetLastActionDetails.objects.filter(asset_id=asset_id,action_name='Calibration Date Updated').order_by('-id').first()
+        
+        asset.status=status
+        asset.verified_by_id=request.user.id
+        asset.save()
+        if asset.status=="approved":
+            AssetCalibration.objects.filter(id=asset_id).update(last_calibrated_date=asset.requested_last_calibrated_date,schedule_for_calibration=asset.requested_schedule_for_calibration,
+                                                                is_calibration_required=True)
+        return Response ({"detail":"Asset status updated"},status=200)
+
+        
+
+    @action(detail=False, methods=['get'])
+    def calibration_history(self, request):
+
+        asset_id = request.query_params.get('asset_id', None)
+
+        asset_instance = AssetCalibration.objects.filter(id=asset_id).first()
+
+        history = AssetLastActionDetails.objects.filter(
+            asset_id=asset_id,
+            action_name='Calibration Date Updated'
+        ).order_by('-action_datetime')
+
+        results = []
+        for item in history:
+            if item.status=='reject':
+                
+                calibration_date=item.requested_last_calibrated_date
+            elif item.status=='approved':
+                calibration_date=asset_instance.last_calibrated_date
+            else:
+                calibration_date=None
+
+            
+            results.append({
+                "calibration_date": calibration_date if asset_instance else None,
+                "note": item.notes if item.notes else None,
+                "calibrated_by": item.user.username if item.user else None,
+                "verified_by": item.verified_by.username if item.verified_by else None,
+                "status": item.status if item.status else None,
+                "updated_on": item.action_datetime if item.action_datetime else None
+            })
+
+        return Response(results)
 
 
     def perform_create(self, serializer):
@@ -224,6 +290,9 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         self.context = {'request': request}
         serializer = DispositionCodeListSerializer(DispositionCode.objects.get(name='asset_management'),many=False,context={'request': request})
         return Response(serializer.data)
+    
+    
+
         
     
     # @action(detail=False, methods=['get'])
