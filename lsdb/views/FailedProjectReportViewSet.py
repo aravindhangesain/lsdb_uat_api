@@ -22,6 +22,9 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
+        is_mss = self.request.query_params.get('is_mss')
+
+        
         if not start_date or not end_date:
             return ProcedureResult.objects.none() 
         with connection.cursor() as cursor:
@@ -32,11 +35,22 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 WHERE n.note_type_id = 3
             """)
             unit_ids = [row[0] for row in cursor.fetchall()]
-        other_results = ProcedureResult.objects.filter(
-            disposition_id__in=[3, 8, 19],
+        if is_mss=='0':
+            failed_results = ProcedureResult.objects.filter(
+                disposition_id__in=[3, 8, 19],
+                unit_id__in=unit_ids,
+                start_datetime__date__range=[start_date, end_date]
+            ).distinct()
+        elif is_mss=='1':
+            failed_results = ProcedureResult.objects.filter(
+            disposition_id__in=[3],
             unit_id__in=unit_ids,
-            start_datetime__date__range=[start_date, end_date]
-        ).distinct()
+            start_datetime__date__range=[start_date, end_date]).filter(
+                Q(name__icontains='Post') &
+                (Q(name__icontains='SML') | Q(name__icontains='DML'))).distinct()
+            
+        other_results=failed_results
+                
         excluded_units = Unit.objects.filter(
             Q(notes__subject__icontains="Quality issue") |
             Q(notes__subject__icontains="Mishandling damage") |
@@ -53,7 +67,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         return {
             "pass_reports": pass_reports.order_by("-start_datetime"),
             "other_results": other_results.order_by("-start_datetime")
-    }
+        }
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
