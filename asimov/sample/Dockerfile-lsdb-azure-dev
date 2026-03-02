@@ -13,20 +13,16 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV REACT_APP_LSDB_BUILD=1.0.424
 
-#DB Details
-# ENV DBNAME haveblueuatdb
-# ENV DBHOST flexibleportolaprod.postgres.database.azure.com
-# ENV DBUSER portolaprodFleixble
-# ENV DBPASS Gesa@2023
-
 # install dependencies
 
-RUN pip install --upgrade pip setuptools wheel
-COPY ./asimov/sample/requirements.txt /usr/src/HaveBlue/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip
+COPY ./asimov/sample/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# IMPORTANT FIX
+RUN pip install --no-cache-dir setuptools
 
 # copy project
 COPY . /usr/src/HaveBlue
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "--workers=4", "backend.wsgi:application", "--timeout", "1200", "--access-logfile", "-", "--error-logfile", "-"]
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "--workers=4", "backend.wsgi:application", "--timeout", "1200"]
 
