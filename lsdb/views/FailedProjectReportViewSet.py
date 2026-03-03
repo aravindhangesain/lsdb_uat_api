@@ -36,38 +36,40 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             """)
             unit_ids = [row[0] for row in cursor.fetchall()]
         if is_mss=='0':
-            failed_results = ProcedureResult.objects.filter(
+            other_results = ProcedureResult.objects.filter(
                 disposition_id__in=[3, 8, 19],
                 unit_id__in=unit_ids,
                 start_datetime__date__range=[start_date, end_date]
             ).distinct()
-        elif is_mss=='1':
-            failed_results = ProcedureResult.objects.filter(
-            disposition_id__in=[3],
-            unit_id__in=unit_ids,
-            start_datetime__date__range=[start_date, end_date]).filter(
-                Q(name__icontains='Post') &
-                (Q(name__icontains='SML') | Q(name__icontains='DML'))).distinct()
-            
-        other_results=failed_results
-                
-        excluded_units = Unit.objects.filter(
+
+            excluded_units = Unit.objects.filter(
             Q(notes__subject__icontains="Quality issue") |
             Q(notes__subject__icontains="Mishandling damage") |
             Q(notes__subject__icontains="Pull Request")
-        ).values_list("id", flat=True)
-        pass_reports = ProcedureResult.objects.filter(
-            disposition_id=2
-        ).exclude(
-            unit_id__in=excluded_units
-        ).filter(
-            unit__notes__note_type_id=3,
-            start_datetime__date__range=[start_date, end_date]
-        )
-        return {
-            "pass_reports": pass_reports.order_by("-start_datetime"),
-            "other_results": other_results.order_by("-start_datetime")
-        }
+            ).values_list("id", flat=True)
+            pass_reports = ProcedureResult.objects.filter(
+                disposition_id=2
+            ).exclude(
+                unit_id__in=excluded_units
+            ).filter(
+                unit__notes__note_type_id=3,
+                start_datetime__date__range=[start_date, end_date]
+            )
+            return {
+                "pass_reports": pass_reports.order_by("-start_datetime"),
+                "other_results": other_results.order_by("-start_datetime")
+            }
+        elif is_mss=='1':
+            failed_results = ProcedureResult.objects.filter(
+                                                            Q(name__icontains="Post") & Q(name__icontains="ML"),
+                                                            disposition_id=3,
+                                                            stepresult__isnull=False,
+                                                            stepresult__measurementresult__isnull=False).order_by("unit__serial_number").distinct("unit__serial_number")
+           
+            other_results=failed_results
+            return {"other_results": other_results}
+                
+        
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
