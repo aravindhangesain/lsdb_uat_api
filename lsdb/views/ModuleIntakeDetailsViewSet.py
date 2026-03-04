@@ -1,8 +1,9 @@
 from rest_framework import viewsets
-from lsdb.models import ModuleIntakeDetails,NewCrateIntake
+from lsdb.models import *
 from lsdb.serializers import ModuleIntakeDetailsSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 
 class ModuleIntakeDetailsViewSet(viewsets.ModelViewSet):
     logging_methods = ['POST', 'PUT', 'PATCH', 'DELETE']
@@ -29,3 +30,43 @@ class ModuleIntakeDetailsViewSet(viewsets.ModelViewSet):
             
         return module_intake_details
     
+    @action(detail=False, methods=['get'])
+    def project_details(self, request):
+        project_id = request.query_params.get('project_id')
+
+        if not project_id:
+            return Response(
+                {"error": "Project ID is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        intake_details = ModuleIntakeDetails.objects.filter(
+            projects_id=project_id
+        ).select_related("projects")
+        
+        if not intake_details.exists():
+            return Response(
+                {"error": "No intake details found for the given project ID."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        response_data = []
+
+        for intake in intake_details:
+
+            project_units = intake.projects.units.all()
+
+            for unit in project_units:
+
+                workorder = WorkOrder.objects.filter(
+                    project_id=project_id,
+                    units=unit
+                ).first()
+
+                response_data.append({
+                    "serial_number": unit.serial_number,
+                    "work_order_name": workorder.name if workorder else None,
+                    "intake_id": intake.id
+                })
+
+        return Response(response_data, status=status.HTTP_200_OK)
