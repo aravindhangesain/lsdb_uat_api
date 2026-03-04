@@ -165,3 +165,4 @@ from .RetestReasons import RetestReasons as RetestReasons
 from .RetestProcedures import RetestProcedures as RetestProcedures
 from .UserAssignmentForProcedure import UserAssignmentForProcedure as UserAssignmentForProcedure
 from .NewFlashTestPoints import NewFlashTestPoints as NewFlashTestPoints
+from .UnitMigrationHistory import UnitMigrationHistory as UnitMigrationHistory
