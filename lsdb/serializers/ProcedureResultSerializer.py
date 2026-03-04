@@ -887,6 +887,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
                 SELECT azurefile_id FROM lsdb_note_attachments WHERE note_id = %s
             """, [note_id])
             return [row[0] for row in cursor.fetchall()] 
+  
     def get_asset_name(self,obj):
         step_result = StepResult.objects.filter(
             procedure_result_id=obj.id
@@ -898,6 +899,9 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
         measurement = MeasurementResult.objects.filter(
             step_result_id=step_result.id
         ).first()
+
+        if not measurement or not measurement.asset:
+            return None
 
         return measurement.asset.name
 

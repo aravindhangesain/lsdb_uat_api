@@ -44,6 +44,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             other_results = ProcedureResult.objects.filter(
                 disposition_id__in=[3, 8, 19],
                 unit_id__in=unit_ids,
+                # stepresult__measurementresult__date_time__range=[start_date, end_date] for get all pass records
                 start_datetime__date__range=[start_date, end_date]
             ).distinct()
 
@@ -59,6 +60,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 unit_id__in=excluded_units
             ).filter(
                 unit__notes__note_type_id=3,
+                # stepresult__measurementresult__date_time__range=[start_date, end_date]
                 start_datetime__date__range=[start_date, end_date]
             )
 
@@ -164,25 +166,42 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     def download_csv(self, request):
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
-        unit_ids = []
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT un.unit_id 
-                FROM lsdb_unit_notes un 
-                JOIN lsdb_note n ON un.note_id = n.id 
-                WHERE n.note_type_id = 3
-            """)
-            unit_ids = [row[0] for row in cursor.fetchall()]
-        queryset1 = ProcedureResult.objects.filter(
-            disposition_id__in=[3, 8, 19],
-            unit_id__in=unit_ids,
-            start_datetime__date__range=[start_date, end_date]
-        ).distinct()
-        procedure_ids_param = request.query_params.get('procedure_ids', '')
-        pass_ids = [pid.strip() for pid in procedure_ids_param.split(',') if pid.strip().isdigit()]
-        queryset2 = ProcedureResult.objects.filter(id__in=pass_ids).order_by('start_datetime') if pass_ids else []
-        final_queryset = list(chain(queryset1, queryset2)) 
-        serializer = FailedProjectReportSerializer(final_queryset, many=True, context={'request': request})
+        is_mss = self.request.query_params.get('is_mss')
+        if is_mss == '0':
+            
+            unit_ids = []
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT un.unit_id 
+                    FROM lsdb_unit_notes un 
+                    JOIN lsdb_note n ON un.note_id = n.id 
+                    WHERE n.note_type_id = 3
+                """)
+                unit_ids = [row[0] for row in cursor.fetchall()]
+            queryset1 = ProcedureResult.objects.filter(
+                disposition_id__in=[3, 8, 19],
+                unit_id__in=unit_ids,
+                start_datetime__date__range=[start_date, end_date]
+            ).distinct()
+            procedure_ids_param = request.query_params.get('procedure_ids', '')
+            pass_ids = [pid.strip() for pid in procedure_ids_param.split(',') if pid.strip().isdigit()]
+            queryset2 = ProcedureResult.objects.filter(id__in=pass_ids).order_by('start_datetime') if pass_ids else []
+            final_queryset = list(chain(queryset1, queryset2)) 
+            serializer = FailedProjectReportSerializer(final_queryset, many=True, context={'request': request})
+        
+        elif is_mss == '1':
+            procedure_ids_param = request.query_params.get('procedure_ids', '')
+            pass_ids = [pid.strip() for pid in procedure_ids_param.split(',') if pid.strip().isdigit()]
+            # queryset = ProcedureResult.objects.filter(id__in=pass_ids).order_by('start_datetime') if pass_ids else []
+            queryset = []
+            for pid in pass_ids:
+                try:
+                    obj = ProcedureResult.objects.get(id=pid)
+                    queryset.append(obj)
+                except ProcedureResult.DoesNotExist:
+                    continue
+            serializer = FailedProjectReportSerializer(queryset, many=True, context={'request': request})
+            
         base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
         azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
@@ -219,5 +238,4 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         response = HttpResponse(csv_string, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Failed_projects_Report.csv"'
         return response
-    
     
