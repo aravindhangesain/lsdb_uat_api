@@ -58,6 +58,10 @@ class ModuleIntakeDetailsViewSet(viewsets.ModelViewSet):
 
             for unit in project_units:
 
+                procedure = ProcedureResult.objects.filter(
+                    unit_id=unit.id
+                ).first()
+                
                 workorder = WorkOrder.objects.filter(
                     project_id=project_id,
                     units=unit
@@ -66,7 +70,8 @@ class ModuleIntakeDetailsViewSet(viewsets.ModelViewSet):
                 response_data.append({
                     "serial_number": unit.serial_number,
                     "work_order_name": workorder.name if workorder else None,
-                    "intake_id": intake.id
+                    "intake_id": intake.id,
+                    "tsd_name":procedure.test_sequence_definition.name if procedure else None,
                 })
 
         return Response(response_data, status=status.HTTP_200_OK)
