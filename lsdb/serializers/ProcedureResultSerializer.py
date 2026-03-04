@@ -822,6 +822,23 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     note_attachment_id = serializers.SerializerMethodField()
     asset_details = serializers.SerializerMethodField()
     calibrated_during_test= serializers.SerializerMethodField()
+    measurement_datetime = serializers.SerializerMethodField()
+    asset_name = serializers.SerializerMethodField()
+
+    def get_measurement_datetime(self,obj):
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+        if not measurement:
+            return None
+        return measurement.date_time
 
     def get_calibrated_during_test(self,obj):
         calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
@@ -870,7 +887,19 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
                 SELECT azurefile_id FROM lsdb_note_attachments WHERE note_id = %s
             """, [note_id])
             return [row[0] for row in cursor.fetchall()] 
+    def get_asset_name(self,obj):
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
 
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        return measurement.asset.name
 
     def get_disposition_name(self, obj):
         if obj.disposition:
@@ -965,6 +994,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'procedure_definition_name',
             'disposition',
             'disposition_name',
+            'measurement_datetime',
             'start_datetime',
             'end_datetime',
             'project_number',
@@ -980,6 +1010,7 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'note_attachment_id',
             'notes',
             'asset_details',
+            'asset_name',
             'calibrated_during_test'
             
         ]

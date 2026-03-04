@@ -1,6 +1,6 @@
 from requests import Response
 from rest_framework import viewsets
-from lsdb.models import ProcedureResult,Unit
+from lsdb.models import *
 from lsdb.serializers.ProcedureResultSerializer import FailedProjectReportSerializer
 from django_filters import rest_framework as filters
 from rest_framework_tracking.mixins import LoggingMixin
@@ -12,7 +12,7 @@ from itertools import chain
 import re
 import csv
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q , OuterRef
 
 class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = FailedProjectReportSerializer
@@ -23,10 +23,13 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
         is_mss = self.request.query_params.get('is_mss')
+        tsd_ids = self.request.query_params.get('tsd_ids')
 
-        
         if not start_date or not end_date:
-            return ProcedureResult.objects.none() 
+            return {"pass_reports": ProcedureResult.objects.none(),
+                    "other_results": ProcedureResult.objects.none(),
+                    "mss_response": []}
+
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT un.unit_id 
@@ -35,7 +38,9 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 WHERE n.note_type_id = 3
             """)
             unit_ids = [row[0] for row in cursor.fetchall()]
-        if is_mss=='0':
+
+        if is_mss == '0':
+
             other_results = ProcedureResult.objects.filter(
                 disposition_id__in=[3, 8, 19],
                 unit_id__in=unit_ids,
@@ -43,10 +48,11 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
             ).distinct()
 
             excluded_units = Unit.objects.filter(
-            Q(notes__subject__icontains="Quality issue") |
-            Q(notes__subject__icontains="Mishandling damage") |
-            Q(notes__subject__icontains="Pull Request")
+                Q(notes__subject__icontains="Quality issue") |
+                Q(notes__subject__icontains="Mishandling damage") |
+                Q(notes__subject__icontains="Pull Request")
             ).values_list("id", flat=True)
+
             pass_reports = ProcedureResult.objects.filter(
                 disposition_id=2
             ).exclude(
@@ -55,29 +61,103 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 unit__notes__note_type_id=3,
                 start_datetime__date__range=[start_date, end_date]
             )
+
             return {
                 "pass_reports": pass_reports.order_by("-start_datetime"),
                 "other_results": other_results.order_by("-start_datetime")
             }
-        elif is_mss=='1':
-            failed_results = ProcedureResult.objects.filter(
-                                                            Q(name__icontains="Post") & Q(name__icontains="ML"),
-                                                            disposition_id=3,
-                                                            stepresult__isnull=False,
-                                                            stepresult__measurementresult__isnull=False).order_by("unit__serial_number").distinct("unit__serial_number")
-           
-            other_results=failed_results
-            return {"other_results": other_results}
+
+        elif is_mss == '1':
+
+            if tsd_ids:
+                tsd_ids = [int(x) for x in tsd_ids.split(',')]
+                bases = ProcedureResult.objects.filter(
+                    procedure_definition_id__in=[8, 20],
+                    test_sequence_definition_id__in=tsd_ids
+                )
+            else:
+                bases = ProcedureResult.objects.filter(
+                    procedure_definition_id__in=[8, 20]
+                )
+
+            bases = bases.order_by('linear_execution_group').distinct()
+
+            mss_response = []
+
+            for base in bases:
+
+                first_next = ProcedureResult.objects.filter(
+                    unit_id=base.unit_id,
+                    linear_execution_group__gt=base.linear_execution_group
+                ).order_by('linear_execution_group').first()
+
+                if not first_next:
+                    continue
+
+                if first_next.group_id == 45:
+                    final_next = ProcedureResult.objects.filter(
+                        unit_id=base.unit_id,
+                        linear_execution_group__gt=first_next.linear_execution_group
+                    ).order_by('linear_execution_group').first()
+                else:
+                    final_next = first_next
+
+                if not final_next:
+                    continue
+
+                if not final_next.stepresult_set.filter(
+                        measurementresult__date_time__range=(start_date, end_date)
+                ).exists():
+                    continue
+
+                if (
+                    final_next.procedure_definition_id in [2, 3]
+                    and final_next.disposition_id == 3
+                ):
+                    mss_response.append(final_next)
+
+            return {"mss_response": mss_response}
+            
                 
-        
 
     def list(self, request, *args, **kwargs):
+
         queryset = self.get_queryset()
+
+        if request.query_params.get("is_mss") == "1":
+
+            mss_response = queryset.get("mss_response", [])
+
+            tsd_dict = {
+                obj.test_sequence_definition_id: obj.test_sequence_definition.name
+                for obj in mss_response
+            }
+
+            tsd_data = [
+                {"id": id_, "tsd_name": name}
+                for id_, name in tsd_dict.items()
+            ]
+
+            return Response({
+                "pass_reports":[],
+                "other_results": FailedProjectReportSerializer(
+                    mss_response,
+                    many=True,
+                    context={'request': request}
+                ).data,
+                "tsd_data": tsd_data
+            })
+
         pass_reports = queryset.get("pass_reports", ProcedureResult.objects.none())
         other_results = queryset.get("other_results", ProcedureResult.objects.none())
+
         return Response({
-            "pass_reports": FailedProjectReportSerializer(pass_reports, many=True, context={'request': request}).data,
-            "other_results": FailedProjectReportSerializer(other_results, many=True, context={'request': request}).data
+            "pass_reports": FailedProjectReportSerializer(
+                pass_reports, many=True, context={'request': request}
+            ).data,
+            "other_results": FailedProjectReportSerializer(
+                other_results, many=True, context={'request': request}
+            ).data
         })
 
     @action(detail=False, methods=['get'],)
