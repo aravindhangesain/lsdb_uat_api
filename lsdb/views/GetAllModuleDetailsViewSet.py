@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
 from collections import defaultdict
-from lsdb.serializers import GetAllModuleDetailsSerializer, ModulePropertySerializer,ModuleIntakeDetailsSerializer
-from lsdb.models import ModuleIntakeImages, Unit, UnitType, ExpectedUnitType,ModuleIntakeDetails
+from lsdb.serializers import *
+from lsdb.models import *
 
 class GetAllModuleDetailsViewSet(viewsets.ModelViewSet):
     queryset = ModuleIntakeImages.objects.all()
@@ -46,8 +46,19 @@ class GetAllModuleDetailsViewSet(viewsets.ModelViewSet):
                     {
                         'id': panel.id,
                         'serial_number': panel.serial_number,
-                        'test_sequence': panel.test_sequence.id if panel.test_sequence else None,
-                        'test_sequence_name': panel.test_sequence.name if panel.test_sequence else "No Tests Assigned",
+                        'test_sequence': (
+                            tsd_id := ProcedureResult.objects.filter(
+                                unit_id=Unit.objects.filter(
+                                    serial_number=panel.serial_number
+                                ).values_list('id', flat=True).first()
+                            ).values_list('test_sequence_definition_id', flat=True).first()
+                        ),
+                        'test_sequence_name': (
+                            TestSequenceDefinition.objects.filter(id=tsd_id)
+                            .values_list('name', flat=True)
+                            .first()
+                            if tsd_id else "No Tests Assigned"
+                        ),
                         'module_type': module_instance.module_type,
                         'status': panel.status,
                         'unit_id': Unit.objects.filter(serial_number=panel.serial_number).values_list('id', flat=True).first()
@@ -105,8 +116,19 @@ class GetAllModuleDetailsViewSet(viewsets.ModelViewSet):
                 {
                     'id': panel.id,
                     'serial_number': panel.serial_number,
-                    'test_sequence': panel.test_sequence.id if panel.test_sequence else None,
-                    'test_sequence_name': panel.test_sequence.name if panel.test_sequence else "No Tests Assigned",
+                    'test_sequence': (
+                            tsd_id := ProcedureResult.objects.filter(
+                                unit_id=Unit.objects.filter(
+                                    serial_number=panel.serial_number
+                                ).values_list('id', flat=True).first()
+                            ).values_list('test_sequence_definition_id', flat=True).first()
+                        ),
+                    'test_sequence_name': (
+                        TestSequenceDefinition.objects.filter(id=tsd_id)
+                        .values_list('name', flat=True)
+                        .first()
+                        if tsd_id else "No Tests Assigned"
+                    ),
                     'module_type': intake_instance.module_type,
                     'status': panel.status,
                     'unit_id': Unit.objects.filter(serial_number=panel.serial_number).values_list('id', flat=True).first()
