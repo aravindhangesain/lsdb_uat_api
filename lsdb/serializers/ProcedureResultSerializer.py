@@ -822,10 +822,26 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     note_attachment_id = serializers.SerializerMethodField()
     asset_details = serializers.SerializerMethodField()
     calibrated_during_test= serializers.SerializerMethodField()
-    measurement_datetime = serializers.SerializerMethodField()
+    start_datetime = serializers.SerializerMethodField()
+    end_datetime = serializers.SerializerMethodField()
     asset_name = serializers.SerializerMethodField()
 
-    def get_measurement_datetime(self,obj):
+    def get_start_datetime(self,obj):
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+        if not measurement:
+            return None
+        return measurement.date_time
+    
+    def get_end_datetime(self,obj):
         step_result = StepResult.objects.filter(
             procedure_result_id=obj.id
         ).first()
@@ -998,7 +1014,6 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'procedure_definition_name',
             'disposition',
             'disposition_name',
-            'measurement_datetime',
             'start_datetime',
             'end_datetime',
             'project_number',
@@ -1015,7 +1030,8 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'notes',
             'asset_details',
             'asset_name',
-            'calibrated_during_test'
+            'calibrated_during_test',
+            'linear_execution_group'
             
         ]
 
