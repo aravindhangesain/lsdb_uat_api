@@ -199,7 +199,7 @@ class ModuleIntakeDetailsViewSet(viewsets.ModelViewSet):
                         initial_serial_number=initial_serial_number,
                         initial_project=initial_project,
                         initial_workorder=initial_workorder,
-                        migrated_serial_number=unit.serial_number,
+                        migrated_serial_number=unit.serial_number+str(-1),
                         migrated_project=project,
                         migrated_workorder=workorder,
                         migrated_by=request.user

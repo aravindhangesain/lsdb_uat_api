@@ -1075,25 +1075,20 @@ class MssFailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     start_datetime = serializers.SerializerMethodField()
     end_datetime = serializers.SerializerMethodField()
     defect_name = serializers.SerializerMethodField()
+    asset_name = serializers.SerializerMethodField()
+
+    def get_asset_name(self, obj):
+        return getattr(obj, "asset_name", None)
     
     def get_defect_name(self,obj):
-        step_result = StepResult.objects.filter(
-            procedure_result_id=obj.id
-        ).first()
-
-        if not step_result:
-            return None
-
         measurement = MeasurementResult.objects.filter(
-            step_result_id=step_result.id
-        ).first()
+        step_result__procedure_result_id=obj.id,
+        result_defect__isnull=False).select_related("result_defect").first()
 
-        if not measurement or not measurement.result_defect:
+        if not measurement:
             return None
-        
-        defect_name = AvailableDefect.objects.filter(id=measurement.result_defect_id).first()
 
-        return defect_name.short_name
+        return measurement.result_defect.short_name
 
     def get_start_datetime(self,obj):
         step_result = StepResult.objects.filter(
