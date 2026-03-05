@@ -6,7 +6,7 @@ from rest_framework import serializers
 from django.db.models import Q
 from lsdb.models import Asset, AssetCalibration, ProcedureResult, StepResult, StressRunResult, Unit, UnitType, ModuleProperty,WorkOrder
 from lsdb.models import MeasurementResult, MeasurementCorrectionFactor
-from lsdb.models import ProcedureResult_FinalResult
+from lsdb.models import *
 from lsdb.serializers.StepResultSerializer import StepResultSerializer
 from lsdb.serializers.StepResultSerializer import StepResultStressSerializer
 from lsdb.serializers.UnitTypeSerializer import UnitTypeSerializer
@@ -825,6 +825,26 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
     start_datetime = serializers.SerializerMethodField()
     end_datetime = serializers.SerializerMethodField()
     asset_name = serializers.SerializerMethodField()
+    defect_name = serializers.SerializerMethodField()
+    
+    def get_defect_name(self,obj):
+        step_result = StepResult.objects.filter(
+            procedure_result_id=obj.id
+        ).first()
+
+        if not step_result:
+            return None
+
+        measurement = MeasurementResult.objects.filter(
+            step_result_id=step_result.id
+        ).first()
+
+        if not measurement or not measurement.result_defect:
+            return None
+        
+        defect_name = AvailableDefect.objects.filter(id=measurement.result_defect_id).first()
+
+        return defect_name.short_name
 
     def get_start_datetime(self,obj):
         step_result = StepResult.objects.filter(
@@ -1031,7 +1051,8 @@ class FailedProjectReportSerializer(serializers.HyperlinkedModelSerializer):
             'asset_details',
             'asset_name',
             'calibrated_during_test',
-            'linear_execution_group'
+            'linear_execution_group',
+            'defect_name'
             
         ]
 
