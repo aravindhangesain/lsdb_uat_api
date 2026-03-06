@@ -185,3 +185,4 @@ from .RetestReportListViewSet import RetestReportListViewSet as RetestReportList
 from .RetestReasonsViewSet import RetestReasonsViewSet as RetestReasonsViewSet
 from .UserAssignmentForProcedureViewSet import UserAssignmentForProcedureViewSet as UserAssignmentForProcedureViewSet
 from .AssetRunHistoryViewSet import AssetRunHistoryViewSet as AssetRunHistoryViewSet
+from .UnitMigrationHistoryViewSet import UnitMigrationHistoryViewSet as UnitMigrationHistoryViewSet
