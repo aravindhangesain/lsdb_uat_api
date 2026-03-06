@@ -1,7 +1,7 @@
 from requests import Response
 from rest_framework import viewsets
 from lsdb.models import *
-from lsdb.serializers.ProcedureResultSerializer import FailedProjectReportSerializer
+from lsdb.serializers.ProcedureResultSerializer import FailedProjectReportSerializer,MssFailedProjectReportSerializer
 from django_filters import rest_framework as filters
 from rest_framework_tracking.mixins import LoggingMixin
 import pandas as pd
@@ -13,6 +13,9 @@ import re
 import csv
 from rest_framework.response import Response
 from django.db.models import Q , OuterRef
+from django.db import connection
+from django.db.models import Q, Prefetch
+from rest_framework.response import Response
 
 class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = FailedProjectReportSerializer
@@ -111,12 +114,39 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                         measurementresult__date_time__range=(start_date, end_date)
                 ).exists():
                     continue
+                
+                if final_next.disposition_id==3:
+                    if (
+                        final_next.procedure_definition_id in [2, 3]
+                        
+                    ):
+                        mr = MeasurementResult.objects.filter(
+                        step_result__procedure_result=base,
+                        asset__name__isnull=False).select_related("asset").first()
 
-                if (
-                    final_next.procedure_definition_id in [2, 3]
-                    and final_next.disposition_id == 3
-                ):
-                    mss_response.append(final_next)
+                        final_next.asset_name = mr.asset.name if mr else None
+
+                        mss_response.append(final_next)
+                        
+
+                elif final_next.disposition_id in [2,20]:
+                    if (
+                        final_next.procedure_definition_id in [2, 3]
+                        and final_next.disposition_id in [2,20] and final_next.stepresult_set.filter(
+                            measurementresult__result_defect_id__isnull=False
+                        ).exists()
+                    ):
+                        mr = MeasurementResult.objects.filter(
+                        step_result__procedure_result=base,
+                        asset__name__isnull=False).select_related("asset").first()
+                        
+                        final_next.asset_name = mr.asset.name if mr else None
+
+                        mss_response.append(final_next)
+                        
+                    
+                
+
 
             return {"mss_response": mss_response}
             
@@ -142,7 +172,7 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
 
             return Response({
                 "pass_reports":[],
-                "other_results": FailedProjectReportSerializer(
+                "other_results": MssFailedProjectReportSerializer(
                     mss_response,
                     many=True,
                     context={'request': request}
@@ -200,12 +230,13 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                     queryset.append(obj)
                 except ProcedureResult.DoesNotExist:
                     continue
-            serializer = FailedProjectReportSerializer(queryset, many=True, context={'request': request})
+            serializer = MssFailedProjectReportSerializer(queryset, many=True, context={'request': request})
             
         base_url = "https://lsdbwebuat.azurewebsites.net/engineering/engineering_agenda/"
         azure_file_base_url = "https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{}/download/"
         selected_fields = ['unit_serial_number', 'project_number', 'name','customer_name','disposition_name','work_order_name',
-                        'start_datetime','end_datetime','note_subject','note_text']
+                        'start_datetime','note_subject','note_text','asset_name','linear_execution_group','procedure_definition_name',
+                        'test_sequence_definition_name','defect_name']
         data_for_csv = []
         for item in serializer.data:
             row = {field: item.get(field, '') for field in selected_fields}
@@ -238,4 +269,3 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
         response = HttpResponse(csv_string, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Failed_projects_Report.csv"'
         return response
-    
