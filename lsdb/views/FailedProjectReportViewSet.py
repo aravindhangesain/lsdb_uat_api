@@ -124,12 +124,11 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                         step_result__procedure_result=base,
                         asset__name__isnull=False).select_related("asset").first()
 
-                        if not  mr.asset.location_id==6:
-                            final_next.asset_name = mr.asset.name if mr else None
+                       
+                        final_next.asset_name = mr.asset.name if mr else None
 
-                            mss_response.append(final_next)
-                        else:
-                            continue
+                        mss_response.append(final_next)
+                       
 
                 elif final_next.disposition_id in [2,20]:
                     if (
@@ -141,12 +140,11 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                         mr = MeasurementResult.objects.filter(
                         step_result__procedure_result=base,
                         asset__name__isnull=False).select_related("asset").first()
-                        if not  mr.asset.location_id==6:
-                            final_next.asset_name = mr.asset.name if mr else None
+                        
+                        final_next.asset_name = mr.asset.name if mr else None
 
-                            mss_response.append(final_next)
-                        else:
-                            continue
+                        mss_response.append(final_next)
+                        
                     
                 
 
