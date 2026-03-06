@@ -152,6 +152,7 @@ router.register(r'retest_required_report',RetestReportListViewSet,basename='rete
 router.register(r'retestreasons',RetestReasonsViewSet,basename='retestreasons')
 router.register(r'user_assignment_for_procedure',UserAssignmentForProcedureViewSet,basename='user_assignment_for_procedure')
 router.register(r'assetrunhistory',AssetRunHistoryViewSet,basename='assetrunhistory')
+router.register(r'unitmigrationhistory',UnitMigrationHistoryViewSet,basename='unitmigrationhistory')
 
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')
 # router.register(r'IAMTestFileUpload',IAMTestFileUploadViewSet, basename = 'IAMTestFileUpload')
