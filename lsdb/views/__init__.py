@@ -186,3 +186,4 @@ from .RetestReasonsViewSet import RetestReasonsViewSet as RetestReasonsViewSet
 from .UserAssignmentForProcedureViewSet import UserAssignmentForProcedureViewSet as UserAssignmentForProcedureViewSet
 from .AssetRunHistoryViewSet import AssetRunHistoryViewSet as AssetRunHistoryViewSet
 from .UnitMigrationHistoryViewSet import UnitMigrationHistoryViewSet as UnitMigrationHistoryViewSet
+from .RevokedAssetDetailsViewSet import RevokedAssetDetailsViewSet as RevokedAssetDetailsViewSet
