@@ -1,5 +1,5 @@
 from requests import Response
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from lsdb.models import *
 from lsdb.serializers.ProcedureResultSerializer import FailedProjectReportSerializer,MssFailedProjectReportSerializer
 from django_filters import rest_framework as filters
@@ -191,6 +191,22 @@ class FailedProjectReportViewSet( LoggingMixin, viewsets.ReadOnlyModelViewSet):
                 other_results, many=True, context={'request': request}
             ).data
         })
+    
+    
+    @action(detail=False, methods=['get','post'])   
+    def update_procedure_disposition(self,request):
+        if request.method=='POST':
+            procedure_result_id=request.data.get('procedure_result_id')
+            disposition_id=request.data.get('disposition_id')
+            procedure=ProcedureResult.objects.get(id=procedure_result_id)
+            if procedure:
+                procedure.disposition_id=disposition_id
+                procedure.save()
+                return Response({"message": "Disposition update successfully done!"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Invalid Procedure"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"message": "Enter procedure id & disposition id"}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'],)
     def download_csv(self, request):
