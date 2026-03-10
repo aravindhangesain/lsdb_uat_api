@@ -13,14 +13,26 @@ from functools import reduce
 from operator import or_
 from django.db.models import Q
 
-
+from django.db import connection
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+from graphene.types.generic import GenericScalar
 
 from lsdb.models import (
     Note,
     AzureFile,
     Label,
     NoteReadStatus,
+    ProcedureResult,
+    Unit,
+    MeasurementResult
 )
+
+from lsdb.serializers.ProcedureResultSerializer import (
+    FailedProjectReportSerializer,
+    MssFailedProjectReportSerializer
+)
+
 
 User = get_user_model()
 
@@ -306,3 +318,207 @@ class Query(graphene.ObjectType):
             total_count=total_count,
             has_next=has_next,
         )
+    
+    # ============================================
+    # NEW GRAPHQL API (Same as your Django API)
+    # ============================================
+
+    failed_project_report = GenericScalar(
+    start_date=graphene.String(required=True),
+    end_date=graphene.String(required=True),
+    is_mss=graphene.String(required=True),
+    tsd_ids=graphene.String(),
+    limit=graphene.Int(),
+    offset=graphene.Int(),)
+
+    # =====================================================
+    # FAILED PROJECT REPORT (same logic as your DRF API)
+    # =====================================================
+
+    def resolve_failed_project_report(self,info,start_date,end_date,is_mss,tsd_ids=None,limit=10,offset=0):
+
+        request = info.context
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT un.unit_id 
+                FROM lsdb_unit_notes un 
+                JOIN lsdb_note n ON un.note_id = n.id 
+                WHERE n.note_type_id = 3
+            """)
+            unit_ids = [row[0] for row in cursor.fetchall()]
+
+        # =====================================================
+        # NON MSS
+        # =====================================================
+
+        if is_mss == "0":
+
+            other_results = ProcedureResult.objects.filter(
+                disposition_id__in=[3, 8, 19],
+                unit_id__in=unit_ids,
+                start_datetime__date__range=[start_date, end_date]
+            ).distinct()
+
+            excluded_units = Unit.objects.filter(
+                Q(notes__subject__icontains="Quality issue") |
+                Q(notes__subject__icontains="Mishandling damage") |
+                Q(notes__subject__icontains="Pull Request")
+            ).values_list("id", flat=True)
+
+            pass_reports = ProcedureResult.objects.filter(
+                disposition_id=2
+            ).exclude(
+                unit_id__in=excluded_units
+            ).filter(
+                unit__notes__note_type_id=3,
+                start_datetime__date__range=[start_date, end_date]
+            )
+
+            pass_reports = pass_reports.order_by("-start_datetime")
+            other_results = other_results.order_by("-start_datetime")
+
+            total_pass = pass_reports.count()
+            total_other = other_results.count()
+
+            pass_reports = pass_reports[offset: offset + limit]
+            other_results = other_results[offset: offset + limit]
+
+            return {
+                "pass_reports": FailedProjectReportSerializer(
+                    pass_reports,
+                    many=True,
+                    context={"request": request}
+                ).data,
+
+                "other_results": FailedProjectReportSerializer(
+                    other_results,
+                    many=True,
+                    context={"request": request}
+                ).data,
+
+                "pagination": {
+                    "limit": limit,
+                    "offset": offset,
+                    "pass_total": total_pass,
+                    "other_total": total_other,
+                    "has_next": offset + limit < max(total_pass, total_other)
+                }
+            }
+
+        # =====================================================
+        # MSS LOGIC
+        # =====================================================
+
+        if is_mss == "1":
+
+            if tsd_ids:
+                tsd_ids = [int(x) for x in tsd_ids.split(",")]
+
+                bases = ProcedureResult.objects.filter(
+                    procedure_definition_id__in=[8, 20],
+                    test_sequence_definition_id__in=tsd_ids
+                )
+
+            else:
+
+                bases = ProcedureResult.objects.filter(
+                    procedure_definition_id__in=[8, 20]
+                )
+
+            bases = bases.order_by("linear_execution_group").distinct()
+
+            mss_response = []
+
+            for base in bases:
+
+                first_next = ProcedureResult.objects.filter(
+                    unit_id=base.unit_id,
+                    linear_execution_group__gt=base.linear_execution_group
+                ).order_by("linear_execution_group").first()
+
+                if not first_next:
+                    continue
+
+                if first_next.group_id == 45:
+
+                    final_next = ProcedureResult.objects.filter(
+                        unit_id=base.unit_id,
+                        linear_execution_group__gt=first_next.linear_execution_group
+                    ).order_by("linear_execution_group").first()
+
+                else:
+                    final_next = first_next
+
+                if not final_next:
+                    continue
+
+                if not final_next.stepresult_set.filter(
+                    measurementresult__date_time__range=(start_date, end_date)
+                ).exists():
+                    continue
+
+                if final_next.disposition_id == 3:
+
+                    if final_next.procedure_definition_id in [2, 3]:
+
+                        mr = MeasurementResult.objects.filter(
+                            step_result__procedure_result=base,
+                            asset__name__isnull=False
+                        ).select_related("asset").first()
+
+                        final_next.asset_name = mr.asset.name if mr else None
+
+                        mss_response.append(final_next)
+
+                elif final_next.disposition_id in [2, 20]:
+
+                    if (
+                        final_next.procedure_definition_id in [2, 3]
+                        and final_next.stepresult_set.filter(
+                            measurementresult__result_defect_id__isnull=False
+                        ).exists()
+                    ):
+
+                        mr = MeasurementResult.objects.filter(
+                            step_result__procedure_result=base,
+                            asset__name__isnull=False
+                        ).select_related("asset").first()
+
+                        final_next.asset_name = mr.asset.name if mr else None
+
+                        mss_response.append(final_next)
+
+            # ---------------------------
+            # tsd data generation
+            # ---------------------------
+
+            tsd_dict = {
+                obj.test_sequence_definition_id: obj.test_sequence_definition.name
+                for obj in mss_response
+            }
+
+            tsd_data = [
+                {"id": id_, "tsd_name": name}
+                for id_, name in tsd_dict.items()
+            ]
+
+            total = len(mss_response)
+
+            mss_response = mss_response[offset: offset + limit]
+
+            return json.loads(json.dumps({
+                "pass_reports": [],
+                "other_results": MssFailedProjectReportSerializer(
+                    mss_response,
+                    many=True,
+                    context={"request": request}
+                ).data,
+                "tsd_data": tsd_data,
+                "pagination": {
+                    "limit": limit,
+                    "offset": offset,
+                    "total": total,
+                    "has_next": offset + limit < total
+                }
+            }, cls=DjangoJSONEncoder))
