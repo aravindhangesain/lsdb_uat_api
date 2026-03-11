@@ -11,3 +11,4 @@ class AssetLastActionDetails(models.Model):
     verified_by=models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='verified_by',blank=True, null=True)
     requested_last_calibrated_date=models.DateTimeField(blank=True, null=True)
     requested_schedule_for_calibration=models.IntegerField(null=True,blank=True)
+    azurefile = models.ForeignKey('AzureFile', on_delete=models.CASCADE, blank=True, null=True)
