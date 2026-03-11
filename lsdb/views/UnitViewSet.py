@@ -23,30 +23,8 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST)
 from rest_framework.permissions import AllowAny
 from django.db.models import BooleanField, Case, Value, When, OuterRef, Subquery, Exists
 
-from lsdb.serializers import AzureFileSerializer
-from lsdb.serializers import AssetSerializer
-from lsdb.serializers import DispositionCodeListSerializer
-from lsdb.serializers import NoteSerializer
-from lsdb.serializers import ProcedureResultSerializer
-from lsdb.serializers import UnitSerializer
-from lsdb.serializers import UnitGroupedTravelerSerializer
-from lsdb.serializers import UnitGroupedAssetTypeSerializer
-from lsdb.serializers import UnitTravelerSerializer
-from lsdb.serializers import UnitDumpSerializer
-
-from lsdb.models import Asset, StepResultNotes
-from lsdb.models import AssetType
-from lsdb.models import AzureFile
-from lsdb.models import Customer,OpsQueuePriority
-from lsdb.models import Disposition
-from lsdb.models import DispositionCode
-from lsdb.models import MeasurementResult
-from lsdb.models import Note
-from lsdb.models import ProcedureResult
+from lsdb.serializers import *
 from lsdb.models import *
-from lsdb.models import TestSequenceDefinition
-from lsdb.models import Unit,Location,LocationLog
-from lsdb.models import UnitType
 from django.contrib.auth.models import User
 from datetime import timedelta
 
@@ -950,84 +928,103 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         return Response(full)
 
     
+    # @transaction.atomic
+    # @action(detail=False, methods=['get'], serializer_class=UnitSerializer)
+    # def end_of_life(self, request):
+    #     self.context = {'request': request}
+
+    #     # Get the location ID from query parameters
+    #     location_id = request.query_params.get('location', None)
+
+        # # Annotate units with the maximum linear_execution_group
+        # units = Unit.objects.annotate(max_leg=Max('procedureresult__linear_execution_group')) \
+        #     .filter(max_leg__isnull=False)
+
+    #     unit_ids = []
+
+    #     # Collect unit IDs where the maximum linear_execution_group has a complete disposition
+    #     for unit in units:
+    #         max_leg = unit.max_leg
+    #         if unit.procedureresult_set.filter(linear_execution_group=max_leg, disposition__complete=True):
+    #             unit_ids.append(unit.id)
+
+    #     # Filter final units by IDs
+    #     final_units = Unit.objects.filter(id__in=unit_ids).exclude(disposition__name__iexact="Handling Damage")
+
+    #     # If location filter is provided, apply it
+    #     if location_id:
+    #         final_units = final_units.filter(
+    #             locationlog__location_id=location_id, locationlog__is_latest=True
+    #         )
+
+    #     # Create a DataFrame from the filtered units
+    #     units_data_frame = pd.DataFrame(list(
+    #         final_units.values(
+    #             'serial_number',
+    #             'workorder__project__customer__name',
+    #             'workorder__project__number',
+    #             'workorder__name',
+    #             'procedureresult__test_sequence_definition__name',
+    #             'procedureresult__end_datetime',
+    #             'procedureresult__linear_execution_group'
+    #         )
+    #     ))
+
+    #     if not units_data_frame.empty:
+    #         # Retrieve location_name using the serial_number
+    #         location_names = []
+    #         for serial_number in units_data_frame['serial_number']:
+    #             try:
+    #                 # Get the unit by serial_number
+    #                 unit = Unit.objects.get(serial_number=serial_number)
+
+    #                 # Retrieve the latest location log entry for the unit
+    #                 location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
+
+    #                 # Get the name of the location if it exists
+    #                 if location_log and location_log.location:
+    #                     location_names.append(location_log.location.name)
+    #                 else:
+    #                     location_names.append(None)
+    #             except Unit.DoesNotExist:
+    #                 location_names.append(None)
+
+    #         # Add the location_name column to the DataFrame
+    #         units_data_frame['location_name'] = location_names
+
+    #         # Rename columns for better readability
+    #         units_data_frame.columns = [
+    #             'serial_number',
+    #             'customer_name',
+    #             'project_number',
+    #             'work_order_name',
+    #             'test_sequence_definition_name',
+    #             'completion_date',
+    #             'linear_execution_group',
+    #             'location_name',
+    #         ]
+
+    #     return Response(units_data_frame.to_dict(orient='records'))
+
     @transaction.atomic
-    @action(detail=False, methods=['get'], serializer_class=UnitSerializer)
+    @action(detail=False, methods=['get'])
     def end_of_life(self, request):
-        self.context = {'request': request}
+        location_id=self.request.query_params.get('location')
+        projects=Project.objects.filter(id__in=LocationLog.objects.filter(location_id=location_id,project__isnull=False).values_list('project_id',flat=True))
+        eol_workorders = WorkOrder.objects.filter(disposition_id=96,project__in=projects)
+        
 
-        # Get the location ID from query parameters
-        location_id = request.query_params.get('location', None)
+        serializer = EolQueueSerializer(
+            eol_workorders,
+            many=True,
+            context={'request': request}
+        )
+        print(serializer.data)
 
-        # Annotate units with the maximum linear_execution_group
-        units = Unit.objects.annotate(max_leg=Max('procedureresult__linear_execution_group')) \
-            .filter(max_leg__isnull=False)
+        return Response(serializer.data)
 
-        unit_ids = []
-
-        # Collect unit IDs where the maximum linear_execution_group has a complete disposition
-        for unit in units:
-            max_leg = unit.max_leg
-            if unit.procedureresult_set.filter(linear_execution_group=max_leg, disposition__complete=True):
-                unit_ids.append(unit.id)
-
-        # Filter final units by IDs
-        final_units = Unit.objects.filter(id__in=unit_ids).exclude(unit__disposition__name__iexact="Handling Damage")
-
-        # If location filter is provided, apply it
-        if location_id:
-            final_units = final_units.filter(
-                locationlog__location_id=location_id, locationlog__is_latest=True
-            )
-
-        # Create a DataFrame from the filtered units
-        units_data_frame = pd.DataFrame(list(
-            final_units.values(
-                'serial_number',
-                'workorder__project__customer__name',
-                'workorder__project__number',
-                'workorder__name',
-                'procedureresult__test_sequence_definition__name',
-                'procedureresult__end_datetime',
-                'procedureresult__linear_execution_group'
-            )
-        ))
-
-        if not units_data_frame.empty:
-            # Retrieve location_name using the serial_number
-            location_names = []
-            for serial_number in units_data_frame['serial_number']:
-                try:
-                    # Get the unit by serial_number
-                    unit = Unit.objects.get(serial_number=serial_number)
-
-                    # Retrieve the latest location log entry for the unit
-                    location_log = LocationLog.objects.filter(unit_id=unit.id, is_latest=True).first()
-
-                    # Get the name of the location if it exists
-                    if location_log and location_log.location:
-                        location_names.append(location_log.location.name)
-                    else:
-                        location_names.append(None)
-                except Unit.DoesNotExist:
-                    location_names.append(None)
-
-            # Add the location_name column to the DataFrame
-            units_data_frame['location_name'] = location_names
-
-            # Rename columns for better readability
-            units_data_frame.columns = [
-                'serial_number',
-                'customer_name',
-                'project_number',
-                'work_order_name',
-                'test_sequence_definition_name',
-                'completion_date',
-                'linear_execution_group',
-                'location_name',
-            ]
-
-        return Response(units_data_frame.to_dict(orient='records'))
-
+        
+        
 
 
 

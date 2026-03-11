@@ -16,7 +16,7 @@ from lsdb.models import DispositionCode
 from lsdb.models import WorkOrder
 from lsdb.models import Unit
 from lsdb.models import MeasurementResult
-from lsdb.models import StepResult
+from lsdb.models import *
 from lsdb.models import ProcedureResult
 from lsdb.models import TestSequenceDefinition
 from lsdb.models import TestSequenceExecutionData
@@ -33,7 +33,7 @@ from lsdb.serializers import TestSequenceAssignmentSerializer
 from lsdb.permissions import ConfiguredPermission, IsAdminOrSelf
 from lsdb.utils.HasHistory import unit_history, project_history
 from lsdb.utils.ActionUtils import create_action
-
+from django.utils import timezone
 
 class WorkOrderViewSet(
     # DetailSerializerMixin,
@@ -54,10 +54,16 @@ class WorkOrderViewSet(
             old_disposition = instance.disposition
             updated_instance = serializer.save()
             new_disposition = updated_instance.disposition
+
             if old_disposition != new_disposition:
                 updated_instance.units.update(
                     disposition=new_disposition
                 )
+            WorkOrderUpdateHistory.objects.create(work_order_id=updated_instance.id,
+                                                  datetime=timezone.now(),
+                                                  done_by_id=self.request.user.id,
+                                                  disposition=updated_instance.disposition
+                                                  )
 
     def perform_create(self, serializer):
         is_template = self.request.data.get('is_template')
@@ -80,6 +86,18 @@ class WorkOrderViewSet(
         self.context = {'request': request}
         serializer = DispositionCodeListSerializer(DispositionCode.objects.get(
             name='work_orders'),
+            many=False,
+            context={'request': request})
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get', ],
+            serializer_class=DispositionCodeListSerializer,
+            permission_classes=(ConfiguredPermission,)
+            )
+    def eol_dispositions(self, request, pk=None):
+        self.context = {'request': request}
+        serializer = DispositionCodeListSerializer(DispositionCode.objects.get(
+            name='eol_queue'),
             many=False,
             context={'request': request})
         return Response(serializer.data)
