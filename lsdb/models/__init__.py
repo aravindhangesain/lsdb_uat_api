@@ -166,3 +166,4 @@ from .RetestProcedures import RetestProcedures as RetestProcedures
 from .UserAssignmentForProcedure import UserAssignmentForProcedure as UserAssignmentForProcedure
 from .NewFlashTestPoints import NewFlashTestPoints as NewFlashTestPoints
 from .UnitMigrationHistory import UnitMigrationHistory as UnitMigrationHistory
+from .WorkOrderUpdateHistory import WorkOrderUpdateHistory as WorkOrderUpdateHistory
