@@ -6,7 +6,7 @@ from django.db.models import Q, Max
 from django.utils import timezone
 
 
-class EolQueueSerializer(serializers.ModelSerializer):
+class EolQueueSerializer(serializers.HyperlinkedModelSerializer):
 
     
     disposition_name=serializers.ReadOnlyField(source='disposition.name')
@@ -43,23 +43,19 @@ class EolQueueSerializer(serializers.ModelSerializer):
     
     def get_days_since_eolready(self,obj):
         
-        var=WorkOrderUpdateHistory.objects.filter(work_order_id=obj.id,disposition_id=98).order_by('-datetime').first()
+        var=WorkOrderUpdateHistory.objects.filter(work_order_id=obj.id,disposition_id=96).order_by('-datetime').first()
         if var:
             days = (timezone.now() - var.datetime).days
             return days
         else:
             return None
     def get_eol_ready_on(self,obj):
-        var=WorkOrderUpdateHistory.objects.filter(work_order_id=obj.id,disposition_id=98).order_by('-datetime').first()
+        var=WorkOrderUpdateHistory.objects.filter(work_order_id=obj.id,disposition_id=96).order_by('-datetime').first()
         if var:
             return var.datetime
         else:
             return None
 
-    
-
-        
-    
 
     class Meta:
         
