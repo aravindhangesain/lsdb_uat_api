@@ -136,7 +136,7 @@ from .OpsQueuePriority import OpsQueuePriority as OpsQueuePriority
 from .UnitReportResult import UnitReportResult as UnitReportResult
 from .HailTest import HailTest as HailTest
 from .ProjectTemplate import ProjectTemplate as ProjectTemplate
-from .Xlfileread import xlfileread as xlfileread
+from .Xlfileread import Xlfileread as Xlfileread
 from .OldMeasurementResult import OldMeasurementResult as OldMeasurementResult
 from .VisualInspection import VisualInspection as VisualInspection
 from .IAMFileRead import IAMFileRead as IAMFileRead
@@ -167,3 +167,4 @@ from .UserAssignmentForProcedure import UserAssignmentForProcedure as UserAssign
 from .NewFlashTestPoints import NewFlashTestPoints as NewFlashTestPoints
 from .UnitMigrationHistory import UnitMigrationHistory as UnitMigrationHistory
 from .WorkOrderUpdateHistory import WorkOrderUpdateHistory as WorkOrderUpdateHistory
+from .xlupload import xlupload as xlupload

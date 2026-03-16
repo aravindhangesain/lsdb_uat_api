@@ -1,7 +1,7 @@
 from rest_framework import viewsets
-from lsdb.models import xlfileread
-from lsdb.serializers import XlfilereadSerializer
-
+from lsdb.models import *
+from lsdb.serializers import *
+from django.utils import timezone
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -9,11 +9,12 @@ from azure.storage.blob import BlobServiceClient
 import os
 from zipfile import ZipFile
 import openpyxl
+from django.db import transaction
 
 class XlfilereadViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     logging_methods = ['GET','POST','DELETE']
-    queryset = xlfileread.objects.all()
+    queryset = Xlfileread.objects.all()
     serializer_class = XlfilereadSerializer
 
     @action(detail=False, methods=['get'])
@@ -79,7 +80,7 @@ class XlfilereadViewSet(viewsets.ModelViewSet):
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 if all(cell is None for cell in row):
                     continue
-                obj = xlfileread(
+                obj = Xlfileread(
                     serialnumber=row[column_map['serialnumber']],
                     projectnumber=row[column_map['projectnumber']],
                     customername=row[column_map['customername']],
@@ -88,9 +89,134 @@ class XlfilereadViewSet(viewsets.ModelViewSet):
                 )
                 objs.append(obj)
 
-            xlfileread.objects.bulk_create(objs)
+            Xlfileread.objects.bulk_create(objs)
             count += len(objs)
 
         return Response({
             "status": "success","Zip File Name": blob_name, "No.of.Records": count,"No.of.Excel": len(excel_files)
+        })
+        
+    @transaction.atomic
+    @action(detail=False, methods=['post','get'])
+    def upload_excel(self, request):
+
+        file = request.FILES.get('file')
+        disposition = Disposition.objects.get(id=16)
+        location = Location.objects.get(id=5)
+
+
+        if not file:
+            return Response({"status": "error", "msg": "Excel file required"}, status=400)
+
+        try:
+            workbook = openpyxl.load_workbook(file)
+            sheet = workbook.active
+        except Exception as e:
+            return Response({"status": "error", "msg": f"Invalid Excel file: {str(e)}"}, status=400)
+
+        required_fields = ['name', 'description']
+
+        header = [cell.value for cell in sheet[1]]
+        column_map = {name.lower(): index for index, name in enumerate(header) if name}
+
+        missing_fields = [field for field in required_fields if field not in column_map]
+        if missing_fields:
+            return Response({"status": "error", "msg": f"Missing columns: {missing_fields}"})
+
+        objs = []
+        count = 0
+
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            if all(cell is None for cell in row):
+                continue
+
+            objs.append(
+                Asset(
+                    name=row[column_map['name']],
+                    description=row[column_map['description']] if 'description' in column_map else None,
+                    last_action_datetime=timezone.now(),
+                    disposition=disposition,
+                    location=location,
+                )
+            )
+
+        Asset.objects.bulk_create(objs,ignore_conflicts=True)
+        count = len(objs)
+
+        return Response({
+            "status": "success",
+            "records_inserted": count
+        })
+        
+    @transaction.atomic    
+    @action(detail=False, methods=['post','get'])
+    def upload_calibration(self, request):
+
+        file = request.FILES.get('file')
+        disposition = Disposition.objects.get(id=16)
+        location = Location.objects.get(id=5)
+
+
+        if not file:
+            return Response({"status": "error", "msg": "Excel file required"}, status=400)
+
+        try:
+            workbook = openpyxl.load_workbook(file,data_only=True)
+            sheet = workbook.active
+        except Exception as e:
+            return Response({"status": "error", "msg": f"Invalid Excel file: {str(e)}"}, status=400)
+
+        required_fields = ['asset_id','asset_number','asset_name', 'description','last_calibrated_date','schedule_for_calibration','manufacturer','serial_number']
+
+        header = [cell.value for cell in sheet[1]]
+        column_map = {name.lower(): index for index, name in enumerate(header) if name}
+
+        missing_fields = [field for field in required_fields if field not in column_map]
+        if missing_fields:
+            return Response({"status": "error", "msg": f"Missing columns: {missing_fields}"})
+
+        objs = []
+        count = 0
+
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            if all(cell is None for cell in row):
+                continue
+            
+            schedule = row[column_map['schedule_for_calibration']]
+            schedule = None if schedule in [None, '', 'NA', 'N/A'] else int(schedule)
+
+            objs.append(
+                AssetCalibration(
+                    asset_id=row[column_map['asset_id']],
+                    asset_number=row[column_map['asset_number']],
+                    asset_name=row[column_map['asset_name']],
+                    description=row[column_map['description']] if 'description' in column_map else None,
+                    last_action_datetime=timezone.now(),
+                    location=location,
+                    manufacturer=row[column_map['manufacturer']],
+                    usage = None,
+                    model = None,
+                    serial_number=row[column_map['serial_number']],
+                    is_calibration_required = True,
+                    last_calibrated_date=row[column_map['last_calibrated_date']] or None,
+                    schedule_for_calibration=schedule,
+                    external_asset_required= None,
+                    asset_type_id = None,
+                    azurefile_id = None,
+                    is_main_asset = True,
+                    is_sub_asset = False,
+                    is_rack = False,
+                    disposition=disposition,
+                   
+                )
+            )
+
+        AssetCalibration.objects.bulk_create(objs,ignore_conflicts=True)
+        count = len(objs)
+
+        return Response({
+            "status": "success",
+            "records_inserted": count
         })
