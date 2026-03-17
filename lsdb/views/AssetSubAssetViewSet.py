@@ -169,7 +169,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
 
                            
                             StressRunDetails.objects.create(sub_asset_id=sub_asset_id,stress_run_result_id=stress_run_result.id)
-                            sub_asset=AssetCalibration.objects.get(id=sub_asset_id)
+                            sub_asset=AssetCalibration.objects.get(asset_id=sub_asset_id)
                             if sub_asset:
                                 sub_asset.disposition=Disposition.objects.get(id=18)
                                 sub_asset.save()
