@@ -1022,9 +1022,41 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
         print(serializer.data)
 
         return Response(serializer.data)
+    
+    @transaction.atomic
+    @action(detail=False, methods=['get'])
+    def rm_lab_queue(self, request):
+        location_id=self.request.query_params.get('location')
+        projects=Project.objects.filter(id__in=LocationLog.objects.filter(location_id=location_id,project__isnull=False).values_list('project_id',flat=True))
+        eol_workorders = WorkOrder.objects.filter(disposition_id=98,project__in=projects)
+        
 
+        serializer = EolQueueSerializer(
+            eol_workorders,
+            many=True,
+            context={'request': request}
+        )
+        print(serializer.data)
+
+        return Response(serializer.data)
+    
+    @transaction.atomic
+    @action(detail=False, methods=['get'])
+    def rm_lab_history(self, request):
+        location_id=self.request.query_params.get('location')
+        projects=Project.objects.filter(id__in=LocationLog.objects.filter(location_id=location_id,project__isnull=False).values_list('project_id',flat=True))
+        eol_workorders = WorkOrder.objects.filter(disposition_id__in=[102,103,104,105],project__in=projects)
         
-        
+
+        serializer = EolQueueSerializer(
+            eol_workorders,
+            many=True,
+            context={'request': request}
+        )
+        print(serializer.data)
+
+        return Response(serializer.data)
+
 
 
 

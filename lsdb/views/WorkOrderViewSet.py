@@ -101,6 +101,18 @@ class WorkOrderViewSet(
             many=False,
             context={'request': request})
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'],
+            serializer_class=DispositionCodeListSerializer,
+            permission_classes=(ConfiguredPermission,)
+            )
+    def rm_lab_queue_dispositions(self, request, pk=None):
+        self.context = {'request': request}
+        serializer = DispositionCodeListSerializer(DispositionCode.objects.get(
+            name='rm_lab_queue'),
+            many=False,
+            context={'request': request})
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get', ],
             serializer_class=DispositionCodeListSerializer,
