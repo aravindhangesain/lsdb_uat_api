@@ -121,13 +121,13 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                     )
                     
                 elif step_result.name=='Test End':
-                    
-                    
-                        if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists() or StepResultNotes.objects.filter(procedure_result_id=step_result.procedure_result_id,step_result_id=step_result.id).exists():
+
+                        
+                        if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists():
                             prev_run2=StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).first()
-                            if prev_run2 is not None:
-                                prev_run2.disposition=Disposition.objects.get(id=20)
-                                prev_run2.save()
+                            
+                            prev_run2.disposition=Disposition.objects.get(id=20)
+                            prev_run2.save()
                             stress_run_result=StressRunResult.objects.create(run_name=prev_run2.run_name,
                                                                             asset_id=asset_calibration.id,
                                                                             step_result_id=step_result_id,
@@ -138,11 +138,11 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                             stress_name=step_result.name,
                                                                             disposition=Disposition.objects.get(id=20)
                                                                             )
-                        elif StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).exists() or StepResultNotes.objects.filter(procedure_result_id=step_result.procedure_result_id,step_result_id=step_result.id).exists():
+                        else:
                             prev_run3=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
-                            if prev_run3 is not None:
-                                prev_run3.disposition=Disposition.objects.get(id=20)
-                                prev_run3.save()
+                        
+                            prev_run3.disposition=Disposition.objects.get(id=20)
+                            prev_run3.save()
                             stress_run_result=StressRunResult.objects.create(run_name=prev_run3.run_name,
                                                                             asset_id=asset_calibration.id,
                                                                             step_result_id=step_result_id,
@@ -153,8 +153,7 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                             stress_name=step_result.name,
                                                                             disposition=Disposition.objects.get(id=20)
                                                                             )
-                        else:
-                            return Response({"status": "Test Start or Test Resume Record not found."})
+                        
                         
 
                 
