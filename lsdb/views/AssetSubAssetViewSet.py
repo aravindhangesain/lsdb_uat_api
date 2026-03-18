@@ -70,17 +70,18 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
 
 
                 if step_result.step_definition.id==6:
-                        stress_run_result=StressRunResult.objects.create(run_name=run_name,
-                                                                        asset_id=asset_calibration.id,
-                                                                        step_result_id=step_result_id,
-                                                                        procedure_result_id=procedure_result_id,
-                                                                        user_id=request.user.id,
-                                                                        run_date=datetime.now(),
-                                                                        comment=comment,
-                                                                        stress_name=step_result.name,
-                                                                        disposition=Disposition.objects.get(id=18),
-                                                                        is_calibrated = calibration_details.data.get("is_calibration")
-                                                                        )
+                        if not StressRunResult.objects.filter(step_result_id=step_result.id).exists():
+                            stress_run_result=StressRunResult.objects.create(run_name=run_name,
+                                                                            asset_id=asset_calibration.id,
+                                                                            step_result_id=step_result_id,
+                                                                            procedure_result_id=procedure_result_id,
+                                                                            user_id=request.user.id,
+                                                                            run_date=datetime.now(),
+                                                                            comment=comment,
+                                                                            stress_name=step_result.name,
+                                                                            disposition=Disposition.objects.get(id=18),
+                                                                            is_calibrated = calibration_details.data.get("is_calibration")
+                                                                            )
                     
                                                                     
 
@@ -122,10 +123,11 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                 elif step_result.name=='Test End':
                     
                     
-                        if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists():
+                        if StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).exists() or StepResultNotes.objects.filter(procedure_result_id=step_result.procedure_result_id,step_result_id=step_result.id).exists():
                             prev_run2=StressRunResult.objects.filter(stress_name='Test Resume',procedure_result_id=step_result.procedure_result_id).first()
-                            prev_run2.disposition=Disposition.objects.get(id=20)
-                            prev_run2.save()
+                            if prev_run2 is not None:
+                                prev_run2.disposition=Disposition.objects.get(id=20)
+                                prev_run2.save()
                             stress_run_result=StressRunResult.objects.create(run_name=prev_run2.run_name,
                                                                             asset_id=asset_calibration.id,
                                                                             step_result_id=step_result_id,
@@ -136,10 +138,11 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                             stress_name=step_result.name,
                                                                             disposition=Disposition.objects.get(id=20)
                                                                             )
-                        else:
+                        elif StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).exists() or StepResultNotes.objects.filter(procedure_result_id=step_result.procedure_result_id,step_result_id=step_result.id).exists():
                             prev_run3=StressRunResult.objects.filter(stress_name='Test Start',procedure_result_id=step_result.procedure_result_id).first()
-                            prev_run3.disposition=Disposition.objects.get(id=20)
-                            prev_run3.save()
+                            if prev_run3 is not None:
+                                prev_run3.disposition=Disposition.objects.get(id=20)
+                                prev_run3.save()
                             stress_run_result=StressRunResult.objects.create(run_name=prev_run3.run_name,
                                                                             asset_id=asset_calibration.id,
                                                                             step_result_id=step_result_id,
@@ -150,7 +153,8 @@ class AssetSubAssetViewSet(viewsets.ModelViewSet):
                                                                             stress_name=step_result.name,
                                                                             disposition=Disposition.objects.get(id=20)
                                                                             )
-
+                        else:
+                            return Response({"status": "Test Start or Test Resume Record not found."})
                         
 
                 
