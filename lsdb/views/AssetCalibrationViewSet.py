@@ -20,6 +20,8 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         pk = kwargs.get('pk')
         instance = self.get_object()
         notes = request.data.pop('notes', None)
+        disposition_url = request.data.get('disposition')
+        disposition_id = disposition_url.rstrip('/').split('/')[-1]
         try:
             if 'disposition' in request.data:
                 if AssetLastActionDetails.objects.filter(asset_id=pk).exists():
@@ -28,6 +30,10 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                     last_action.action_datetime=datetime.now()
                     last_action.user_id=request.user.id
                     last_action.save()
+                    assetcalibration=AssetCalibration.objects.get(id=pk)
+                    asset=Asset.objects.get(id=assetcalibration.asset_id)
+                    asset.disposition_id=disposition_id
+                    asset.save()
                 else:
                     AssetLastActionDetails.objects.create(
                                                         asset_id=pk,
@@ -35,6 +41,10 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                                                         action_datetime=datetime.now(),
                                                         user_id=request.user.id
                                                         )
+                    assetcalibration=AssetCalibration.objects.get(id=pk)
+                    asset=Asset.objects.get(id=assetcalibration.asset_id)
+                    asset.disposition_id=disposition_id
+                    asset.save()
             elif 'last_calibrated_date' in request.data:
                 last_calibrated_date=request.data.pop('last_calibrated_date', None)
                 requested_schedule_for_calibration=request.data.pop('requested_schedule_for_calibration')
@@ -332,3 +342,16 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     #     assets = AssetCalibration.objects.filter(is_main_asset=is_main_asset)
     #     serializer = self.get_serializer(assets, many=True) 
     #     return Response(serializer.data, status=200)
+
+    @action(detail=False, methods=['post','get'])         
+    def search(self,request):
+        if self.request.method=='GET':
+            asset_number=request.query_params.get('asset_number')
+            filters={}
+
+            if asset_number:
+                filters['asset_number__icontains']=asset_number
+
+            assets=AssetCalibration.objects.filter(**filters)
+            serializer = self.get_serializer(assets, many=True)
+            return Response(serializer.data, status=200)

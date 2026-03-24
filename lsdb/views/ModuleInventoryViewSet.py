@@ -37,6 +37,9 @@ class ModuleInventoryViewSet(viewsets.ModelViewSet):
         if active is not None and active.lower() == 'true':
             queryset = queryset.filter(module_intake__projects__disposition__complete=False)
         queryset = queryset.order_by('-module_intake__intake_date')
+        sns=queryset.values_list('serial_number', flat=True)
+        valid_units=Unit.objects.filter(serial_number__in=sns).exclude(disposition_id__in=[102,103,104,105]).values_list('serial_number', flat=True)
+        queryset=ScannedPannels.objects.filter(serial_number__in=valid_units).order_by('-module_intake__intake_date')
         return queryset
 
     def get_serializer_class(self):

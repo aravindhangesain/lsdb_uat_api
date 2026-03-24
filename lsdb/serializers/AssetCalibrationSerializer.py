@@ -20,6 +20,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
     calibrated_by = serializers.SerializerMethodField()
     requested_last_calibrated_date=serializers.SerializerMethodField()
     requested_schedule_for_calibration=serializers.SerializerMethodField()
+    disposition_name=serializers.ReadOnlyField(source='disposition.name')
 
     def get_last_action_datetime(self, obj):
         if AssetLastActionDetails.objects.filter(asset_id=obj.id,action_name='Calibration Date Updated').exists():
@@ -156,6 +157,7 @@ class AssetCalibrationSerializer(serializers.HyperlinkedModelSerializer):
             'is_rack',
             'disposition',
             'disposition_id',
+            'disposition_name',
             'notes',
             'calibrated_by',
             'requested_last_calibrated_date',
