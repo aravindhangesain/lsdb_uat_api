@@ -353,5 +353,11 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                 filters['asset_number__icontains']=asset_number
 
             assets=AssetCalibration.objects.filter(**filters)
+            
+            page = self.paginate_queryset(assets)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+    
             serializer = self.get_serializer(assets, many=True)
             return Response(serializer.data, status=200)
