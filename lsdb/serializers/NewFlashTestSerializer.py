@@ -213,7 +213,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
         if not unit:
             return None
         try:
-            
+            procedure_definitions = [14, 54, 50, 62, 33, 49, 21, 38, 48]
             procedure_results = unit.procedureresult_set.filter(
                 Q(disposition__isnull=True) | Q(disposition__complete=False) 
             ).exclude(supersede=True)
@@ -280,7 +280,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
                 None
             current_procedure=ProcedureResult.objects.filter(id__in=procedure_results).first()
             
-            upcoming_procedures=ProcedureResult.objects.filter(unit_id=current_procedure.unit_id,linear_execution_group__gt=current_procedure.linear_execution_group).order_by('linear_execution_group')
+            upcoming_procedures=ProcedureResult.objects.filter(unit_id=current_procedure.unit_id,linear_execution_group__gt=current_procedure.linear_execution_group,procedure_definition__in=procedure_definitions).order_by('linear_execution_group')
             
             available_steps=[]
             for procedure in upcoming_procedures:
@@ -292,6 +292,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
                         "step_name": step.step_definition.name if step.step_definition else None,
                         "procedure_definition_name": procedure.procedure_definition.name if procedure.procedure_definition else None,
                         "procedureresult_id": procedure.id,
+                        "disposition_name": procedure.disposition.name if procedure.disposition else "Yet to be Performed",
                         "execution_group_name":procedure.name
                     })
             return available_steps
@@ -385,6 +386,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
                         "step_result_id": step.id,
                         "step_name": step.step_definition.name if step.step_definition else None,
                         "procedure_definition_name": procedure.procedure_definition.name if procedure.procedure_definition else None,
+                        "disposition_name": procedure.disposition.name if procedure.disposition else "Skip",
                         "procedureresult_id": procedure.id,
                         "execution_group_name":procedure.name
                     })
