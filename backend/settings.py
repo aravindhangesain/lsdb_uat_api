@@ -188,7 +188,7 @@ GRAPHENE = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'uattestdb',
+        'NAME': 'uat_db',
         'HOST': 'uatlsdb.postgres.database.azure.com',
         'USER': 'haveblueflexible',
         'PASSWORD': 'Gesa@2023',

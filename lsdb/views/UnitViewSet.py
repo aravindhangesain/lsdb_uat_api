@@ -1011,7 +1011,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
     def end_of_life(self, request):
         location_id=self.request.query_params.get('location')
         projects=Project.objects.filter(id__in=LocationLog.objects.filter(location_id=location_id,project__isnull=False).values_list('project_id',flat=True))
-        eol_workorders = WorkOrder.objects.filter(disposition_id=96,project__in=projects)
+        eol_workorders = WorkOrder.objects.filter(disposition_id=97,project__in=projects)
         
 
         serializer = EolQueueSerializer(
@@ -1028,7 +1028,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
     def rm_lab_queue(self, request):
         
         
-        eol_workorders = WorkOrder.objects.filter(disposition_id=98)
+        eol_workorders = WorkOrder.objects.filter(disposition_id=104)
         
 
         serializer = EolQueueSerializer(
@@ -1043,7 +1043,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
     @transaction.atomic
     @action(detail=False, methods=['get'])
     def rm_lab_history(self, request):
-        eol_workorders = WorkOrder.objects.filter(disposition_id__in=[102,103,104,105])
+        eol_workorders = WorkOrder.objects.filter(disposition_id__in=[99,100,101,102])
         
 
         serializer = EolQueueSerializer(
