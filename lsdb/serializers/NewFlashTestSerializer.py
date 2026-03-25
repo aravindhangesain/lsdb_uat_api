@@ -13,9 +13,14 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
     project_number = serializers.SerializerMethodField()
     bom = serializers.SerializerMethodField()
+    next_available_steps = serializers.SerializerMethodField()
+    previous_flash = serializers.SerializerMethodField()
+    is_updated=serializers.SerializerMethodField()
     # filename = serializers.SerializerMethodField()
     # test_sequence_definition_name = serializers.ReadOnlyField(source='test_sequence_definition.name')
 
+    def get_is_updated(self,obj):
+        return False
     def get_project_number(self, obj):
         unit = obj
         if not unit:
@@ -200,7 +205,192 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
     #         if '.' in isc_str:
     #             isc = isc_str.replace('.', '_') 
     #     return f"DSC_{test_generated_number}_{serial_number}_{isc}A_1s"
+
+    def get_next_available_steps(self,obj):
+        serial_number = obj.serial_number
+        units = Unit.objects.filter(serial_number=serial_number)
+        unit = units.first()
+        if not unit:
+            return None
+        try:
+            
+            procedure_results = unit.procedureresult_set.filter(
+                Q(disposition__isnull=True) | Q(disposition__complete=False) 
+            ).exclude(supersede=True)
+
+            done_to = unit.procedureresult_set.aggregate(
+                done_to=Coalesce(
+                    Max(
+                        "linear_execution_group",
+                        filter=Q(
+                            disposition__isnull=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede__isnull=True,
+                        )
+                        | Q(
+                            disposition__isnull=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede=False,
+                        ),
+                    ),
+                    0.0,
+                )
+            ).get("done_to")
+            previous_group = unit.procedureresult_set.filter(
+                linear_execution_group=done_to,
+                test_sequence_definition__group__name__iexact="sequences",
+            ).filter(disposition_id=7)
+            if previous_group.exists():
+                group = previous_group.last()
+                group_name = group.name if hasattr(group, "name") else group.linear_execution_group
+                return None
+            if done_to != 0.0:
+                procedure_results = procedure_results.exclude(
+                    linear_execution_group__lt=done_to,
+                    test_sequence_definition__group__name__iexact="sequences",
+                )
+            highest_leg = unit.procedureresult_set.aggregate(
+                highest_leg=Coalesce(
+                    Min(
+                        "linear_execution_group",
+                        filter=Q(
+                            disposition__isnull=True,
+                            linear_execution_group__gt=done_to,
+                            allow_skip=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede__isnull=True,
+                        )
+                        | Q(
+                            disposition__isnull=True,
+                            allow_skip=False,
+                            linear_execution_group__gt=done_to,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede=False,
+                        ),
+                    ),
+                    99.0,
+                )
+            ).get("highest_leg")
+            procedure_results = procedure_results.exclude(
+                linear_execution_group__gt=highest_leg,
+                test_sequence_definition__group__name__iexact="sequences",
+            ).values_list('id',flat=True)
+            procedure_results = list(procedure_results)
+            if procedure_results is None:
+                None
+            current_procedure=ProcedureResult.objects.filter(id__in=procedure_results).first()
+            
+            upcoming_procedures=ProcedureResult.objects.filter(unit_id=current_procedure.unit_id,linear_execution_group__gt=current_procedure.linear_execution_group).order_by('linear_execution_group')
+            
+            available_steps=[]
+            for procedure in upcoming_procedures:
+                step_results = StepResult.objects.filter(procedure_result=procedure)
+
+                for step in step_results:
+                    available_steps.append({
+                        "step_result_id": step.id,
+                        "step_name": step.step_definition.name if step.step_definition else None,
+                        "procedure_definition_name": procedure.procedure_definition.name if procedure.procedure_definition else None,
+                        "procedureresult_id": procedure.id,
+                        "execution_group_name":procedure.name
+                    })
+            return available_steps
+
+        except Exception as e:
+            None
     
+    def get_previous_flash(self,obj):
+        serial_number = obj.serial_number
+        units = Unit.objects.filter(serial_number=serial_number)
+        unit = units.first()
+        if not unit:
+            return None
+        try:
+            
+            procedure_results = unit.procedureresult_set.filter(
+                Q(disposition__isnull=True) | Q(disposition__complete=False) 
+            ).exclude(supersede=True)
+
+            done_to = unit.procedureresult_set.aggregate(
+                done_to=Coalesce(
+                    Max(
+                        "linear_execution_group",
+                        filter=Q(
+                            disposition__isnull=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede__isnull=True,
+                        )
+                        | Q(
+                            disposition__isnull=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede=False,
+                        ),
+                    ),
+                    0.0,
+                )
+            ).get("done_to")
+            previous_group = unit.procedureresult_set.filter(
+                linear_execution_group=done_to,
+                test_sequence_definition__group__name__iexact="sequences",
+            ).filter(disposition_id=7)
+            if previous_group.exists():
+                group = previous_group.last()
+                group_name = group.name if hasattr(group, "name") else group.linear_execution_group
+                return None
+            if done_to != 0.0:
+                procedure_results = procedure_results.exclude(
+                    linear_execution_group__lt=done_to,
+                    test_sequence_definition__group__name__iexact="sequences",
+                )
+            highest_leg = unit.procedureresult_set.aggregate(
+                highest_leg=Coalesce(
+                    Min(
+                        "linear_execution_group",
+                        filter=Q(
+                            disposition__isnull=True,
+                            linear_execution_group__gt=done_to,
+                            allow_skip=False,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede__isnull=True,
+                        )
+                        | Q(
+                            disposition__isnull=True,
+                            allow_skip=False,
+                            linear_execution_group__gt=done_to,
+                            test_sequence_definition__group__name__iexact="sequences",
+                            supersede=False,
+                        ),
+                    ),
+                    99.0,
+                )
+            ).get("highest_leg")
+            procedure_results = procedure_results.exclude(
+                linear_execution_group__gt=highest_leg,
+                test_sequence_definition__group__name__iexact="sequences",
+            ).values_list('id',flat=True)
+            procedure_results = list(procedure_results)
+            if procedure_results is None:
+                None
+            current_procedure=ProcedureResult.objects.filter(id__in=procedure_results).first()
+            print("1",current_procedure)
+            previous_procedures=ProcedureResult.objects.filter(unit_id=current_procedure.unit_id,linear_execution_group__lt=current_procedure.linear_execution_group,
+                                                               procedure_definition_id__in=[14, 54, 50, 62, 33, 49, 21, 38, 48]).order_by('linear_execution_group')
+            print("2",previous_procedures)
+            previous_flash=[]
+            for procedure in previous_procedures:
+                step_results = StepResult.objects.filter(procedure_result=procedure)
+
+                for step in step_results:
+                    previous_flash.append({
+                        "step_result_id": step.id,
+                        "step_name": step.step_definition.name if step.step_definition else None,
+                        "procedure_definition_name": procedure.procedure_definition.name if procedure.procedure_definition else None,
+                        "procedureresult_id": procedure.id,
+                        "execution_group_name":procedure.name
+                    })
+            return previous_flash
+        except Exception as e:
+            None
     class Meta:
         model = Unit
         fields = [
@@ -214,6 +404,9 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             'project_number',
             'customer_name',
             'bom',
+            'next_available_steps',
+            'previous_flash',
+            'is_updated'
             # 'filename',
             # 'name',
             # 'procedure_definition',

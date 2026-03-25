@@ -13,15 +13,17 @@ class NewFlashTestViewSet(viewsets.ModelViewSet):
     serializer_class = NewFlashTestSerializer
     permission_classes = [IsAuthenticated]          
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['get','post'])
     def flash(self, request):
-        serial_number = request.data.get("serial_number")
-        try:
-            units = Unit.objects.get(serial_number=serial_number)
-        except Unit.DoesNotExist:
-            return Response("Serial Number not found", status=404)
-        serializer = NewFlashTestSerializer(units, context={"request": request})
-        return Response({"status": "success", "data": [serializer.data]})
+        if request.method=='POST':
+            serial_number = request.data.get("serial_number")
+            try:
+                units = Unit.objects.get(serial_number=serial_number)
+            except Unit.DoesNotExist:
+                return Response("Serial Number not found", status=404)
+            serializer = NewFlashTestSerializer(units, context={"request": request})
+            return Response({"status": "success", "data": [serializer.data]})
+        return Response("Enter Payload", status=404)
     
     
 
