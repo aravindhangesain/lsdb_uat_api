@@ -56,32 +56,32 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                                                     requested_last_calibrated_date=last_calibrated_date,
                                                     requested_schedule_for_calibration=requested_schedule_for_calibration
                                                     )
-                # try:
-                #     asset = Asset.objects.get(id=pk)
-                #     asset_name = asset.name
-                #     user_email = request.user.email
-                #     subject = "Calibration Date Update Request"
-                #     message = f"""
-                #         Hi Team,
+                try:
+                    asset = Asset.objects.get(id=pk)
+                    asset_name = asset.name
+                    user_email = request.user.email
+                    subject = "Calibration Date Update Request"
+                    message = f"""
+                        Hi Team,
 
-                #         The calibration date for the asset has been updated and is awaiting approval.
+                        The calibration date for the asset has been updated and is awaiting approval.
 
-                #         Asset Name: {asset_name}
-                #         Requested Calibration Date: {last_calibrated_date}
-                #         Requested Schedule for Calibration: {requested_schedule_for_calibration}
-                #         Updated By: {request.user.username}
+                        Asset Name: {asset_name}
+                        Requested Calibration Date: {last_calibrated_date}
+                        Requested Schedule for Calibration: f"{requested_schedule_for_calibration} days"
+                        Updated By: {request.user.username}
 
-                #         Notes:
-                #         {notes}
+                        Notes:
+                        {notes}
 
-                #         This is an automated notification informing you that the calibration date has been changed and is pending approval.
+                        This is an automated notification informing you that the calibration date has been changed and is pending approval.
 
-                #         Regards,
-                #         Asset Management System
-                #         """
-                #     send_mail(subject, message,settings.EMAIL_HOST_USER,[user_email, "sharumathi@gesain.net"],fail_silently=False)
-                # except Exception as e:
-                #     return Response({"Error": "Failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        Regards,
+                        Asset Management System
+                        """
+                    send_mail(subject, message,settings.EMAIL_HOST_USER,[user_email, "sharumathi@gesain.net"],fail_silently=False)
+                except Exception as e:
+                    return Response({"Error": "Failed to send email.", "details": str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return super().partial_update(request, *args, **kwargs)
         except:
             return super().partial_update(request, *args, **kwargs)
@@ -102,51 +102,53 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         if asset.status=="approved":
             AssetCalibration.objects.filter(id=asset_id).update(last_calibrated_date=asset.requested_last_calibrated_date,schedule_for_calibration=asset.requested_schedule_for_calibration,
                                                                 is_calibration_required=True, azurefile_id = azure_file_id)
-        # try:
-        #     if asset.status=="approved":
-        #         asset_obj = Asset.objects.get(id=asset_id)
-        #         subject = "Calibration Request Verified"
-        #         message = f"""
-        #             Hi Team,
+        try:
+            if asset.status=="approved":
+                asset_obj = Asset.objects.get(id=asset_id)
+                schedule_days = f"{asset.requested_schedule_for_calibration} days"
+                subject = "Calibration Request Verified"
+                message = f"""
+                    Hi Team,
 
-        #             The calibration request for the asset has been verified.
+                    The calibration request for the asset has been verified.
 
-        #             Asset Name: {asset_obj.name}
-        #             Requested Calibration Date: {asset.requested_last_calibrated_date}
-        #             Requested Schedule for Calibration: {asset.requested_schedule_for_calibration}
+                    Asset Name: {asset_obj.name}
+                    Requested Calibration Date: {asset.requested_last_calibrated_date}
+                    Requested Schedule for Calibration: {schedule_days}
 
-        #             Notes:
-        #             {asset.notes}
+                    Notes:
+                    {asset.notes}
 
-        #             Verified By: {request.user.username}
-        #             Status: {asset.status}
+                    Verified By: {request.user.username}
+                    Status: {asset.status}
 
-        #             This is to inform you that the calibration request has been reviewed and verified.
-        #             """
-        #         send_mail(subject,message,settings.EMAIL_HOST_USER,[request.user.email,  "sharumathi@gesain.net"],fail_silently=False)
-        #     elif asset.status=="reject":
-        #         asset_obj = Asset.objects.get(id=asset_id)
-        #         subject = "Calibration Request Rejected"
-        #         message = f"""
-        #             Hi Team,
+                    This is to inform you that the calibration request has been reviewed and verified.
+                    """
+                send_mail(subject,message,settings.EMAIL_HOST_USER,[request.user.email,  "sharumathi@gesain.net"],fail_silently=False)
+            elif asset.status=="reject":
+                asset_obj = Asset.objects.get(id=asset_id)
+                schedule_days = f"{asset.requested_schedule_for_calibration} days"
+                subject = "Calibration Request Rejected"
+                message = f"""
+                    Hi Team,
 
-        #             The calibration request for the asset has been rejected.
+                    The calibration request for the asset has been rejected.
 
-        #             Asset Name: {asset_obj.name}
-        #             Requested Calibration Date: {asset.requested_last_calibrated_date}
-        #             Requested Schedule for Calibration: {asset.requested_schedule_for_calibration}
+                    Asset Name: {asset_obj.name}
+                    Requested Calibration Date: {asset.requested_last_calibrated_date}
+                    Requested Schedule for Calibration: {schedule_days}
 
-        #             Notes:
-        #             {asset.notes}
+                    Notes:
+                    {asset.notes}
 
-        #             Verified By: {request.user.username}
-        #             Status: {asset.status}
+                    Verified By: {request.user.username}
+                    Status: {asset.status}
 
-        #             This is to inform you that the calibration request has been reviewed and rejected.
-        #             """
-        #         send_mail(subject,message,settings.EMAIL_HOST_USER,[request.user.email,  "sharumathi@gesain.net"],fail_silently=False)
-        # except Exception as e:
-        #     return Response({"Error": "Failed to send verification email", "details": str(e)},status=500)
+                    This is to inform you that the calibration request has been reviewed and rejected.
+                    """
+                send_mail(subject,message,settings.EMAIL_HOST_USER,[request.user.email,  "sharumathi@gesain.net"],fail_silently=False)
+        except Exception as e:
+            return Response({"Error": "Failed to send verification email", "details": str(e)},status=500)
         return Response ({"detail":"Asset status updated"},status=200)
 
         
