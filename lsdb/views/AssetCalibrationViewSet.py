@@ -21,7 +21,8 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         notes = request.data.pop('notes', None)
         disposition_url = request.data.get('disposition')
-        disposition_id = disposition_url.rstrip('/').split('/')[-1]
+        if disposition_url:
+            disposition_id = disposition_url.rstrip('/').split('/')[-1]
         try:
             if 'disposition' in request.data:
                 if AssetLastActionDetails.objects.filter(asset_id=pk).exists():
@@ -57,8 +58,8 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                                                     requested_schedule_for_calibration=requested_schedule_for_calibration
                                                     )
                 try:
-                    asset = Asset.objects.get(id=pk)
-                    asset_name = asset.name
+                    asset = AssetCalibration.objects.get(id=pk)
+                    asset_name = asset.asset_name
                     user_email = request.user.email
                     subject = "Calibration Date Update Request"
                     message = f"""
@@ -68,7 +69,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
 
                         Asset Name: {asset_name}
                         Requested Calibration Date: {last_calibrated_date}
-                        Requested Schedule for Calibration: f"{requested_schedule_for_calibration} days"
+                        Requested Schedule for Calibration: {requested_schedule_for_calibration} days
                         Updated By: {request.user.username}
 
                         Notes:
@@ -104,7 +105,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                                                                 is_calibration_required=True, azurefile_id = azure_file_id)
         try:
             if asset.status=="approved":
-                asset_obj = Asset.objects.get(id=asset_id)
+                asset_obj = AssetCalibration.objects.get(id=asset_id)
                 schedule_days = f"{asset.requested_schedule_for_calibration} days"
                 subject = "Calibration Request Verified"
                 message = f"""
@@ -112,7 +113,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
 
                     The calibration request for the asset has been verified.
 
-                    Asset Name: {asset_obj.name}
+                    Asset Name: {asset_obj.asset_name}
                     Requested Calibration Date: {asset.requested_last_calibrated_date}
                     Requested Schedule for Calibration: {schedule_days}
 
@@ -126,7 +127,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
                     """
                 send_mail(subject,message,settings.EMAIL_HOST_USER,[request.user.email,  "sharumathi@gesain.net"],fail_silently=False)
             elif asset.status=="reject":
-                asset_obj = Asset.objects.get(id=asset_id)
+                asset_obj = AssetCalibration.objects.get(id=asset_id)
                 schedule_days = f"{asset.requested_schedule_for_calibration} days"
                 subject = "Calibration Request Rejected"
                 message = f"""
@@ -134,7 +135,7 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
 
                     The calibration request for the asset has been rejected.
 
-                    Asset Name: {asset_obj.name}
+                    Asset Name: {asset_obj.asset_name}
                     Requested Calibration Date: {asset.requested_last_calibrated_date}
                     Requested Schedule for Calibration: {schedule_days}
 
