@@ -1,13 +1,10 @@
 from rest_framework import serializers
 from lsdb.models import *
-import random
 from lsdb.serializers import *
 from django.db.models import Max, Min, Q
 from django.db.models.functions import Coalesce
 
 class NewFlashTestSerializer(serializers.ModelSerializer):
-    # procedure_definition_name = serializers.ReadOnlyField(source='procedure_definition.name')
-    # serial_number = serializers.ReadOnlyField(source='unit.serial_number')
     module_property = serializers.SerializerMethodField()
     unit_type = serializers.SerializerMethodField()
     customer_name = serializers.SerializerMethodField()
@@ -15,12 +12,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
     bom = serializers.SerializerMethodField()
     next_available_steps = serializers.SerializerMethodField()
     previous_flash = serializers.SerializerMethodField()
-    is_updated=serializers.SerializerMethodField()
-    # filename = serializers.SerializerMethodField()
-    # test_sequence_definition_name = serializers.ReadOnlyField(source='test_sequence_definition.name')
 
-    def get_is_updated(self,obj):
-        return False
     def get_project_number(self, obj):
         unit = obj
         if not unit:
@@ -111,6 +103,7 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
                 'flash_linear_exec_grp_number': None,
                 'flash_procedure_definition': None,
             })
+        filtered_data['is_updated'] = False
         return filtered_data
     
     def flash(self,serial_number=None):
@@ -194,18 +187,6 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
         except Exception as e:
             None
 
-    # def get_filename(self, obj):
-    #     test_generated_number = random.randint(10000, 99999)
-    #     serial_number = Unit.objects.filter(id=obj.unit.id).values_list('serial_number', flat=True).first()
-    #     unit_type_id = Unit.objects.filter(id=obj.unit.id).values_list('unit_type_id', flat=True).first()
-    #     module_property_id = UnitType.objects.filter(id=unit_type_id).values_list('module_property_id', flat=True).first()
-    #     isc = ModuleProperty.objects.filter(id=module_property_id).values_list('isc', flat=True).first()
-    #     if isc is not None:
-    #         isc_str = str(isc)
-    #         if '.' in isc_str:
-    #             isc = isc_str.replace('.', '_') 
-    #     return f"DSC_{test_generated_number}_{serial_number}_{isc}A_1s"
-
     def get_next_available_steps(self,obj):
         serial_number = obj.serial_number
         units = Unit.objects.filter(serial_number=serial_number)
@@ -217,7 +198,6 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             procedure_results = unit.procedureresult_set.filter(
                 Q(disposition__isnull=True) | Q(disposition__complete=False) 
             ).exclude(supersede=True)
-
             done_to = unit.procedureresult_set.aggregate(
                 done_to=Coalesce(
                     Max(
@@ -279,13 +259,10 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             if procedure_results is None:
                 None
             current_procedure=ProcedureResult.objects.filter(id__in=procedure_results).first()
-            
             upcoming_procedures=ProcedureResult.objects.filter(unit_id=current_procedure.unit_id,linear_execution_group__gt=current_procedure.linear_execution_group,procedure_definition__in=procedure_definitions).order_by('linear_execution_group')
-            
             available_steps=[]
             for procedure in upcoming_procedures:
                 step_results = StepResult.objects.filter(procedure_result=procedure)
-
                 for step in step_results:
                     available_steps.append({
                         "step_result_id": step.id,
@@ -296,7 +273,6 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
                         "execution_group_name":procedure.name
                     })
             return available_steps
-
         except Exception as e:
             None
     
@@ -307,11 +283,9 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
         if not unit:
             return None
         try:
-            
             procedure_results = unit.procedureresult_set.filter(
                 Q(disposition__isnull=True) | Q(disposition__complete=False) 
             ).exclude(supersede=True)
-
             done_to = unit.procedureresult_set.aggregate(
                 done_to=Coalesce(
                     Max(
@@ -373,14 +347,11 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             if procedure_results is None:
                 None
             current_procedure=ProcedureResult.objects.filter(id__in=procedure_results).first()
-            print("1",current_procedure)
             previous_procedures=ProcedureResult.objects.filter(unit_id=current_procedure.unit_id,linear_execution_group__lt=current_procedure.linear_execution_group,
                                                                procedure_definition_id__in=[14, 54, 50, 62, 33, 49, 21, 38, 48]).order_by('linear_execution_group')
-            print("2",previous_procedures)
             previous_flash=[]
             for procedure in previous_procedures:
                 step_results = StepResult.objects.filter(procedure_result=procedure)
-
                 for step in step_results:
                     previous_flash.append({
                         "step_result_id": step.id,
@@ -393,14 +364,10 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             return previous_flash
         except Exception as e:
             None
+
     class Meta:
         model = Unit
         fields = [
-            # 'id',
-            # 'unit',
-            # 'serial_number',
-            # 'test_sequence_definition',
-            # 'test_sequence_definition_name',
             'module_property',
             'unit_type',
             'project_number',
@@ -408,10 +375,4 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             'bom',
             'next_available_steps',
             'previous_flash',
-            'is_updated'
-            # 'filename',
-            # 'name',
-            # 'procedure_definition',
-            # 'procedure_definition_name',
-            # 'disposition'
         ]

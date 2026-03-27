@@ -187,3 +187,4 @@ from .UserAssignmentForProcedureViewSet import UserAssignmentForProcedureViewSet
 from .AssetRunHistoryViewSet import AssetRunHistoryViewSet as AssetRunHistoryViewSet
 from .UnitMigrationHistoryViewSet import UnitMigrationHistoryViewSet as UnitMigrationHistoryViewSet
 from .RevokedAssetDetailsViewSet import RevokedAssetDetailsViewSet as RevokedAssetDetailsViewSet
+from .FlashTestProcessorViewSet import FlashTestProcessorViewSet as FlashTestProcessorViewSet

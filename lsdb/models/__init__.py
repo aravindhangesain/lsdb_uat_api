@@ -168,3 +168,4 @@ from .NewFlashTestPoints import NewFlashTestPoints as NewFlashTestPoints
 from .UnitMigrationHistory import UnitMigrationHistory as UnitMigrationHistory
 from .WorkOrderUpdateHistory import WorkOrderUpdateHistory as WorkOrderUpdateHistory
 from .xlupload import xlupload as xlupload
+from .AdditionalModuleProperty import AdditionalModuleProperty as AdditionalModuleProperty

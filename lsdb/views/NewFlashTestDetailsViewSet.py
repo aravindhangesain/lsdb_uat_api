@@ -71,24 +71,62 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             lsdb_payload=parsed_json.get("LSDB Payload",{})
             lsdb_payload_module_property=lsdb_payload.get("Module Property",{})
             lsdb_payload_reference_device=lsdb_payload.get("Reference Device",{})
+            is_updated = lsdb_payload_module_property.get("is_updated", False)
 
-            unit_type_id = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
-            print("Unit Type ID:", unit_type_id)
+            unit_type = Unit.objects.filter(serial_number=serial_number).values_list('unit_type_id', flat=True).first()
 
             point = NewFlashTestPoints.objects.create(
                 serial_number=serial_number,
                 v_oc_raw=v_oc_raw,
                 v_oc_corr=v_oc_corr,
-                alpha_stc_correction_A_per_C=lsdb_payload_module_property.get("alpha_stc_correction_A_per_C",None),
-                beta_stc_correction_V_per_C=lsdb_payload_module_property.get("beta_stc_correction_V_per_C",None),
-                kappa_stc_correction_Ohm_per_C=lsdb_payload_module_property.get("kappa_stc_correction_Ohm_per_C",None),
-                R_s_stc_correction_Ohm=lsdb_payload_module_property.get("R_s_stc_correction_Ohm",None),
-                flash_parameters=lsdb_payload_module_property.get("flash_parameters",None),
                 spectral_mismatch=lsdb_payload_reference_device.get("Spectral MM",None),
                 sweep_type=lsdb_payload_reference_device.get("sweep_type",None),
-                unit_type_id = unit_type_id
             )
-            return point
+            if not AdditionalModuleProperty.objects.filter(unit_type_id=unit_type).exists():
+                AdditionalModuleProperty.objects.create(
+                    alpha_stc_correction_a_per_c=lsdb_payload_module_property.get("alpha_stc_correction_A_per_C",None),
+                    beta_stc_correction_v_per_c=lsdb_payload_module_property.get("beta_stc_correction_V_per_C",None),
+                    kappa_stc_correction_ohm_per_c=lsdb_payload_module_property.get("kappa_stc_correction_Ohm_per_C",None),
+                    r_s_stc_correction_ohm=lsdb_payload_module_property.get("R_s_stc_correction_Ohm",None),
+                    flash_parameters=lsdb_payload_module_property.get("flash_parameters",None),
+                    unit_type_id = unit_type
+                )
+                print("Insert completed")
+            
+            if is_updated:
+                module_property_id = UnitType.objects.filter(id=unit_type).values_list('module_property_id', flat=True).first()
+                print(module_property_id)
+                if module_property_id:
+                    ModuleProperty.objects.filter(id=module_property_id).update(
+                        number_of_cells=lsdb_payload_module_property.get("number_of_cells"),
+                        nameplate_pmax=lsdb_payload_module_property.get("nameplate_pmax"),
+                        module_width=lsdb_payload_module_property.get("module_width"),
+                        module_height=lsdb_payload_module_property.get("module_height"),
+                        system_voltage=lsdb_payload_module_property.get("system_voltage"),
+                        isc=lsdb_payload_module_property.get("isc"),
+                        voc=lsdb_payload_module_property.get("voc"),
+                        imp=lsdb_payload_module_property.get("imp"),
+                        vmp=lsdb_payload_module_property.get("vmp"),
+                        alpha_isc=lsdb_payload_module_property.get("alpha_isc"),
+                        beta_voc=lsdb_payload_module_property.get("beta_voc"),
+                        gamma_pmp=lsdb_payload_module_property.get("gamma_pmp"),
+                        cells_in_series=lsdb_payload_module_property.get("cells_in_series"),
+                        cells_in_parallel=lsdb_payload_module_property.get("cells_in_parallel"),
+                        cell_area=lsdb_payload_module_property.get("cell_area"),
+                        bifacial=bool(lsdb_payload_module_property.get("bifacial")),
+                    )
+                print("ModuleProperty updated")
+                AdditionalModuleProperty.objects.filter(unit_type_id=unit_type).update(
+                    alpha_stc_correction_a_per_c=lsdb_payload_module_property.get("alpha_stc_correction_A_per_C"),
+                    beta_stc_correction_v_per_c=lsdb_payload_module_property.get("beta_stc_correction_V_per_C"),
+                    kappa_stc_correction_ohm_per_c=lsdb_payload_module_property.get("kappa_stc_correction_Ohm_per_C"),
+                    r_s_stc_correction_ohm=lsdb_payload_module_property.get("R_s_stc_correction_Ohm"),
+                    flash_parameters=lsdb_payload_module_property.get("flash_parameters"),
+                )
+                print("AdditionalModuleProperty updated")
+            else:
+                print("is_updated = False → Only insert, no update")
+            return point  
         except Exception as e:
             print("IVParams Parsing Error:", str(e))
             return None

@@ -155,7 +155,7 @@ router.register(r'assetrunhistory',AssetRunHistoryViewSet,basename='assetrunhist
 router.register(r'unitmigrationhistory',UnitMigrationHistoryViewSet,basename='unitmigrationhistory')
 router.register(r'revokedassetdetails',RevokedAssetDetailsViewSet,basename='revokedassetdetails')
 
-# router.register(r'flashtestprocessor',FlashTestProcessorViewSet,basename='flashtestprocessor')
+router.register(r'flashtestprocessor',FlashTestProcessorViewSet,basename='flashtestprocessor')
 # router.register(r'IAMTest',IAMTestViewSet, basename = 'IAMTest')
 # router.register(r'IAMTestFileUpload',IAMTestFileUploadViewSet, basename = 'IAMTestFileUpload')
 # router.register(r'upload',FileUploadViewSet,basename='upload')

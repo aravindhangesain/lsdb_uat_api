@@ -28,22 +28,18 @@ class NewFlashTestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get','post'])
     def summary_raw(self, request):
         if request.method=='POST':
-            
             choice=request.data.get('choice')
             procedure_result_id = request.data.get('procedure_result_id')
-
             if choice=='a':
                 azure_file_ids = AzureFile.objects.filter(
                     measurementresult__step_result__procedure_result_id=procedure_result_id,
                     measurementresult__name='Data File').values_list('id', flat=True).distinct()
-
                 files = [
                     f"https://lsdbhaveblueuat.azurewebsites.net/api/1.0/azure_files/{id}/download/"
                     for id in azure_file_ids]
                 return Response({"data": files})
             
             elif choice=='b':
-            
                 flash_measurements = MeasurementResult.objects.filter(
                 step_result__procedure_result_id=procedure_result_id,
                 measurement_result_type__name__icontains='result_double')
@@ -51,7 +47,6 @@ class NewFlashTestViewSet(viewsets.ModelViewSet):
                 for measurement in flash_measurements:
                     flash[measurement.name] = measurement.result_double
                 return Response ({"data":flash})
-
         return Response("Enter Payload", status=404)
             
 
