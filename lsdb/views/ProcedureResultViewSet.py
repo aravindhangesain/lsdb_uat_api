@@ -607,7 +607,7 @@ class ProcedureResultViewSet(LoggingMixin, viewsets.ModelViewSet):
                     break
         except Exception as e:
             print(f"Error in visualizer: {e}")
-        print("visualized:"+str(visualized))
+        # print("visualized:"+str(visualized))
         return Response(visualized)
     
     # @action(detail=True,methods=['get'],

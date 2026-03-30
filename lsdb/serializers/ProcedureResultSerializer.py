@@ -199,55 +199,148 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
             flash[measurement.name] = measurement.result_double
         return (flash)
 
+    # def parse_flash(self, file):
+    #     mult = None
+    #     # print(file.file.name)
+    #     file_handle = file.file.open('rb')
+    #     if magic.from_buffer(file_handle.read(2048), mime=True) != 'text/plain':
+    #         # It's binary, we can't eat that(mfr files show up as: application/x-wine-extension-ini)
+    #         # print('binary')
+    #         file_handle.close()
+    #         return None, None, None
+    #     file_handle.seek(0)
+    #     # print('about to read')
+    #     import traceback
+    #     try:
+    #         data_table = pd.read_csv(file_handle, sep='\t', encoding_errors='ignore')
+    #         # maybe have a different seprator?
+    #         if len(data_table.columns.array) <= 1:
+    #             file_handle.seek(0)
+    #             data_table = pd.read_csv(file_handle, sep=';', encoding_errors='ignore', skiprows=12)
+    #         # print(data_table.columns)
+    #     except Exception as err:
+    #         print(Exception)
+    #         print(err)
+    #         traceback.print_tb(err.__traceback__)
+
+    #     # print(data_table)
+    #     # Check that this is a sinton or pasan text file
+    #     if 'Vcorr' in data_table.columns:
+    #         # pasan chart....
+    #         mult = float(int(data_table.iat[0, 12]) / 1000)
+    #         # print('pasandata')
+    #         cols = data_table[['Vcorr', 'Icorr']]
+    #         filetype = 'pdata'
+    #     elif 'Nr' in data_table.columns:
+    #         # Looks like a HALM file, make it look like a PASAN file
+    #         cols = data_table[['Ucor [[V]]', 'Icor [[A]]']]
+    #         cols.columns = ['Vcorr', 'Icorr']
+    #         filetype = 'pdata'
+    #     elif 'Model_Voltage_(V)' in data_table.columns:
+    #         # sinton data file
+    #         # print('sinton data')
+    #         cols = data_table[['Model_Voltage_(V)', 'Model_Current_(A)', 'Vload_(V)', 'ILoad_(A)']]
+    #         filetype = 'sdata'
+    #     else:
+    #         # print('sinton params')
+    #         if 'Power_per_Sun_(W/m2)' in data_table.columns:
+    #             cols = data_table['Power_per_Sun_(W/m2)'][0] * data_table['Intensity_(suns)'][0] / 1000
+    #             filetype = 'sparams'
+    #     file_handle.close()
+    #     return filetype, cols, mult
+
     def parse_flash(self, file):
         mult = None
-        # print(file.file.name)
         file_handle = file.file.open('rb')
-        if magic.from_buffer(file_handle.read(2048), mime=True) != 'text/plain':
-            # It's binary, we can't eat that(mfr files show up as: application/x-wine-extension-ini)
-            # print('binary')
+
+        import magic
+
+        mime_type = magic.from_buffer(file_handle.read(2048), mime=True)
+        file_handle.seek(0)
+        filename = str(file.file.name).lower()
+
+        print("FILE NAME:", filename)
+        print("MIME TYPE:", mime_type)
+
+        # ─────────────────────────────
+        # 🆕 JSON HANDLING (NEW LOGIC)
+        # ─────────────────────────────
+        if '.json' in filename:
+            try:
+                import json
+                import pandas as pd
+                from lsdb.utils.FlashTestProcessor import process_flash_test
+
+                file_handle.seek(0)
+                parsed_json = json.load(file_handle)
+
+                # ✅ IMPORTANT: pass dict, not filepath
+                processed = process_flash_test(parsed_json)
+
+                # ✅ get correct data
+                points = processed.get("iv_curve_corrected", {}).get("sdm_fit", [])
+                print("POINTS FOUND:", len(points))
+
+                if not points:
+                    file_handle.close()
+                    return None, None, None
+
+                # ✅ convert to DataFrame (THIS FIXES EVERYTHING)
+                cols = pd.DataFrame(points)[["V", "I"]]
+                cols.columns = ["x", "y"]
+
+                file_handle.close()
+
+                return 'pdata', cols, 1
+
+            except Exception as e:
+                print("JSON processing error:", str(e))
+                file_handle.close()
+                return None, None, None
+
+        # ─────────────────────────────
+        # EXISTING LOGIC (UNCHANGED)
+        # ─────────────────────────────
+        if mime_type != 'text/plain':
             file_handle.close()
             return None, None, None
-        file_handle.seek(0)
-        # print('about to read')
+
+        import pandas as pd
         import traceback
+
         try:
             data_table = pd.read_csv(file_handle, sep='\t', encoding_errors='ignore')
-            # maybe have a different seprator?
             if len(data_table.columns.array) <= 1:
                 file_handle.seek(0)
                 data_table = pd.read_csv(file_handle, sep=';', encoding_errors='ignore', skiprows=12)
-            # print(data_table.columns)
         except Exception as err:
             print(Exception)
             print(err)
             traceback.print_tb(err.__traceback__)
 
-        # print(data_table)
-        # Check that this is a sinton or pasan text file
         if 'Vcorr' in data_table.columns:
-            # pasan chart....
             mult = float(int(data_table.iat[0, 12]) / 1000)
-            # print('pasandata')
             cols = data_table[['Vcorr', 'Icorr']]
             filetype = 'pdata'
+
         elif 'Nr' in data_table.columns:
-            # Looks like a HALM file, make it look like a PASAN file
             cols = data_table[['Ucor [[V]]', 'Icor [[A]]']]
             cols.columns = ['Vcorr', 'Icorr']
             filetype = 'pdata'
+
         elif 'Model_Voltage_(V)' in data_table.columns:
-            # sinton data file
-            # print('sinton data')
             cols = data_table[['Model_Voltage_(V)', 'Model_Current_(A)', 'Vload_(V)', 'ILoad_(A)']]
             filetype = 'sdata'
+
         else:
-            # print('sinton params')
             if 'Power_per_Sun_(W/m2)' in data_table.columns:
                 cols = data_table['Power_per_Sun_(W/m2)'][0] * data_table['Intensity_(suns)'][0] / 1000
                 filetype = 'sparams'
+
         file_handle.close()
         return filetype, cols, mult
+
+
 
     def get_iv_curves(self, obj):
         measurements = MeasurementResult.objects.filter(
@@ -270,8 +363,16 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
                     curve_dict['id'] = measurement.id
                     curve_dict['color'] = "hsl(263, 70%, 50%)"
                     curve_dict['multiplier'] = 0
-                    # for file in measurement.result_files.all():
-                    filetype, cols, mult = self.parse_flash(measurement.result_files.first())
+                    # for file in measurement.result_files.all()
+                    file_obj = measurement.result_files.first()
+                    if file_obj and '.json' not in str(file_obj.file.name).lower():
+                        for f in measurement.result_files.all():
+                            if '.json' in str(f.file.name).lower():
+                                file_obj = f
+                                print(f"Switching to JSON file: {file_obj.file.name}")
+                                break
+
+                    filetype, cols, mult = self.parse_flash(file_obj)
                     # print('uno')
                     if filetype == 'sparams':  # sinton params,
                         temp_curve['multiplier'] = cols

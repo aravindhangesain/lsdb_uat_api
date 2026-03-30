@@ -7,6 +7,9 @@ from lsdb.models import *
 from lsdb.serializers import NewFlashTestDetailsSerializer
 from rest_framework.permissions import IsAuthenticated
 import json
+from django.utils import timezone
+import hashlib
+from django.db import connection
 
 class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
     queryset = NewFlashTestDetails.objects.all().order_by('-date_time')
@@ -23,14 +26,47 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
 
         if not all([serial_number, date_time, json_file, pdf_file]):
             return Response(
-                {"error": "serial_number, date_time, json_file_path, and pdf_file_path are required."},
+                {"error": "serial_number, date_time, json_file, and pdf_file are required."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            self.extract_ivparams_and_save(json_file, serial_number)
+            file_hash = self.generate_file_hash(json_file)
             json_file.seek(0)
 
+            file_size = json_file.size
+
+            azure_file = AzureFile.objects.create(
+                file=json_file,
+                name=json_file.name,
+                uploaded_datetime=timezone.now(),
+                hash_algorithm='sha256',
+                hash=file_hash,
+                length=file_size,
+                blob_container=None,
+                expires=False
+            )
+
+            json_file.seek(0)
+            parsed_json = json.load(json_file)
+
+            lsdb_payload = parsed_json.get("LSDB Payload", {})
+            lsdb_payload_reference_device=lsdb_payload.get("Reference Device",{})
+
+            procedure_result_id = lsdb_payload_reference_device.get("procedure_result_id")
+            if not procedure_result_id:
+                raise Exception("procedure_result_id not found in LSDB Payload")
+            
+            measurement_result = MeasurementResult.objects.filter(step_result__procedure_result_id=procedure_result_id, name__iexact="Data file").first()
+            if not measurement_result:
+                raise Exception("MeasurementResult 'Data file' not found")
+            
+            self.insert_into_resultfiles_table(measurement_result.id,azure_file.id)
+
+            json_file.seek(0)
+            self.extract_ivparams_and_save(json_file, serial_number)
+
+            json_file.seek(0)
             azure_connection_string = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
             azure_container = 'flashfiles'
             blob_service_client = BlobServiceClient.from_connection_string(azure_connection_string)
@@ -55,12 +91,29 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
                 pdf_file=pdf_filename,
                 pdf_file_path=pdf_blob_url
             )
+
             serializer = self.get_serializer(instance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
+    def generate_file_hash(self, file_data):
+        hasher = hashlib.sha256()
+        for buf in file_data.chunks(chunk_size=65536):
+            hasher.update(buf)
+        return hasher.hexdigest()
+    
+    def insert_into_resultfiles_table(self, measurement_result_id, azure_file_id):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO lsdb_measurementresult_result_files 
+                (measurementresult_id, azurefile_id)
+                VALUES (%s, %s)
+                """,
+                [measurement_result_id, azure_file_id]
+            )
+        
     def extract_ivparams_and_save(self, json_file, serial_number):
         try:
             parsed_json = json.load(json_file)
