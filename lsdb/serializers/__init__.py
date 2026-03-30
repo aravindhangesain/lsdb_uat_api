@@ -214,3 +214,4 @@ from .RetestReasonsSerializer import RetestReasonsSerializer as RetestReasonsSer
 from .UserAssignmentForProcedureSerializer import UserAssignmentForProcedureSerializer as UserAssignmentForProcedureSerializer
 from .UnitMigrationHistorySerializer import UnitMigrationHistorySerializer as UnitMigrationHistorySerializer
 from .EolQueueSerializer import EolQueueSerializer as EolQueueSerializer
+from .FeedBackIOSSerializer import FeedBackIOSSerializer as FeedBackIOSSerializer

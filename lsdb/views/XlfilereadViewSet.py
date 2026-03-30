@@ -10,6 +10,8 @@ import os
 from zipfile import ZipFile
 import openpyxl
 from django.db import transaction
+from rest_framework import status
+
 
 class XlfilereadViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -219,4 +221,181 @@ class XlfilereadViewSet(viewsets.ModelViewSet):
         return Response({
             "status": "success",
             "records_inserted": count
+        })
+        
+    # @transaction.atomic
+    # @action(detail=False, methods=['post','get'])
+    # def asset_assettype(self, request):
+
+    #         file = request.FILES.get('file')
+
+    #         if not file:
+    #             return Response({"status": "error", "msg": "Excel file required"}, status=400)
+
+    #         try:
+    #             workbook = openpyxl.load_workbook(file)
+    #             sheet = workbook.active
+    #         except Exception as e:
+    #             return Response({"status": "error", "msg": f"Invalid Excel file: {str(e)}"}, status=400)
+
+    #         required_fields = ['asset_id', 'asset_type_id']
+
+    #         header = [cell.value for cell in sheet[1]]
+    #         column_map = {name.lower(): index for index, name in enumerate(header) if name}
+
+    #         missing_fields = [field for field in required_fields if field not in column_map]
+    #         if missing_fields:
+    #             return Response({"status": "error", "msg": f"Missing columns: {missing_fields}"})
+
+    #         objs = []
+    #         count = 0
+
+
+    #         for row in sheet.iter_rows(min_row=2, values_only=True):
+    #             if all(cell is None for cell in row):
+    #                 continue
+
+    #             objs.append(
+    #                 AssetCalibration(
+    #                     asset_id=row[column_map['asset_id']],
+    #                     asset_type_id=row[column_map['asset_type_id']],
+    #                 )
+    #             )
+
+    #         AssetCalibration.objects.bulk_create(objs,ignore_conflicts=True)
+    #         count = len(objs)
+
+    #         return Response({
+    #             "status": "success",
+    #             "records_inserted": count
+    #         })
+    
+
+
+
+    @transaction.atomic
+    @action(detail=False, methods=['post'])
+    def asset_assettype(self, request):
+
+        file = request.FILES.get('file')
+
+        if not file:
+            return Response(
+                {"status": "error", "msg": "Excel file required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ✅ Load Excel
+        try:
+            workbook = openpyxl.load_workbook(file)
+            sheet = workbook.active
+        except Exception as e:
+            return Response(
+                {"status": "error", "msg": f"Invalid Excel file: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ✅ Required columns
+        required_fields = ['asset_id', 'assettype_id']
+
+        header = [cell.value for cell in sheet[1]]
+        column_map = {
+            str(name).strip().lower(): index
+            for index, name in enumerate(header) if name
+        }
+
+        # ✅ Check missing columns
+        missing_fields = [field for field in required_fields if field not in column_map]
+        if missing_fields:
+            return Response(
+                {"status": "error", "msg": f"Missing columns: {missing_fields}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        inserted_count = 0
+
+        # ✅ Iterate rows
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+
+            if all(cell is None for cell in row):
+                continue
+
+            asset_id = row[column_map['asset_id']]
+            assettype_id = row[column_map['assettype_id']]
+
+            if not asset_id or not assettype_id:
+                continue
+
+            try:
+                asset = Asset.objects.get(id=asset_id)
+
+                # ✅ Insert into M2M table
+                asset.asset_types.add(assettype_id)
+
+                inserted_count += 1
+
+            except:
+                continue  
+
+        return Response({
+            "status": "success",
+            "records_inserted": inserted_count
+        })
+            
+            
+    @transaction.atomic
+    @action(detail=False, methods=['post', 'get'])
+    def asset_calibration(self, request):
+
+        file = request.FILES.get('file')
+
+        if not file:
+            return Response({"status": "error", "msg": "Excel file required"}, status=400)
+
+        try:
+            workbook = openpyxl.load_workbook(file)
+            sheet = workbook.active
+        except Exception as e:
+            return Response({"status": "error", "msg": f"Invalid Excel file: {str(e)}"}, status=400)
+
+        required_fields = ['asset_id', 'asset_type_id']
+
+        header = [cell.value for cell in sheet[1]]
+        column_map = {name.lower(): index for index, name in enumerate(header) if name}
+
+        missing_fields = [field for field in required_fields if field not in column_map]
+        if missing_fields:
+            return Response({"status": "error", "msg": f"Missing columns: {missing_fields}"})
+
+        asset_ids = []
+        update_map = {}
+
+        # Read Excel
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            if all(cell is None for cell in row):
+                continue
+
+            asset_id = row[column_map['asset_id']]
+            asset_type_id = row[column_map['asset_type_id']]
+
+            asset_ids.append(asset_id)
+            update_map[asset_id] = asset_type_id
+
+        # Fetch existing records
+        existing_assets = AssetCalibration.objects.filter(asset_id__in=asset_ids)
+
+        update_objs = []
+
+        for obj in existing_assets:
+            new_type_id = update_map.get(obj.asset_id)
+            if new_type_id:
+                obj.asset_type_id = new_type_id
+                update_objs.append(obj)
+
+        # Bulk update
+        AssetCalibration.objects.bulk_update(update_objs, ['asset_type_id'])
+
+        return Response({
+            "status": "success",
+            "records_updated": len(update_objs)
         })

@@ -188,3 +188,4 @@ from .AssetRunHistoryViewSet import AssetRunHistoryViewSet as AssetRunHistoryVie
 from .UnitMigrationHistoryViewSet import UnitMigrationHistoryViewSet as UnitMigrationHistoryViewSet
 from .RevokedAssetDetailsViewSet import RevokedAssetDetailsViewSet as RevokedAssetDetailsViewSet
 from .FlashTestProcessorViewSet import FlashTestProcessorViewSet as FlashTestProcessorViewSet
+from .FeedBackIOSViewSet import FeedBackIOSViewSet as FeedBackIOSViewSet
