@@ -1,8 +1,6 @@
-from fileinput import filename
 import json
 import magic
 import pandas as pd
-
 from rest_framework import serializers
 from django.db.models import Q
 from lsdb.models import Asset, AssetCalibration, ProcedureResult, StepResult, StressRunResult, Unit, UnitType, ModuleProperty,WorkOrder
@@ -12,8 +10,9 @@ from lsdb.serializers.StepResultSerializer import StepResultSerializer
 from lsdb.serializers.StepResultSerializer import StepResultStressSerializer
 from lsdb.serializers.UnitTypeSerializer import UnitTypeSerializer
 from django.db import connection
-
 from lsdb.serializers.AssetCalibrationSerializer import AssetCalibrationSerializer
+import requests
+from lsdb.utils.FlashTestProcessor import process_flash_test
 
 # class IVCurveMeasurementSerializer(serializers.HyperlinkedModelSerializer):
 #     ### DEPRECATED
@@ -251,97 +250,78 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     #     return filetype, cols, mult
 
     def parse_flash(self, file):
-        mult = None
-        file_handle = file.file.open('rb')
-        print("ENTERED PARSE_FLASH")
         filename = str(file.file.name).lower()
-        try:
-            import magic
-            mime_type = magic.from_buffer(file_handle.read(2048), mime=True)
-            file_handle.seek(0)
-        except Exception as e:
-            print("magic failed:", str(e))
-            mime_type = 'application/json' if filename.endswith('.json') else 'text/plain'
-
-        print("FILE NAME FULL:", file.file.name)
-        print("FILE NAME LOWER:", filename)
-        print("MIME TYPE:", mime_type)
-
-        # ─────────────────────────────
-        # 🆕 JSON HANDLING (NEW LOGIC)
-        # ─────────────────────────────
-        if '.json' in filename:
+        print("FILE NAME:", filename)
+        if filename.endswith('.json'):
             try:
-                import json
-                import pandas as pd
-                from lsdb.utils.FlashTestProcessor import process_flash_test
-
-                file_handle.seek(0)
-                parsed_json = json.load(file_handle)
-
-                # ✅ IMPORTANT: pass dict, not filepath
-                processed = process_flash_test(parsed_json)
-
-                # ✅ get correct data
-                points = processed.get("iv_curve_corrected", {}).get("sdm_fit", [])
-                print("POINTS FOUND:", len(points))
-
-                if not points:
-                    file_handle.close()
+                file_url = file.file.url
+                print("FETCHING JSON FROM:", file_url)
+                response = requests.get(file_url)
+                if response.status_code != 200:
+                    print("JSON fetch failed:", response.status_code)
                     return None, None, None
-
-                # ✅ convert to DataFrame (THIS FIXES EVERYTHING)
+                parsed_json = response.json()
+                processed = process_flash_test(parsed_json)
+                iv_data = (processed.get("iv_curve_corrected",{}))
+                points = iv_data.get("sdm_fit", [])
+                print("POINTS FOUND:", len(points))
+                if not points:
+                    return None, None, None
                 cols = pd.DataFrame(points)[["V", "I"]]
                 cols.columns = ["x", "y"]
-
-                file_handle.close()
-
                 return 'pdata', cols, 1
-
             except Exception as e:
                 print("JSON processing error:", str(e))
-                file_handle.close()
                 return None, None, None
 
         # ─────────────────────────────
         # EXISTING LOGIC (UNCHANGED)
         # ─────────────────────────────
-        if mime_type != 'text/plain':
+        mult = None
+        file_handle = file.file.open('rb')
+        if magic.from_buffer(file_handle.read(2048), mime=True) != 'text/plain':
+            # It's binary, we can't eat that(mfr files show up as: application/x-wine-extension-ini)
+            # print('binary')
             file_handle.close()
             return None, None, None
-
-        import pandas as pd
+        file_handle.seek(0)
+        # print('about to read')
         import traceback
-
         try:
             data_table = pd.read_csv(file_handle, sep='\t', encoding_errors='ignore')
+            # maybe have a different seprator?
             if len(data_table.columns.array) <= 1:
                 file_handle.seek(0)
                 data_table = pd.read_csv(file_handle, sep=';', encoding_errors='ignore', skiprows=12)
+            # print(data_table.columns)
         except Exception as err:
             print(Exception)
             print(err)
             traceback.print_tb(err.__traceback__)
 
+        # print(data_table)
+        # Check that this is a sinton or pasan text file
         if 'Vcorr' in data_table.columns:
+            # pasan chart....
             mult = float(int(data_table.iat[0, 12]) / 1000)
+            # print('pasandata')
             cols = data_table[['Vcorr', 'Icorr']]
             filetype = 'pdata'
-
         elif 'Nr' in data_table.columns:
+            # Looks like a HALM file, make it look like a PASAN file
             cols = data_table[['Ucor [[V]]', 'Icor [[A]]']]
             cols.columns = ['Vcorr', 'Icorr']
             filetype = 'pdata'
-
         elif 'Model_Voltage_(V)' in data_table.columns:
+            # sinton data file
+            # print('sinton data')
             cols = data_table[['Model_Voltage_(V)', 'Model_Current_(A)', 'Vload_(V)', 'ILoad_(A)']]
             filetype = 'sdata'
-
         else:
+            # print('sinton params')
             if 'Power_per_Sun_(W/m2)' in data_table.columns:
                 cols = data_table['Power_per_Sun_(W/m2)'][0] * data_table['Intensity_(suns)'][0] / 1000
                 filetype = 'sparams'
-
         file_handle.close()
         return filetype, cols, mult
 
