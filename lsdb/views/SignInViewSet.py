@@ -68,7 +68,7 @@ class SignInViewSet(LoggingMixin, viewsets.ViewSet):
                 # we have a token
                 original_token = decrypt(signin_serializer.data['token'])
                 try:
-                    token = Token.objects.get(key=original_token)
+                    token = Token.objects.filter(key=original_token).last()
                 except Token.DoesNotExist:
                     raise AuthenticationFailed("Invalid token.")
                 token = token_refresh(token)

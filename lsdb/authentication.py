@@ -37,13 +37,13 @@ def token_expire_handler(token):
     return is_expired, token
 
 def token_refresh(token):
-    # token.delete()
-    # token = Token.objects.create(user = token.user)
-    # return token
-    token.key = Token.generate_key()
-    token.created = timezone.now()
-    token.save()
+    token.delete()
+    token = Token.objects.create(user = token.user)
     return token
+    # token.key = Token.generate_key()
+    # token.created = timezone.now()
+    # token.save()
+    # return token
 
 #________________________________________________
 #DEFAULT_AUTHENTICATION_CLASSES
