@@ -252,16 +252,13 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     def parse_flash(self, file):
         mult = None
         filename = str(file.file.name).lower()
-        print("FILE NAME:", filename)
         if filename.endswith('.json'):
             try:
-                print("READING JSON DIRECTLY FROM FILE OBJECT")
                 file_handle = file.file.open('rb')
                 parsed_json = json.load(file_handle)
                 processed = process_flash_test(parsed_json)
                 iv_data = (processed.get("iv_curve_corrected",{}))
                 points = iv_data.get("sdm_fit", [])
-                print("POINTS FOUND:", len(points))
                 if not points:
                     file_handle.close()
                     return None, None, None
@@ -350,10 +347,8 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
                 file_obj = None
                 for f in measurement.result_files.all():
                     fname = str(f.file.name).lower()
-                    print("CHECKING FILE:", fname)
                     if fname.endswith('.json'):
                         file_obj = f
-                        print(f"Using JSON file: {file_obj.file.name}")
                         break
                 if not file_obj:
                     file_obj = measurement.result_files.first()
