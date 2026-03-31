@@ -31,25 +31,7 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            file_hash = self.generate_file_hash(json_file)
-            json_file.seek(0)
 
-            file_size = json_file.size
-            json_filename = f"{uuid.uuid4()}_{json_file.name}"
-            json_file.name = json_filename
-
-            azure_file = AzureFile.objects.create(
-                file=json_file,
-                name=json_filename,
-                uploaded_datetime=timezone.now(),
-                hash_algorithm='sha256',
-                hash=file_hash,
-                length=file_size,
-                blob_container=None,
-                expires=False
-            )
-
-            json_file.seek(0)
             parsed_json = json.load(json_file)
 
             lsdb_payload = parsed_json.get("LSDB Payload", {})
@@ -58,7 +40,27 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             procedure_result_id = lsdb_payload_reference_device.get("procedure_result_id")
             if not procedure_result_id:
                 raise Exception("procedure_result_id not found in LSDB Payload")
-            
+        
+            original_name = json_file.name
+            json_filename = f"{procedure_result_id}_{original_name}"
+            json_file.seek(0)
+
+            file_hash = self.generate_file_hash(json_file)
+            json_file.seek(0)
+
+            json_file.name = json_filename
+
+            azure_file = AzureFile.objects.create(
+                file=json_file,
+                name=json_filename,
+                uploaded_datetime=timezone.now(),
+                hash_algorithm='sha256',
+                hash=file_hash,
+                length=json_file.size,
+                blob_container=None,
+                expires=False
+            )
+
             measurement_result = MeasurementResult.objects.filter(step_result__procedure_result_id=procedure_result_id, name__iexact="Data file").first()
             if not measurement_result:
                 raise Exception("MeasurementResult 'Data file' not found")
@@ -75,15 +77,14 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             blob_service_client = BlobServiceClient.from_connection_string(azure_connection_string)
 
             # Upload to flashfiles (PRIMARY)
-            json_blob_name = json_filename
             json_file.seek(0)
-            flash_json_client = blob_service_client.get_blob_client(container=flash_container,blob=json_blob_name)
+            flash_json_client = blob_service_client.get_blob_client(container=flash_container,blob=json_filename)
             flash_json_client.upload_blob(json_file, overwrite=True)
             json_blob_url = flash_json_client.url
 
             # Upload to media (BACKUP)
             json_file.seek(0)
-            media_json_client = blob_service_client.get_blob_client(container=media_container,blob=json_blob_name)
+            media_json_client = blob_service_client.get_blob_client(container=media_container,blob=json_filename)
             media_json_client.upload_blob(json_file, overwrite=True)
 
             # Upload to flashfiles (PRIMARY)
