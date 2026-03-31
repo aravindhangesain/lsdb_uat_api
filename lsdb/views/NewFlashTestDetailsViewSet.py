@@ -35,10 +35,12 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             json_file.seek(0)
 
             file_size = json_file.size
+            json_filename = f"{uuid.uuid4()}_{json_file.name}"
+            json_file.name = json_filename
 
             azure_file = AzureFile.objects.create(
                 file=json_file,
-                name=json_file.name,
+                name=json_filename,
                 uploaded_datetime=timezone.now(),
                 hash_algorithm='sha256',
                 hash=file_hash,
@@ -73,8 +75,7 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
             blob_service_client = BlobServiceClient.from_connection_string(azure_connection_string)
 
             # Upload to flashfiles (PRIMARY)
-            json_filename = json_file.name
-            json_blob_name = f"{uuid.uuid4()}_{json_filename}"
+            json_blob_name = json_filename
             json_file.seek(0)
             flash_json_client = blob_service_client.get_blob_client(container=flash_container,blob=json_blob_name)
             flash_json_client.upload_blob(json_file, overwrite=True)

@@ -255,18 +255,19 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
         print("FILE NAME:", filename)
         if filename.endswith('.json'):
             try:
-                file_handle = file.file
                 print("READING JSON DIRECTLY FROM FILE OBJECT")
-                file_handle.seek(0)
+                file_handle = file.file.open('rb')
                 parsed_json = json.load(file_handle)
                 processed = process_flash_test(parsed_json)
                 iv_data = (processed.get("iv_curve_corrected",{}))
                 points = iv_data.get("sdm_fit", [])
                 print("POINTS FOUND:", len(points))
                 if not points:
+                    file_handle.close()
                     return None, None, None
                 cols = pd.DataFrame(points)[["V", "I"]]
                 cols.columns = ["x", "y"]
+                file_handle.close()
                 return 'pdata', cols, 1
             except Exception as e:
                 print("JSON processing error:", str(e))
@@ -336,140 +337,140 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
         temp_curve = {}  # split sinton holding dict
         # print('get_iv',measurements)
         # print('count',measurements.count())
-        try:
-            for measurement in measurements:
-                # print(measurement.id)
-                if measurement.result_files.all().count() == 1:  # Pasan or split-sinton
-                    curve_dict = {}
-                    # print('have 1 measurement')
-                    curve_dict['id'] = measurement.id
-                    curve_dict['color'] = "hsl(263, 70%, 50%)"
-                    curve_dict['multiplier'] = 0
-                    # for file in measurement.result_files.all()
-                    file_obj = None
-                    for f in measurement.result_files.all():
-                        fname = str(f.file.name).lower()
-                        print("CHECKING FILE:", fname)
-                        if fname.endswith('.json'):
-                            file_obj = f
-                            print(f"Using JSON file: {file_obj.file.name}")
-                            break
-                    if not file_obj:
-                        file_obj = measurement.result_files.first()
-                        if file_obj:
-                            print(f"Fallback to first file: {file_obj.file.name}")
-                    filetype, cols, mult = self.parse_flash(file_obj)
-                    # print('uno')
-                    if filetype == 'sparams':  # sinton params,
-                        temp_curve['multiplier'] = cols
-                        temp_curve['color'] = "hsl(263, 70%, 50%)"
-                    if filetype == 'sdata':  # sinton data,
-                        temp_curve['id'] = measurement.id
-                        curve_one = cols[['Model_Voltage_(V)', 'Model_Current_(A)']]
-                        curve_two = cols[['Vload_(V)', 'ILoad_(A)']]
-                        curve_one.columns = ['x', 'y']
-                        curve_two.columns = ['x', 'y']
-                        temp_curve['curve_one'] = json.loads(curve_one.to_json(orient='records'))
-                        temp_curve['curve_two'] = json.loads(curve_two.to_json(orient='records'))
-                    if filetype == 'pdata':  # pasan data,
-                        cols.columns = ['x', 'y']
-                        json_points = cols.to_json(orient='records')
-                        curve_dict['multiplier'] = mult
-                        curve_dict['chart'] = json.loads(json_points)
-                        iv_curves.append(curve_dict)
-
-                elif measurement.result_files.all().count() > 1:  # multi-file, probably sinton
-                    curve_dict = {}
-                    curve_dict['id'] = measurement.id
-                    curve_dict['color'] = "hsl(263, 70%, 50%)"
-                    curve_dict['multiplier'] = 0
-                    # print('ganged sinton')
-                    for file in measurement.result_files.all():
-                        filetype, data, mult = self.parse_flash(file)
-                        if filetype == None:
-                            # that was binary, ignore it.
-                            continue
-                        if filetype == 'sparams':  # sinton params,
-                            curve_dict['multiplier'] = data
-                            curve_dict['color'] = "hsl(263, 70%, 50%)"
-                        if filetype == 'sdata':  # sinton data,
-                            cols = data
-                    # done parsing files
-                    if 'Model_Voltage_(V)' in cols.columns:
-                        # sinton - multi
-                        bonus_dict = {}
-                        bonus_dict['id'] = '{}-A'.format(measurement.id)
-                        bonus_dict['color'] = "hsl(263, 70%, 50%)"
-                        bonus_dict['multiplier'] = curve_dict['multiplier']
-
-                        curve_one = cols[['Model_Voltage_(V)', 'Model_Current_(A)']]
-                        curve_two = cols[['Vload_(V)', 'ILoad_(A)']]
-                        curve_one.columns = ['x', 'y']
-                        curve_two.columns = ['x', 'y']
-
-                        curve_dict['chart'] = json.loads(curve_one.to_json(orient='records'))
-                        bonus_dict['chart'] = json.loads(curve_two.to_json(orient='records'))
-
-                        iv_curves.append(curve_dict)
-                        iv_curves.append(bonus_dict)
-
-            # Pasan cases hould be done, but if we get here and iv_curves is empty we need sinton:
-            if not len(iv_curves):
-                # print('unsplitting sinton!')
+        # try:
+        for measurement in measurements:
+            # print(measurement.id)
+            if measurement.result_files.all().count() == 1:  # Pasan or split-sinton
                 curve_dict = {}
-                bonus_dict = {}
+                # print('have 1 measurement')
+                curve_dict['id'] = measurement.id
+                curve_dict['color'] = "hsl(263, 70%, 50%)"
+                curve_dict['multiplier'] = 0
+                # for file in measurement.result_files.all()
+                file_obj = None
+                for f in measurement.result_files.all():
+                    fname = str(f.file.name).lower()
+                    print("CHECKING FILE:", fname)
+                    if fname.endswith('.json'):
+                        file_obj = f
+                        print(f"Using JSON file: {file_obj.file.name}")
+                        break
+                if not file_obj:
+                    file_obj = measurement.result_files.first()
+                    if file_obj:
+                        print(f"Fallback to first file: {file_obj.file.name}")
+                filetype, cols, mult = self.parse_flash(file_obj)
+                # print('uno')
+                if filetype == 'sparams':  # sinton params,
+                    temp_curve['multiplier'] = cols
+                    temp_curve['color'] = "hsl(263, 70%, 50%)"
+                if filetype == 'sdata':  # sinton data,
+                    temp_curve['id'] = measurement.id
+                    curve_one = cols[['Model_Voltage_(V)', 'Model_Current_(A)']]
+                    curve_two = cols[['Vload_(V)', 'ILoad_(A)']]
+                    curve_one.columns = ['x', 'y']
+                    curve_two.columns = ['x', 'y']
+                    temp_curve['curve_one'] = json.loads(curve_one.to_json(orient='records'))
+                    temp_curve['curve_two'] = json.loads(curve_two.to_json(orient='records'))
+                if filetype == 'pdata':  # pasan data,
+                    cols.columns = ['x', 'y']
+                    json_points = cols.to_json(orient='records')
+                    curve_dict['multiplier'] = mult
+                    curve_dict['chart'] = json.loads(json_points)
+                    iv_curves.append(curve_dict)
 
-                curve_dict['id'] = '{}'.format(measurement.id)
-                bonus_dict['id'] = '{}-A'.format(measurement.id)
+            elif measurement.result_files.all().count() > 1:  # multi-file, probably sinton
+                curve_dict = {}
+                curve_dict['id'] = measurement.id
+                curve_dict['color'] = "hsl(263, 70%, 50%)"
+                curve_dict['multiplier'] = 0
+                # print('ganged sinton')
+                for file in measurement.result_files.all():
+                    filetype, data, mult = self.parse_flash(file)
+                    if filetype == None:
+                        # that was binary, ignore it.
+                        continue
+                    if filetype == 'sparams':  # sinton params,
+                        curve_dict['multiplier'] = data
+                        curve_dict['color'] = "hsl(263, 70%, 50%)"
+                    if filetype == 'sdata':  # sinton data,
+                        cols = data
+                # done parsing files
+                if 'Model_Voltage_(V)' in cols.columns:
+                    # sinton - multi
+                    bonus_dict = {}
+                    bonus_dict['id'] = '{}-A'.format(measurement.id)
+                    bonus_dict['color'] = "hsl(263, 70%, 50%)"
+                    bonus_dict['multiplier'] = curve_dict['multiplier']
 
-                curve_dict['color'] = temp_curve['color']
-                bonus_dict['color'] = temp_curve['color']
+                    curve_one = cols[['Model_Voltage_(V)', 'Model_Current_(A)']]
+                    curve_two = cols[['Vload_(V)', 'ILoad_(A)']]
+                    curve_one.columns = ['x', 'y']
+                    curve_two.columns = ['x', 'y']
 
-                curve_dict['multiplier'] = temp_curve['multiplier']
-                bonus_dict['multiplier'] = temp_curve['multiplier']
+                    curve_dict['chart'] = json.loads(curve_one.to_json(orient='records'))
+                    bonus_dict['chart'] = json.loads(curve_two.to_json(orient='records'))
 
-                curve_dict['chart'] = temp_curve['curve_one']
-                bonus_dict['chart'] = temp_curve['curve_two']
+                    iv_curves.append(curve_dict)
+                    iv_curves.append(bonus_dict)
 
-                iv_curves.append(curve_dict)
-                iv_curves.append(bonus_dict)
+        # Pasan cases hould be done, but if we get here and iv_curves is empty we need sinton:
+        if not len(iv_curves):
+            # print('unsplitting sinton!')
+            curve_dict = {}
+            bonus_dict = {}
+
+            curve_dict['id'] = '{}'.format(measurement.id)
+            bonus_dict['id'] = '{}-A'.format(measurement.id)
+
+            curve_dict['color'] = temp_curve['color']
+            bonus_dict['color'] = temp_curve['color']
+
+            curve_dict['multiplier'] = temp_curve['multiplier']
+            bonus_dict['multiplier'] = temp_curve['multiplier']
+
+            curve_dict['chart'] = temp_curve['curve_one']
+            bonus_dict['chart'] = temp_curve['curve_two']
+
+            iv_curves.append(curve_dict)
+            iv_curves.append(bonus_dict)
             # print('curves:',iv_curves)
-        except:
-            # Something failed and we need a fake result, probably "no files"
-            measurements = MeasurementResult.objects.filter(
-                step_result__in=obj.stepresult_set.all(),
-                name__icontains='irradiance',
-                disposition__isnull=False
-            ).exclude(
-                disposition__name__icontains='fail'
-            )
-            if len(measurements):
-                measurement = measurements.first()
-                iv_curves.append(
-                    {
-                        'id': measurement.id,
-                        'multiplier': getattr(measurement, measurement.measurement_result_type.name) / 1000,
-                        "color": "hsl(263, 70%, 50%)",
-                        "chart": [{
-                            "x": 0,
-                            "y": 0
-                        }]
-                    }
-                )
-            else:
-                # Completely fake:
-                iv_curves.append(
-                    {
-                        'id': 0,
-                        'multiplier': 1,
-                        "color": "hsl(263, 70%, 50%)",
-                        "chart": [{
-                            "x": 0,
-                            "y": 0
-                        }]
-                    }
-                )
-            pass
+        # except:
+        #     # Something failed and we need a fake result, probably "no files"
+        #     measurements = MeasurementResult.objects.filter(
+        #         step_result__in=obj.stepresult_set.all(),
+        #         name__icontains='irradiance',
+        #         disposition__isnull=False
+        #     ).exclude(
+        #         disposition__name__icontains='fail'
+        #     )
+        #     if len(measurements):
+        #         measurement = measurements.first()
+        #         iv_curves.append(
+        #             {
+        #                 'id': measurement.id,
+        #                 'multiplier': getattr(measurement, measurement.measurement_result_type.name) / 1000,
+        #                 "color": "hsl(263, 70%, 50%)",
+        #                 "chart": [{
+        #                     "x": 0,
+        #                     "y": 0
+        #                 }]
+        #             }
+        #         )
+        #     else:
+        #         # Completely fake:
+        #         iv_curves.append(
+        #             {
+        #                 'id': 0,
+        #                 'multiplier': 1,
+        #                 "color": "hsl(263, 70%, 50%)",
+        #                 "chart": [{
+        #                     "x": 0,
+        #                     "y": 0
+        #                 }]
+        #             }
+        #         )
+        #     pass
         return iv_curves
 
     def get_disposition_name(self, obj):
