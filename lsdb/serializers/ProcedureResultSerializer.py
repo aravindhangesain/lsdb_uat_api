@@ -1,3 +1,4 @@
+from fileinput import filename
 import json
 import magic
 import pandas as pd
@@ -259,7 +260,8 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
         file_handle.seek(0)
         filename = str(file.file.name).lower()
 
-        print("FILE NAME:", filename)
+        print("FILE NAME FULL:", file.file.name)
+        print("FILE NAME LOWER:", filename)
         print("MIME TYPE:", mime_type)
 
         # ─────────────────────────────
@@ -453,7 +455,6 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
                 iv_curves.append(bonus_dict)
             # print('curves:',iv_curves)
         except:
-            print('Thala vali')
             # Something failed and we need a fake result, probably "no files"
             measurements = MeasurementResult.objects.filter(
                 step_result__in=obj.stepresult_set.all(),
