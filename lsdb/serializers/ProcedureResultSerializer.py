@@ -345,7 +345,7 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     def get_iv_curves(self, obj):
         measurements = MeasurementResult.objects.filter(
             step_result__in=obj.stepresult_set.all(),
-            measurement_result_type__name__icontains='result_files',
+            name__icontains='Data File',
             disposition__isnull=False
         ).exclude(
             disposition__name__icontains='fail'
@@ -364,14 +364,18 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
                     curve_dict['color'] = "hsl(263, 70%, 50%)"
                     curve_dict['multiplier'] = 0
                     # for file in measurement.result_files.all()
-                    file_obj = measurement.result_files.first()
-                    if file_obj and '.json' not in str(file_obj.file.name).lower():
-                        for f in measurement.result_files.all():
-                            if '.json' in str(f.file.name).lower():
-                                file_obj = f
-                                print(f"Switching to JSON file: {file_obj.file.name}")
-                                break
-
+                    file_obj = None
+                    for f in measurement.result_files.all():
+                        fname = str(f.file.name).lower()
+                        print("CHECKING FILE:", fname)
+                        if fname.endswith('.json'):
+                            file_obj = f
+                            print(f"Using JSON file: {file_obj.file.name}")
+                            break
+                    if not file_obj:
+                        file_obj = measurement.result_files.first()
+                        if file_obj:
+                            print(f"Fallback to first file: {file_obj.file.name}")
                     filetype, cols, mult = self.parse_flash(file_obj)
                     # print('uno')
                     if filetype == 'sparams':  # sinton params,
@@ -449,6 +453,7 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
                 iv_curves.append(bonus_dict)
             # print('curves:',iv_curves)
         except:
+            print('Thala vali')
             # Something failed and we need a fake result, probably "no files"
             measurements = MeasurementResult.objects.filter(
                 step_result__in=obj.stepresult_set.all(),

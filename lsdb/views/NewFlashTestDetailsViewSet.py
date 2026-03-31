@@ -68,20 +68,35 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
 
             json_file.seek(0)
             azure_connection_string = 'DefaultEndpointsProtocol=https;AccountName=haveblueazdev;AccountKey=eP954sCH3j2+dbjzXxcAEj6n7vmImhsFvls+7ZU7F4THbQfNC0dULssGdbXdilTpMgaakIvEJv+QxCmz/G4Y+g==;EndpointSuffix=core.windows.net'
-            azure_container = 'flashfiles'
+            flash_container = 'flashfiles'
+            media_container = 'media'
             blob_service_client = BlobServiceClient.from_connection_string(azure_connection_string)
 
+            # Upload to flashfiles (PRIMARY)
             json_filename = json_file.name
             json_blob_name = f"{uuid.uuid4()}_{json_filename}"
-            json_blob_client = blob_service_client.get_blob_client(container=azure_container, blob=json_blob_name)
-            json_blob_client.upload_blob(json_file, overwrite=True)
-            json_blob_url = json_blob_client.url
+            json_file.seek(0)
+            flash_json_client = blob_service_client.get_blob_client(container=flash_container,blob=json_blob_name)
+            flash_json_client.upload_blob(json_file, overwrite=True)
+            json_blob_url = flash_json_client.url
 
+            # Upload to media (BACKUP)
+            json_file.seek(0)
+            media_json_client = blob_service_client.get_blob_client(container=media_container,blob=json_blob_name)
+            media_json_client.upload_blob(json_file, overwrite=True)
+
+            # Upload to flashfiles (PRIMARY)
             pdf_filename = pdf_file.name
             pdf_blob_name = f"{uuid.uuid4()}_{pdf_filename}"
-            pdf_blob_client = blob_service_client.get_blob_client(container=azure_container, blob=pdf_blob_name)
-            pdf_blob_client.upload_blob(pdf_file, overwrite=True)
-            pdf_blob_url = pdf_blob_client.url
+            pdf_file.seek(0)
+            flash_pdf_client = blob_service_client.get_blob_client(container=flash_container,blob=pdf_blob_name)
+            flash_pdf_client.upload_blob(pdf_file, overwrite=True)
+            pdf_blob_url = flash_pdf_client.url
+
+            # Upload to media (BACKUP)
+            pdf_file.seek(0)
+            media_pdf_client = blob_service_client.get_blob_client(container=media_container,blob=pdf_blob_name)
+            media_pdf_client.upload_blob(pdf_file, overwrite=True)
 
             instance = NewFlashTestDetails.objects.create(
                 serial_number=serial_number,
