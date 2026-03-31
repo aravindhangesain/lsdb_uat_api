@@ -253,12 +253,15 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     def parse_flash(self, file):
         mult = None
         file_handle = file.file.open('rb')
-
-        import magic
-
-        mime_type = magic.from_buffer(file_handle.read(2048), mime=True)
-        file_handle.seek(0)
+        print("ENTERED PARSE_FLASH")
         filename = str(file.file.name).lower()
+        try:
+            import magic
+            mime_type = magic.from_buffer(file_handle.read(2048), mime=True)
+            file_handle.seek(0)
+        except Exception as e:
+            print("magic failed:", str(e))
+            mime_type = 'application/json' if filename.endswith('.json') else 'text/plain'
 
         print("FILE NAME FULL:", file.file.name)
         print("FILE NAME LOWER:", filename)
