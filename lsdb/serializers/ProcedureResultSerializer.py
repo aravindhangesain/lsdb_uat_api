@@ -250,17 +250,15 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
     #     return filetype, cols, mult
 
     def parse_flash(self, file):
+        mult = None
         filename = str(file.file.name).lower()
         print("FILE NAME:", filename)
         if filename.endswith('.json'):
             try:
-                file_url = file.file.url
-                print("FETCHING JSON FROM:", file_url)
-                response = requests.get(file_url)
-                if response.status_code != 200:
-                    print("JSON fetch failed:", response.status_code)
-                    return None, None, None
-                parsed_json = response.json()
+                file_handle = file.file
+                print("READING JSON DIRECTLY FROM FILE OBJECT")
+                file_handle.seek(0)
+                parsed_json = json.load(file_handle)
                 processed = process_flash_test(parsed_json)
                 iv_data = (processed.get("iv_curve_corrected",{}))
                 points = iv_data.get("sdm_fit", [])
@@ -277,7 +275,6 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
         # ─────────────────────────────
         # EXISTING LOGIC (UNCHANGED)
         # ─────────────────────────────
-        mult = None
         file_handle = file.file.open('rb')
         if magic.from_buffer(file_handle.read(2048), mime=True) != 'text/plain':
             # It's binary, we can't eat that(mfr files show up as: application/x-wine-extension-ini)
