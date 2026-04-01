@@ -81,11 +81,11 @@ class NewFlashTestSerializer(serializers.ModelSerializer):
             'flash_parameters': None,
         }
         filtered_data.update(flash_defaults)
-        new_flashtest_points = NewFlashTestPoints.objects.filter(unit_type_id=unit_type_id).values(
-            'alpha_stc_correction_A_per_C',
-            'beta_stc_correction_V_per_C',
-            'kappa_stc_correction_Ohm_per_C',
-            'R_s_stc_correction_Ohm',
+        new_flashtest_points = AdditionalModuleProperty.objects.filter(unit_type_id=unit_type_id).values(
+            'alpha_stc_correction_a_per_c',
+            'beta_stc_correction_v_per_c',
+            'kappa_stc_correction_ohm_per_c',
+            'r_s_stc_correction_ohm',
             'flash_parameters'
         ).order_by('-id').first()
         if new_flashtest_points:
