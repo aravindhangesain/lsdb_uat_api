@@ -102,6 +102,7 @@ class NewFlashTestDetailsViewSet(viewsets.ModelViewSet):
 
                 instance = NewFlashTestDetails.objects.create(
                     serial_number=serial_number,
+                    procedure_result_id=procedure_result_id,
                     date_time=date_time,
                     json_file=json_filename,
                     json_file_path=json_blob_url,

@@ -115,6 +115,21 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
 
     asset_details = serializers.SerializerMethodField()
     calibrated_during_test= serializers.SerializerMethodField()
+    is_flash_pdf = serializers.SerializerMethodField()
+    flash_pdf_path = serializers.SerializerMethodField()
+    flash_pdf_name = serializers.SerializerMethodField()
+
+    def get_flash_pdf_name(self, obj):
+        record = NewFlashTestDetails.objects.filter(procedure_result=obj).first()
+        return record.pdf_file if record else None
+
+    def get_flash_pdf_path(self, obj):
+        record = NewFlashTestDetails.objects.filter(procedure_result=obj).first()
+        return record.pdf_file_path if record else None
+
+    def get_is_flash_pdf(self, obj):
+        return NewFlashTestDetails.objects.filter(procedure_result=obj).exists()
+
 
     def get_calibrated_during_test(self,obj):
         calibrated_during_test=StressRunResult.objects.filter(procedure_result_id=obj.id,stress_name='Test Start').first()
@@ -532,7 +547,10 @@ class TransformIVCurveSerializer(serializers.HyperlinkedModelSerializer):
             'final_result',
             'retest_reasons',
             'asset_details',
-            'calibrated_during_test'
+            'calibrated_during_test',
+            'is_flash_pdf',
+            'flash_pdf_path',
+            'flash_pdf_name',
         ]
 
 

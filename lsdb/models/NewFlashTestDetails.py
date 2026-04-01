@@ -2,6 +2,7 @@ from django.db import models
 
 class NewFlashTestDetails(models.Model):
     serial_number = models.CharField(max_length=150,null=True,blank=True)
+    procedure_result = models.ForeignKey('ProcedureResult', on_delete=models.CASCADE, null=True, blank=True)
     date_time = models.DateTimeField(null=True,blank=True)
     json_file = models.CharField(max_length=150,null=True,blank=True)
     json_file_path = models.CharField(max_length=150,null=True,blank=True)
