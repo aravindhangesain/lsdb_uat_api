@@ -19,11 +19,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
+from backend.schema import schema, flags_schema
+
 
 urlpatterns = [
     path('api/1.0/', include('lsdb.urls')),
-    path("graphql/",csrf_exempt(GraphQLView.as_view(graphiql=settings.DEBUG)),
-)    # For later versions:
+    path("graphql/",csrf_exempt(GraphQLView.as_view(graphiql=settings.DEBUG, schema=schema)),),
+    path("graphql/flags/",csrf_exempt(GraphQLView.as_view(graphiql=True, schema=flags_schema)),),
+    # For later versions:
     # path('api/2.0/', include('lsdb.urls2')),
 ]
 

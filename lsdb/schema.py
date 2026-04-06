@@ -319,6 +319,61 @@ class Query(graphene.ObjectType):
             has_next=has_next,
         )
     
+    
+    # ============================================
+    # FLAGS QUERY (NEW)
+    # ============================================
+
+    flags = graphene.Field(
+        NotesPageType,
+        limit=graphene.Int(),
+        offset=graphene.Int(),
+    )
+
+    def resolve_flags(self, info, limit=100, offset=0):
+        MAX_LIMIT = 100
+
+        if limit is None:
+            limit = 100
+
+        if limit > MAX_LIMIT:
+            limit = MAX_LIMIT
+
+        user = info.context.user
+
+        if not user.is_authenticated:
+            user = User.objects.first()
+
+        qs = (
+            Note.objects
+            .filter(note_type__id=3)
+            .exclude(disposition__complete=True)
+        )
+
+        read_subquery = NoteReadStatus.objects.filter(
+            note=OuterRef("pk"),
+            user=user
+        )
+
+        qs = (
+            qs.annotate(read=Exists(read_subquery))
+            .select_related("user", "owner", "note_type", "disposition")
+            .prefetch_related("labels", "attachments", "tagged_users", "project_set")
+            .distinct()
+        )
+
+        total_count = qs.count()
+
+        items = qs[offset: offset + limit]
+        has_next = offset + limit < total_count
+
+        return NotesPageType(
+            items=items,
+            total_count=total_count,
+            has_next=has_next,
+        )
+        
+
     # ============================================
     # NEW GRAPHQL API (Same as your Django API)
     # ============================================
@@ -522,3 +577,6 @@ class Query(graphene.ObjectType):
                     "has_next": offset + limit < total
                 }
             }, cls=DjangoJSONEncoder))
+        
+
+
