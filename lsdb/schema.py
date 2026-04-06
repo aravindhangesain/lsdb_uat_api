@@ -1,18 +1,9 @@
 import graphene
 from graphene_django import DjangoObjectType
-from django.db.models import Max, Exists, OuterRef
-from django.contrib.auth import get_user_model
-from graphql import GraphQLError
-from numpy import info
-import graphene
-from graphene_django import DjangoObjectType
 from django.db.models import Max, Exists, OuterRef, Q
 from django.contrib.auth import get_user_model
-from graphql import GraphQLError
 from functools import reduce
 from operator import or_
-from django.db.models import Q
-
 from django.db import connection
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -25,8 +16,8 @@ from lsdb.models import (
     NoteReadStatus,
     ProcedureResult,
     Unit,
-    MeasurementResult
-)
+    MeasurementResult,Customer, LocationLog, Location, WorkOrder, NewCrateIntake,ModuleIntakeDetails)
+
 
 from lsdb.serializers.ProcedureResultSerializer import (
     FailedProjectReportSerializer,
@@ -58,9 +49,104 @@ class ParentObjectType(graphene.ObjectType):
     id = graphene.Int()
     str = graphene.String()
 
+# ============================================
+# MODULE INTAKE TYPES (NEW)
+# ============================================
+
+class ProjectType(graphene.ObjectType):
+    project_id = graphene.Int()
+    project_number = graphene.String()
 
 
+class CustomerType(graphene.ObjectType):
+    customer_id = graphene.Int()
+    customer_name = graphene.String()
 
+
+class LocationType(graphene.ObjectType):
+    location_id = graphene.Int()
+    location_name = graphene.String()
+
+
+class CrateType(graphene.ObjectType):
+    id = graphene.Int()
+    crate_name = graphene.String()
+
+
+class ModuleIntakeGridType(graphene.ObjectType):
+    project = graphene.Field(ProjectType)
+    customer = graphene.Field(CustomerType)
+    location_data = graphene.Field(LocationType)
+    bom = graphene.List(graphene.String)
+    crate_intake_ids = graphene.List(CrateType)
+
+class ModuleIntakeGridPagesType(graphene.ObjectType):
+    items = graphene.List(ModuleIntakeGridType)
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
+
+# =====================================================
+# ModuleIntakeDetails Type
+# =====================================================
+class ModuleIntakeDetailsType(DjangoObjectType):
+    customer_name = graphene.String()
+    manufacturer_name = graphene.String()
+    crate_name = graphene.String()
+    project_number = graphene.String()
+    ntp_date = graphene.DateTime()
+    intake_by = graphene.String()
+    location = graphene.Int()
+    projects = graphene.Int()
+    customer = graphene.Int()
+    newcrateintake = graphene.Int()
+
+
+    class Meta:
+        model = ModuleIntakeDetails
+        fields = "__all__"
+
+    def resolve_customer_name(self, info):
+        return self.customer.name if self.customer else None
+
+    def resolve_manufacturer_name(self, info):
+        return self.customer.name if self.customer else None
+
+    def resolve_crate_name(self, info):
+        return self.newcrateintake.crate_name if self.newcrateintake else None
+
+    def resolve_project_number(self, info):
+        return self.projects.number if self.projects else None
+    
+    def resolve_intake_by(self, info):
+        return str(self.intake_by) if self.intake_by else None
+
+    def resolve_ntp_date(self, info):
+        workorder = WorkOrder.objects.filter(
+            name=self.bom,
+            project_id=self.projects.id if self.projects else None
+        ).first()
+        return workorder.start_datetime if workorder else None
+    
+    def resolve_location(self, info):
+        return self.location.id if self.location else None
+
+    def resolve_projects(self, info):
+        return self.projects.id if self.projects else None
+
+    def resolve_customer(self, info):
+        return self.customer.id if self.customer else None
+
+    def resolve_newcrateintake(self, info):
+        return self.newcrateintake.id if self.newcrateintake else None
+    
+#------------------------------------------
+#Pagination Type for ModuleIntakeDetails
+#------------------------------------------
+
+class ModuleIntakePageType(graphene.ObjectType):
+    items = graphene.List(ModuleIntakeDetailsType)
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
 # =====================================================
 # Note Type
 # =====================================================
@@ -578,5 +664,142 @@ class Query(graphene.ObjectType):
                 }
             }, cls=DjangoJSONEncoder))
         
+    # ---------------- MODULE INTAKE DETAILS ----------------
+    details = graphene.Field(
+    ModuleIntakeGridPagesType,
+    limit=graphene.Int(),
+    offset=graphene.Int(),)
 
+    def resolve_details(self, info, limit=-1, offset=0):
+        # ---------------- TOTAL COUNT ----------------
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT COUNT(DISTINCT p.id)
+                FROM lsdb_project p
+            """)
+            total_count = cursor.fetchone()[0]
 
+        # ---------------- MAIN QUERY WITH PAGINATION ----------------
+        query = """
+            SELECT DISTINCT p.id, p.number, p.customer_id
+            FROM lsdb_project p
+            ORDER BY p.id
+        """
+
+        if limit != -1:
+            query += " LIMIT %s OFFSET %s"
+
+        with connection.cursor() as cursor:
+            if limit == -1:
+                cursor.execute(query)
+            else:
+                cursor.execute(query, [limit, offset])
+
+            projects = cursor.fetchall()
+
+        has_next = False if limit == -1 else (offset + limit < total_count)
+
+        result = []
+
+        for project_id, project_number, customer_id in projects:
+
+            # ---------------- CUSTOMER ----------------
+            try:
+                customer = Customer.objects.get(id=customer_id)
+                customer_data = CustomerType(
+                    customer_id=customer.id,
+                    customer_name=customer.name
+                )
+            except Customer.DoesNotExist:
+                customer_data = CustomerType(
+                    customer_id=None,
+                    customer_name="Unknown"
+                )
+
+            # ---------------- LOCATION ----------------
+            try:
+                project_log = LocationLog.objects.get(
+                    project_id=project_id,
+                    is_latest=True,
+                    flag=2
+                )
+
+                if project_log.location_id:
+                    try:
+                        location = Location.objects.get(id=project_log.location_id)
+                        location_data = LocationType(
+                            location_id=location.id,
+                            location_name=location.name
+                        )
+                    except Location.DoesNotExist:
+                        location_data = LocationType(location_id=None, location_name=None)
+                else:
+                    location_data = LocationType(location_id=None, location_name=None)
+
+            except LocationLog.DoesNotExist:
+                location_data = LocationType(location_id=None, location_name=None)
+
+            # ---------------- BOM ----------------
+            workorders = WorkOrder.objects.filter(
+                project_id=project_id
+            ).values_list('name', flat=True)
+
+            # ---------------- CRATES ----------------
+            crates = NewCrateIntake.objects.filter(
+                Q(project_id=project_id) |
+                (Q(project_id__isnull=True) & Q(customer_id=customer_id))
+            ).values('id', 'crate_name')
+
+            crate_list = [
+                CrateType(id=c['id'], crate_name=c['crate_name'])
+                for c in crates
+            ]
+
+            result.append(
+                ModuleIntakeGridType(
+                    project=ProjectType(
+                        project_id=project_id,
+                        project_number=project_number
+                    ),
+                    customer=customer_data,
+                    location_data=location_data,
+                    bom=list(workorders),
+                    crate_intake_ids=crate_list
+                )
+            )
+
+        return ModuleIntakeGridPagesType(
+            items=result,
+            total_count=total_count,
+            has_next=has_next
+        )
+    
+    # ============================================
+    # Module Intake QUERY (NEW)
+    # ============================================
+
+    module_intake_details = graphene.Field(
+        ModuleIntakePageType,
+        limit=graphene.Int(),
+        offset=graphene.Int(),
+    )
+
+    def resolve_module_intake_details(self, info, limit=100, offset=0):
+        MAX_LIMIT = 100
+
+        if limit is None:
+            limit = 100
+
+        if limit > MAX_LIMIT:
+            limit = MAX_LIMIT
+
+        qs = ModuleIntakeDetails.objects.all().order_by('-intake_date')
+
+        total_count = qs.count()
+        items = qs[offset: offset + limit]
+
+        return ModuleIntakePageType(
+            items=items,
+            total_count=total_count,
+            has_next=offset + limit < total_count
+        )
