@@ -1,13 +1,14 @@
-import graphene
-from graphene_django import DjangoObjectType
-from django.db.models import Max, Exists, OuterRef, Q
-from django.contrib.auth import get_user_model
-from functools import reduce
-from operator import or_
-from django.db import connection
 import json
-from django.core.serializers.json import DjangoJSONEncoder
+import graphene
+from operator import or_
+from functools import reduce
+from django.db import connection
+from graphene_django import DjangoObjectType
+from django.contrib.auth import get_user_model
 from graphene.types.generic import GenericScalar
+from django.db.models import Max, Exists, OuterRef, Q
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 from lsdb.models import (
     Note,
@@ -16,14 +17,20 @@ from lsdb.models import (
     NoteReadStatus,
     ProcedureResult,
     Unit,
-    MeasurementResult,Customer, LocationLog, Location, WorkOrder, NewCrateIntake,ModuleIntakeDetails)
+    MeasurementResult,
+    Customer, 
+    LocationLog, 
+    Location, 
+    WorkOrder, 
+    NewCrateIntake,
+    ModuleIntakeDetails
+)
 
 
 from lsdb.serializers.ProcedureResultSerializer import (
     FailedProjectReportSerializer,
     MssFailedProjectReportSerializer
 )
-
 
 User = get_user_model()
 
@@ -32,12 +39,10 @@ class UserType(DjangoObjectType):
         model = User
         fields = ("id", "username")
 
-
 class AzureFileType(DjangoObjectType):
     class Meta:
         model = AzureFile
         fields = "__all__"
-
 
 class LabelType(DjangoObjectType):
     class Meta:
@@ -57,21 +62,21 @@ class ProjectType(graphene.ObjectType):
     project_id = graphene.Int()
     project_number = graphene.String()
 
-
 class CustomerType(graphene.ObjectType):
     customer_id = graphene.Int()
     customer_name = graphene.String()
-
 
 class LocationType(graphene.ObjectType):
     location_id = graphene.Int()
     location_name = graphene.String()
 
-
 class CrateType(graphene.ObjectType):
     id = graphene.Int()
     crate_name = graphene.String()
 
+# =====================================================
+# ModuleIntakeGrid Type
+# =====================================================
 
 class ModuleIntakeGridType(graphene.ObjectType):
     project = graphene.Field(ProjectType)
@@ -147,6 +152,8 @@ class ModuleIntakePageType(graphene.ObjectType):
     items = graphene.List(ModuleIntakeDetailsType)
     total_count = graphene.Int()
     has_next = graphene.Boolean()
+
+
 # =====================================================
 # Note Type
 # =====================================================
@@ -159,20 +166,16 @@ class NoteType(DjangoObjectType):
     disposition_complete = graphene.Boolean()
     read = graphene.Boolean()
     last_update_datetime = graphene.DateTime()
-
-
     attachments = graphene.List(AzureFileType)
     labels = graphene.List(LabelType)
     tagged_users = graphene.List(UserType)
     parent_objects = graphene.List(ParentObjectType)
     project=graphene.String()
+
     class Meta:
         model = Note
         fields = "__all__"
 
-    # -------------------------
-    # Computed fields
-    # -------------------------
 
     def resolve_owner_name(self, info):
         return self.owner.username if self.owner else None
@@ -200,10 +203,6 @@ class NoteType(DjangoObjectType):
             .get("datetime__max")
         )
         return dt or self.datetime
-
-    # -------------------------
-    # relations
-    # -------------------------
 
     def resolve_attachments(self, info):
         return self.attachments.all()
@@ -235,12 +234,114 @@ class NoteType(DjangoObjectType):
     
     def resolve_project(self,info):
         return self.project_set.values_list("number", flat=True).first()
-        
     
+# =====================================================
+# Note flag Type
+# =====================================================
+    
+class NoteFlagType(DjangoObjectType):
+    owner_name = graphene.String()
+    username = graphene.String()
+    note_type_name = graphene.String()
+    disposition_name = graphene.String()
+    disposition_complete = graphene.Boolean()
+    read = graphene.Boolean()
+    last_update_datetime = graphene.DateTime()
+    attachments = graphene.List(AzureFileType)
+    labels = graphene.List(LabelType)
+    tagged_users = graphene.List(UserType)
+    parent_objects = graphene.List(ParentObjectType)
+    project=graphene.String()
+    user = graphene.Int()
+    owner = graphene.Int()
+    note_type = graphene.Int()
+    disposition = graphene.Int()
+
+    class Meta:
+        model = Note
+        fields = "__all__"
+
+    def resolve_owner_name(self, info):
+        return self.owner.username if self.owner else None
+
+    def resolve_username(self, info):
+        return self.user.username if self.user else None
+
+    def resolve_note_type_name(self, info):
+        return self.note_type.name if self.note_type else None
+
+    def resolve_disposition_name(self, info):
+        return self.disposition.name if self.disposition else None
+
+    def resolve_disposition_complete(self, info):
+        return self.disposition.complete if self.disposition else None
+
+    def resolve_read(self, info):
+        return getattr(self, "read", False)
+
+    def resolve_last_update_datetime(self, info):
+        dt = (
+            Note.objects
+            .filter(parent_note=self)
+            .aggregate(Max("datetime"))
+            .get("datetime__max")
+        )
+        return dt or self.datetime
+
+    def resolve_attachments(self, info):
+        return self.attachments.all()
+
+    def resolve_labels(self, info):
+        return self.labels.all()
+
+    def resolve_tagged_users(self, info):
+        return self.tagged_users.all()
+
+    def resolve_parent_objects(self, info):
+        parent_objects = []
+        related_objects = self._meta.related_objects
+
+        for rel in related_objects:
+            if rel.remote_field.name == "notes":
+                parents = rel.remote_field.model.objects.filter(notes__in=[self.id])
+
+                for parent in parents:
+                    parent_objects.append(
+                        ParentObjectType(
+                            model_name=parent._meta.model_name,
+                            id=parent.id,
+                            str=str(parent)
+                        )
+                    )
+
+        return parent_objects
+    
+    def resolve_project(self,info):
+        return self.project_set.values_list("number", flat=True).first()
+    
+    def resolve_user(self, info):
+        return self.user.id if self.user else None
+
+    def resolve_owner(self, info):
+        return self.owner.id if self.owner else None
+
+    def resolve_note_type(self, info):
+        return self.note_type.id if self.note_type else None
+
+    def resolve_disposition(self, info):
+        return self.disposition.id if self.disposition else None
     
 
+# =====================================================
+# Pagination Type for flags
+# =====================================================
+    
+class NotesFlagPageType(graphene.ObjectType):
+    items = graphene.List(NoteFlagType)
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
 
-
+    
 # =====================================================
 # Pagination Type
 # =====================================================
@@ -252,7 +353,7 @@ class NotesPageType(graphene.ObjectType):
 
 
 # =====================================================
-# Filter Input  ⭐ (NEW)
+# Filter Input  (NEW)
 # =====================================================
 
 class NoteFilterInput(graphene.InputObjectType):
@@ -270,6 +371,109 @@ class NoteFilterInput(graphene.InputObjectType):
     search = graphene.String()   # global search
     order_by = graphene.String() # sorting
     project_number = graphene.String()
+    
+# =====================================================
+# CRATE INTAKE TYPES
+# =====================================================
+
+
+# crate Intake get customers
+# Project Number Type
+class ProjectNumberType(graphene.ObjectType):
+    id = graphene.Int()
+    number = graphene.String()
+
+# Customer Type
+class CustomerType(DjangoObjectType):
+    notes = graphene.List(NoteType)
+    project_numbers = graphene.List(ProjectNumberType)
+    url = graphene.String()
+
+    class Meta:
+        model = Customer
+        fields = "__all__"
+
+    def resolve_notes(self, info):
+        return self.notes.all()
+
+    def resolve_project_numbers(self, info):
+        return [
+            {
+                "id": p.id,
+                "number": p.number
+            }
+            for p in self.project_set.all()
+        ]
+
+    def resolve_url(self, info):
+        request = info.context
+        if request:
+            return request.build_absolute_uri(f"/api/1.0/customers/{self.id}/")
+        return f"/api/1.0/customers/{self.id}/"
+    
+# Customer Pagination
+class CustomerPageType(graphene.ObjectType):
+    count = graphene.Int()
+    next = graphene.String()
+    previous = graphene.String()
+    results = graphene.List(CustomerType)
+    
+# Customer Filter
+class CustomerFilterInput(graphene.InputObjectType):
+    name = graphene.String()
+    short_name = graphene.String()
+
+# Crate Intake Get
+class CrateIntakeType(graphene.ObjectType):
+    id = graphene.Int()
+    customer = graphene.Int()
+    manufacturer = graphene.String()
+    project = graphene.Int()
+    customer_name = graphene.String()
+    manufacturer_name = graphene.String()
+    project_number = graphene.String()
+    created_by = graphene.String()
+    created_on = graphene.String()
+    crate_name = graphene.String()
+    crate_intake_date = graphene.String()
+
+    def resolve_customer(self, info):
+        return self.customer.id if self.customer else None
+
+    def resolve_manufacturer(self, info):
+        return self.manufacturer if self.manufacturer else None
+
+    def resolve_project(self, info):
+        return self.project.id if self.project else None
+
+    def resolve_customer_name(self, info):
+        return self.customer.name if self.customer else None
+
+    def resolve_manufacturer_name(self, info):
+        return self.customer.name if self.manufacturer else None
+
+    def resolve_project_number(self, info):
+        return self.project.number if self.project else None
+
+    def resolve_created_by(self, info):
+        return self.created_by if self.created_by else None
+
+    def resolve_created_on(self, info):
+        return self.created_on.strftime("%Y-%m-%d") if self.created_on else None
+
+    def resolve_crate_name(self, info):
+        return self.crate_name
+
+    def resolve_crate_intake_date(self, info):
+        return str(self.crate_intake_date)
+    
+class CrateIntakePaginationType(graphene.ObjectType):
+    count = graphene.Int()
+    next = graphene.Int()
+    previous = graphene.Int()
+    results = graphene.List(CrateIntakeType)
+    
+
 # =====================================================
 # Query
 # =====================================================
@@ -281,10 +485,6 @@ class Query(graphene.ObjectType):
         offset=graphene.Int(),
     )
 
-    # -------------------------------------------------
-    # Resolver
-    # -------------------------------------------------
-
     def resolve_notes(self, info, filters=None, limit=20, offset=0):
         user = info.context.user
 
@@ -293,12 +493,7 @@ class Query(graphene.ObjectType):
             # raise GraphQLError("Authentication required")
 
         qs = Note.objects.all()
-
         q = Q()
-
-        # =============================
-        # Dynamic Filters
-        # =============================
 
         if filters:
             if filters.id:
@@ -363,10 +558,6 @@ class Query(graphene.ObjectType):
 
         qs = qs.filter(q)
 
-        # =============================
-        # Read annotation
-        # =============================
-
         read_subquery = NoteReadStatus.objects.filter(
             note=OuterRef("pk"),
             user=user
@@ -379,16 +570,8 @@ class Query(graphene.ObjectType):
             .distinct()
         )
 
-        # =============================
-        # Sorting
-        # =============================
-
         if filters and filters.order_by:
             qs = qs.order_by(filters.order_by)
-
-        # =============================
-        # Pagination
-        # =============================
 
         total_count = qs.count()
 
@@ -411,7 +594,7 @@ class Query(graphene.ObjectType):
     # ============================================
 
     flags = graphene.Field(
-        NotesPageType,
+        NotesFlagPageType,
         limit=graphene.Int(),
         offset=graphene.Int(),
     )
@@ -453,7 +636,7 @@ class Query(graphene.ObjectType):
         items = qs[offset: offset + limit]
         has_next = offset + limit < total_count
 
-        return NotesPageType(
+        return NotesFlagPageType(
             items=items,
             total_count=total_count,
             has_next=has_next,
@@ -664,6 +847,8 @@ class Query(graphene.ObjectType):
                 }
             }, cls=DjangoJSONEncoder))
         
+
+
     # ---------------- MODULE INTAKE DETAILS ----------------
     details = graphene.Field(
     ModuleIntakeGridPagesType,
@@ -671,6 +856,7 @@ class Query(graphene.ObjectType):
     offset=graphene.Int(),)
 
     def resolve_details(self, info, limit=-1, offset=0):
+
         # ---------------- TOTAL COUNT ----------------
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -678,6 +864,7 @@ class Query(graphene.ObjectType):
                 FROM lsdb_project p
             """)
             total_count = cursor.fetchone()[0]
+
 
         # ---------------- MAIN QUERY WITH PAGINATION ----------------
         query = """
@@ -703,6 +890,7 @@ class Query(graphene.ObjectType):
 
         for project_id, project_number, customer_id in projects:
 
+
             # ---------------- CUSTOMER ----------------
             try:
                 customer = Customer.objects.get(id=customer_id)
@@ -715,6 +903,7 @@ class Query(graphene.ObjectType):
                     customer_id=None,
                     customer_name="Unknown"
                 )
+
 
             # ---------------- LOCATION ----------------
             try:
@@ -739,10 +928,12 @@ class Query(graphene.ObjectType):
             except LocationLog.DoesNotExist:
                 location_data = LocationType(location_id=None, location_name=None)
 
+
             # ---------------- BOM ----------------
             workorders = WorkOrder.objects.filter(
                 project_id=project_id
             ).values_list('name', flat=True)
+
 
             # ---------------- CRATES ----------------
             crates = NewCrateIntake.objects.filter(
@@ -774,6 +965,7 @@ class Query(graphene.ObjectType):
             has_next=has_next
         )
     
+    
     # ============================================
     # Module Intake QUERY (NEW)
     # ============================================
@@ -802,4 +994,78 @@ class Query(graphene.ObjectType):
             items=items,
             total_count=total_count,
             has_next=offset + limit < total_count
+        )
+
+    # ============================================
+    # Crate Intake QUERY (NEW)
+    # ============================================
+
+
+    # Crate Intake CUSTOMER QUERY
+    customers = graphene.Field(
+        CustomerPageType,
+        filters=CustomerFilterInput(),
+        limit=graphene.Int(),
+        offset=graphene.Int(),
+    )
+
+    customer = graphene.Field(
+        CustomerType,
+        id=graphene.Int(required=True)
+    )
+
+    def resolve_customers(self, info, filters=None, limit=100, offset=0):
+        request = info.context
+
+        qs = Customer.objects.all().prefetch_related("project_set", "notes").order_by("id")
+
+        if filters:
+            if filters.name:
+                qs = qs.filter(name__icontains=filters.name)
+            if filters.short_name:
+                qs = qs.filter(short_name__icontains=filters.short_name)
+
+        total_count = qs.count()
+        results = qs[offset: offset + limit]
+
+        base_url = request.build_absolute_uri("/graphql/customers/")
+
+        next_url = None
+        prev_url = None
+
+        if offset + limit < total_count:
+            next_url = f"{base_url}?limit={limit}&offset={offset + limit}"
+
+        if offset > 0:
+            prev_offset = max(offset - limit, 0)
+            prev_url = f"{base_url}?limit={limit}&offset={prev_offset}"
+
+        return CustomerPageType(
+            count=total_count,
+            next=next_url,
+            previous=prev_url,
+            results=results
+        )
+    
+    # Crate Intake Get
+    crate_intakes = graphene.Field(
+    CrateIntakePaginationType,
+    limit=graphene.Int(),
+    offset=graphene.Int())
+
+    def resolve_crate_intakes(self, info, limit=100, offset=0):
+        queryset = (
+            NewCrateIntake.objects
+            .select_related("customer", "project")  
+            .order_by('-crate_intake_date')
+        )
+
+        total_count = queryset.count()
+        results = queryset[offset: offset + limit]
+
+        return CrateIntakePaginationType(
+            count=total_count,
+            next=offset + limit if offset + limit < total_count else None,
+            previous=max(offset - limit, 0) if offset > 0 else None,
+            results=results
         )
