@@ -384,7 +384,7 @@ class ProjectNumberType(graphene.ObjectType):
     number = graphene.String()
 
 # Customer Type
-class CustomerType(DjangoObjectType):
+class CustomerNewType(DjangoObjectType):
     notes = graphene.List(NoteType)
     project_numbers = graphene.List(ProjectNumberType)
     url = graphene.String()
@@ -416,7 +416,7 @@ class CustomerPageType(graphene.ObjectType):
     count = graphene.Int()
     next = graphene.String()
     previous = graphene.String()
-    results = graphene.List(CustomerType)
+    results = graphene.List(CustomerNewType)
     
 # Customer Filter
 class CustomerFilterInput(graphene.InputObjectType):
@@ -1010,7 +1010,7 @@ class Query(graphene.ObjectType):
     )
 
     customer = graphene.Field(
-        CustomerType,
+        CustomerNewType,
         id=graphene.Int(required=True)
     )
 
