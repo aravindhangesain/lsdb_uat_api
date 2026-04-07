@@ -23,7 +23,7 @@ class ModuleProperty(models.Model):
     cells_in_series = models.IntegerField(blank=True, null=True)
     cells_in_parallel = models.IntegerField(blank=True, null=True)
     cell_area = models.FloatField(blank=True, null=True)
-    bifacial = models.BooleanField(blank=True, null=True)
+    bifacial = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
         ordering = ('nameplate_pmax',)
