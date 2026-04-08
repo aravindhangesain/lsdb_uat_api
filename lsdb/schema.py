@@ -94,6 +94,7 @@ class ModuleIntakeGridPagesType(graphene.ObjectType):
 # ModuleIntakeDetails Type
 # =====================================================
 class ModuleIntakeDetailsType(DjangoObjectType):
+    id = graphene.Int()
     customer_name = graphene.String()
     manufacturer_name = graphene.String()
     crate_name = graphene.String()
@@ -385,6 +386,7 @@ class ProjectNumberType(graphene.ObjectType):
 
 # Customer Type
 class CustomerNewType(DjangoObjectType):
+    id = graphene.Int()
     notes = graphene.List(NoteType)
     project_numbers = graphene.List(ProjectNumberType)
     url = graphene.String()
@@ -418,6 +420,10 @@ class CustomerPageType(graphene.ObjectType):
     previous = graphene.String()
     results = graphene.List(CustomerNewType)
     
+class CustomerListType(graphene.ObjectType):
+    count = graphene.Int()
+    results = graphene.List(CustomerNewType)
+    
 # Customer Filter
 class CustomerFilterInput(graphene.InputObjectType):
     name = graphene.String()
@@ -427,7 +433,7 @@ class CustomerFilterInput(graphene.InputObjectType):
 class CrateIntakeType(graphene.ObjectType):
     id = graphene.Int()
     customer = graphene.Int()
-    manufacturer = graphene.String()
+    manufacturer = graphene.Int()
     project = graphene.Int()
     customer_name = graphene.String()
     manufacturer_name = graphene.String()
@@ -1003,18 +1009,19 @@ class Query(graphene.ObjectType):
 
     # Crate Intake CUSTOMER QUERY
     customers = graphene.Field(
-        CustomerPageType,
+        CustomerListType,
         filters=CustomerFilterInput(),
-        limit=graphene.Int(),
-        offset=graphene.Int(),
     )
 
     customer = graphene.Field(
         CustomerNewType,
         id=graphene.Int(required=True)
     )
+    
+    def resolve_customer(self, info, id):
+        return Customer.objects.get(id=id)
 
-    def resolve_customers(self, info, filters=None, limit=100, offset=0):
+    def resolve_customers(self, info, filters=None):
         request = info.context
 
         qs = Customer.objects.all().prefetch_related("project_set", "notes").order_by("id")
@@ -1025,26 +1032,9 @@ class Query(graphene.ObjectType):
             if filters.short_name:
                 qs = qs.filter(short_name__icontains=filters.short_name)
 
-        total_count = qs.count()
-        results = qs[offset: offset + limit]
-
-        base_url = request.build_absolute_uri("/graphql/customers/")
-
-        next_url = None
-        prev_url = None
-
-        if offset + limit < total_count:
-            next_url = f"{base_url}?limit={limit}&offset={offset + limit}"
-
-        if offset > 0:
-            prev_offset = max(offset - limit, 0)
-            prev_url = f"{base_url}?limit={limit}&offset={prev_offset}"
-
-        return CustomerPageType(
-            count=total_count,
-            next=next_url,
-            previous=prev_url,
-            results=results
+        return CustomerListType(
+            count=qs.count(),
+            results=qs
         )
     
     # Crate Intake Get

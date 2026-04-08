@@ -59,8 +59,8 @@ class CustomerOnlyQuery(graphene.ObjectType):
     limit=graphene.Int(),
     offset=graphene.Int(),
     )
-    def resolve_customers(self, info, limit=100, offset=0):
-        return LsdbQuery.resolve_customers(self, info, limit=limit, offset=offset)
+    def resolve_customers(self, info):
+        return LsdbQuery.resolve_customers(self, info)
 customer_schema = graphene.Schema(query=CustomerOnlyQuery)
 
 
