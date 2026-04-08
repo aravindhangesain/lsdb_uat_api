@@ -27,6 +27,7 @@ from lsdb.serializers import *
 from lsdb.models import *
 from django.contrib.auth.models import User
 from datetime import timedelta
+import numpy as np
 
 
 from lsdb.permissions import ConfiguredPermission
@@ -511,6 +512,8 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             
 
 
+    
+
     @transaction.atomic
     def get_queue(self, group=None, asset=None, location_id=None):
         if group == "characterizations":
@@ -534,7 +537,7 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             ).exclude(
                 test_sequence_definition__group__name__iexact="control"
             ).exclude(
-               Exists(blocking_previous_execution) 
+            Exists(blocking_previous_execution) 
             ).exclude(
                 unit__disposition__name="Handling Damage"
             ).annotate(
@@ -551,7 +554,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 ),
             ).distinct().order_by('last_action_date')
 
-           
             if asset:
                 queryset = queryset.filter(
                     procedure_definition__asset_types__in=asset.asset_types.all(),
@@ -559,7 +561,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 )
                 
             if location_id:
-                
                 queryset = queryset.filter(unit__location__id=location_id)
             
             if not queryset.exists():
@@ -569,7 +570,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 procedure_result__in=queryset
             ).select_related("user", "procedure_result")
 
-            # Build a mapping: procedure_result_id → list of assigned users
             assigned_users_map = {}
             for instance in assigned_users_instances:
                 pr_id = instance.procedure_result_id
@@ -578,16 +578,12 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 assigned_users_map[pr_id].append({
                     "user_id": instance.user_id,
                     "username": instance.user.username if instance.user else "N/A",
-                    # "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
-                    # "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",d user assign logic
-                    "assigned_by":instance.assigned_by.username if instance.assigned_by else "N/A"
+                    "assigned_by": instance.assigned_by.username if instance.assigned_by else "N/A"
                 })
             
             assigned_dates_map = {}
             for instance in assigned_users_instances:
                 pr_id = instance.procedure_result_id
-
-                # Only set once per procedure_result, since dates are always same
                 if pr_id not in assigned_dates_map:
                     assigned_dates_map[pr_id] = {
                         "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
@@ -595,10 +591,9 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                             instance.assigned_on + timedelta(days=instance.due_on)
                             if instance.due_on and instance.assigned_on else "N/A"
                         ),
-                        "due_on_days":instance.due_on if instance.due_on else "N/A"
+                        "due_on_days": instance.due_on if instance.due_on else "N/A"
                     }
 
-            
             master_data_frame = pd.DataFrame(list(queryset.values(
                 'unit__serial_number',
                 'test_sequence_definition__name',
@@ -614,13 +609,11 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'group__name',
                 'unit__location__name',
                 'unit__location__id',
-                'id'  # Assuming 'id' represents procedure_result_id
+                'id'
             )))
 
             master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, []))
-
             master_data_frame['assigned_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("assigned_on"))
-
             master_data_frame['due_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on"))
             master_data_frame['due_on_days'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on_days"))
             
@@ -630,7 +623,6 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             master_data_frame['last_action_days'] = (
                 (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
             ).astype(int)
-            # master_data_frame.dropna(inplace=True)
             
             filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
             
@@ -663,19 +655,19 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
                 'assigned_on',
                 'due_on',
                 'due_on_days', 
-                'assigned_users' # procedure_result_id
+                'assigned_users'
             ]]
             
             filtered.columns = [
                 'serial_number', 'test_sequence', 'linear_execution_group',
                 'procedure_definition', 'customer', 'project_number', 'work_order',
                 'characterization', 'allow_skip',
-                'last_action_date', 'last_action_days', 'location', 'location_id','procedure_result_id','assigned_on',
-                'due_on','due_on_days','assigned_users'
+                'last_action_date', 'last_action_days', 'location', 'location_id',
+                'procedure_result_id','assigned_on','due_on','due_on_days','assigned_users'
             ]
             
             filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
-            
+
             custom_order = [
                 "Diode Test",
                 "EL Image at 1.0x Isc",
@@ -704,190 +696,178 @@ class UnitViewSet(LoggingMixin, viewsets.ModelViewSet):
             filtered = filtered.sort_values(["priority_flag", "last_action_date"], ascending=[False, True])
             
             grouped = filtered.groupby("procedure_definition")
-            
-            full = {}
-            for name, group in grouped:
-                full[name] = group.to_dict(orient='records')
+
+           
+            full = {
+                name: group.replace({np.nan: None}).to_dict(orient='records')
+                for name, group in grouped
+            }
+
+            filtered = filtered.replace({np.nan: None})
+           
             
             return full, filtered
 
-            
-        
-
         else:
-            queryset = ProcedureResult.objects.filter(
-            disposition__isnull=True,
-            unit__disposition__complete=False,
-        ).exclude(
-            unit__disposition__name__iexact="in progress"
-        ).exclude(
-            work_order__project__disposition__complete=True
-        ).exclude(
-            test_sequence_definition__group__name__iexact="control"
-        ).exclude(
-            unit__disposition__name="Handling Damage"
-        ).annotate(
-            last_action_date=Coalesce(
-                Max('unit__procedureresult__stepresult__measurementresult__date_time'),
-                timezone.now()
-            )
-        ).annotate(
-            done_to=Coalesce(
-                Max(
-                    'unit__procedureresult__linear_execution_group',
-                    filter=Q(unit__procedureresult__disposition__isnull=False)
-                ),
-                Min('unit__procedureresult__linear_execution_group')
-            )
-        ).distinct()
-
-        if asset:
-            queryset = queryset.filter(
-                procedure_definition__asset_types__in=asset.asset_types.all(),
-                unit__location__id=asset.location.id,
-            )
-        if location_id:
-            print(location_id)
-            queryset = queryset.filter(unit__location__id=location_id)
-
-        # If queryset is empty, return an empty response
-        if not queryset.exists():
-            return [], pd.DataFrame()
-
-        # 🔧 Fetch all user assignments related to the queryset
-        assigned_users_instances = UserAssignmentForProcedure.objects.filter(
-            procedure_result__in=queryset
-        ).select_related("user", "procedure_result")
-
-        # Build a mapping: procedure_result_id → list of assigned users
-        assigned_users_map = {}
-        for instance in assigned_users_instances:
-            pr_id = instance.procedure_result_id
-            if pr_id not in assigned_users_map:
-                assigned_users_map[pr_id] = []
-            assigned_users_map[pr_id].append({
-                "user_id": instance.user_id,
-                "username": instance.user.username if instance.user else "N/A",
-                # "assigned_on":instance.assigned_on if instance.assigned_on else "N/A",
-                # "due_on": instance.assigned_on + timedelta(days=instance.due_on) if instance.due_on else "N/A",
-                "assigned_by":instance.assigned_by.username if instance.assigned_by else "N/A"
-            })
-
-        assigned_dates_map = {}
-        for instance in assigned_users_instances:
-            pr_id = instance.procedure_result_id
-
-            # Only set once per procedure_result, since dates are always same
-            if pr_id not in assigned_dates_map:
-                assigned_dates_map[pr_id] = {
-                    "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
-                    "due_on": (
-                        instance.assigned_on + timedelta(days=instance.due_on)
-                        if instance.due_on and instance.assigned_on else "N/A"
-                    ),
-                    "due_on_days":instance.due_on if instance.due_on else "N/A"
-                }
-        # 🔧 Create DataFrame from queryset
-        master_data_frame = pd.DataFrame(list(queryset.values(
-            'unit__serial_number',
-            'test_sequence_definition__name',
-            'done_to',
-            'linear_execution_group',
-            'procedure_definition__name',
-            'work_order__project__customer__name',
-            'work_order__project__number',
-            'work_order__name',
-            'name',
-            'allow_skip',
-            'last_action_date',
-            'group__name',
-            'unit__location__name',
-            'unit__location__id',
-            'id'
-        )))
-
-        # 🔧 Map assigned users based on actual DataFrame IDs
-        master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, []))
-
-        master_data_frame['assigned_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("assigned_on"))
-
-        master_data_frame['due_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on"))
-        
-        master_data_frame['due_on_days'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on_days"))
-        
-
-        # Handle case where DataFrame is empty after values conversion
-        if master_data_frame.empty:
-            return {}, master_data_frame
-
-        master_data_frame['last_action_days'] = (
-            (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
-        ).astype(int)
-        # master_data_frame.dropna(inplace=True)
-
-        # Select everything in the current LEG or above
-        filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
-
-        # Select only records where LEG <= next highest unskippable
-        gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
-        filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
-        filterframe = filterframe[filterframe.allow_skip == False]
-        filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
-        filterframe.set_index(['f_serial'], inplace=True)
-        filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial', suffixes=(False, False))
-        filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
-
-        # Filter down to the specific group
-        if group:
-            filtered = filtered[filtered.group__name.str.lower() == group.lower()]
-
-        filtered = filtered[[
-            'unit__serial_number',
-            'test_sequence_definition__name',
-            'linear_execution_group',
-            'procedure_definition__name',
-            'work_order__project__customer__name',
-            'work_order__project__number',
-            'work_order__name',
-            'name',
-            'allow_skip',
-            'last_action_date',
-            'last_action_days',
-            'unit__location__name',
-            'unit__location__id',
-            'id',
-            'assigned_on',
-            'due_on', 
-            'due_on_days',
-            'assigned_users'
-        ]]
-
-        filtered.columns = [
-            'serial_number', 'test_sequence', 'linear_execution_group',
-            'procedure_definition', 'customer', 'project_number', 'work_order',
-            'characterization', 'allow_skip',
-            'last_action_date',
-            'last_action_days',
-            'location',
-            'location_id',
-            'procedure_result_id',
-            'assigned_on',
-            'due_on', 
-            'due_on_days',
-            'assigned_users',
             
-        ]
 
-        filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
+            queryset = ProcedureResult.objects.filter(
+                disposition__isnull=True,
+                unit__disposition__complete=False,
+            ).exclude(
+                unit__disposition__name__iexact="in progress"
+            ).exclude(
+                work_order__project__disposition__complete=True
+            ).exclude(
+                test_sequence_definition__group__name__iexact="control"
+            ).exclude(
+                unit__disposition__name="Handling Damage"
+            ).annotate(
+                last_action_date=Coalesce(
+                    Max('unit__procedureresult__stepresult__measurementresult__date_time'),
+                    timezone.now()
+                )
+            ).annotate(
+                done_to=Coalesce(
+                    Max(
+                        'unit__procedureresult__linear_execution_group',
+                        filter=Q(unit__procedureresult__disposition__isnull=False)
+                    ),
+                    Min('unit__procedureresult__linear_execution_group')
+                )
+            ).distinct()
 
-        grouped = filtered.groupby('procedure_definition')
-        full = {}
-        for name, group in grouped:
-            full[name] = group.to_dict(orient='records')
+            if asset:
+                queryset = queryset.filter(
+                    procedure_definition__asset_types__in=asset.asset_types.all(),
+                    unit__location__id=asset.location.id,
+                )
+            if location_id:
+                queryset = queryset.filter(unit__location__id=location_id)
 
-        # serializer = self.serializer_class(queryset, many=False, context=self.context)
-        # print(serializer.data)
-        return full, filtered
+            if not queryset.exists():
+                return [], pd.DataFrame()
+
+            assigned_users_instances = UserAssignmentForProcedure.objects.filter(
+                procedure_result__in=queryset
+            ).select_related("user", "procedure_result")
+
+            assigned_users_map = {}
+            for instance in assigned_users_instances:
+                pr_id = instance.procedure_result_id
+                if pr_id not in assigned_users_map:
+                    assigned_users_map[pr_id] = []
+                assigned_users_map[pr_id].append({
+                    "user_id": instance.user_id,
+                    "username": instance.user.username if instance.user else "N/A",
+                    "assigned_by": instance.assigned_by.username if instance.assigned_by else "N/A"
+                })
+
+            assigned_dates_map = {}
+            for instance in assigned_users_instances:
+                pr_id = instance.procedure_result_id
+                if pr_id not in assigned_dates_map:
+                    assigned_dates_map[pr_id] = {
+                        "assigned_on": instance.assigned_on if instance.assigned_on else "N/A",
+                        "due_on": (
+                            instance.assigned_on + timedelta(days=instance.due_on)
+                            if instance.due_on and instance.assigned_on else "N/A"
+                        ),
+                        "due_on_days": instance.due_on if instance.due_on else "N/A"
+                    }
+
+            master_data_frame = pd.DataFrame(list(queryset.values(
+                'unit__serial_number',
+                'test_sequence_definition__name',
+                'done_to',
+                'linear_execution_group',
+                'procedure_definition__name',
+                'work_order__project__customer__name',
+                'work_order__project__number',
+                'work_order__name',
+                'name',
+                'allow_skip',
+                'last_action_date',
+                'group__name',
+                'unit__location__name',
+                'unit__location__id',
+                'id'
+            )))
+
+            master_data_frame['assigned_users'] = master_data_frame['id'].apply(lambda pid: assigned_users_map.get(pid, []))
+            master_data_frame['assigned_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("assigned_on"))
+            master_data_frame['due_on'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on"))
+            master_data_frame['due_on_days'] = master_data_frame['id'].apply(lambda pid: assigned_dates_map.get(pid, {}).get("due_on_days"))
+
+            if master_data_frame.empty:
+                return {}, master_data_frame
+
+            master_data_frame['last_action_days'] = (
+                (timezone.now() - master_data_frame.last_action_date).dt.total_seconds() / (60 * 60 * 24)
+            ).astype(int)
+
+            filtered = master_data_frame[master_data_frame.linear_execution_group >= master_data_frame.done_to]
+
+            gframe = filtered.groupby(['unit__serial_number', 'allow_skip'])
+            filterframe = gframe[['unit__serial_number', 'allow_skip', 'linear_execution_group']].min()
+            filterframe = filterframe[filterframe.allow_skip == False]
+            filterframe.columns = ['f_serial', 'f_allow_skip', 'highest_leg']
+            filterframe.set_index(['f_serial'], inplace=True)
+            filtered = filtered.merge(filterframe, left_on='unit__serial_number', right_on='f_serial')
+            filtered = filtered[filtered.linear_execution_group <= filtered.highest_leg]
+
+            if group:
+                filtered = filtered[filtered.group__name.str.lower() == group.lower()]
+
+            filtered = filtered[[
+                'unit__serial_number',
+                'test_sequence_definition__name',
+                'linear_execution_group',
+                'procedure_definition__name',
+                'work_order__project__customer__name',
+                'work_order__project__number',
+                'work_order__name',
+                'name',
+                'allow_skip',
+                'last_action_date',
+                'last_action_days',
+                'unit__location__name',
+                'unit__location__id',
+                'id',
+                'assigned_on',
+                'due_on', 
+                'due_on_days',
+                'assigned_users'
+            ]]
+
+            filtered.columns = [
+                'serial_number', 'test_sequence', 'linear_execution_group',
+                'procedure_definition', 'customer', 'project_number', 'work_order',
+                'characterization', 'allow_skip',
+                'last_action_date',
+                'last_action_days',
+                'location',
+                'location_id',
+                'procedure_result_id',
+                'assigned_on',
+                'due_on', 
+                'due_on_days',
+                'assigned_users',
+            ]
+
+            filtered.loc[:, ('last_action_date')] = filtered.loc[:, ('last_action_date')].dt.tz_localize(None)
+
+            grouped = filtered.groupby('procedure_definition')
+
+            # ✅ FIX
+            full = {
+                name: group.replace({np.nan: None}).to_dict(orient='records')
+                for name, group in grouped
+            }
+
+            filtered = filtered.replace({np.nan: None})
+
+            return full, filtered
 
 
 
