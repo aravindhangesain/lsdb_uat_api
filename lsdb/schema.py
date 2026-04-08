@@ -456,7 +456,7 @@ class CrateIntakeType(graphene.ObjectType):
         return self.customer.name if self.customer else None
 
     def resolve_manufacturer_name(self, info):
-        return self.customer.name if self.manufacturer else None
+        return self.customer.name if self.customer else None
 
     def resolve_project_number(self, info):
         return self.project.number if self.project else None
@@ -474,9 +474,8 @@ class CrateIntakeType(graphene.ObjectType):
         return str(self.crate_intake_date)
     
 class CrateIntakePaginationType(graphene.ObjectType):
-    count = graphene.Int()
-    next = graphene.Int()
-    previous = graphene.Int()
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
     results = graphene.List(CrateIntakeType)
     
 
@@ -1054,8 +1053,7 @@ class Query(graphene.ObjectType):
         results = queryset[offset: offset + limit]
 
         return CrateIntakePaginationType(
-            count=total_count,
-            next=offset + limit if offset + limit < total_count else None,
-            previous=max(offset - limit, 0) if offset > 0 else None,
+            total_count=total_count,
+            has_next=offset + limit < total_count,
             results=results
         )
