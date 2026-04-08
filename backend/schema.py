@@ -35,7 +35,7 @@ class ModuleIntakeGridOnlyQuery(graphene.ObjectType):
             limit=limit,
             offset=offset
         )
-module_intake_grid_schema = graphene.Schema(query=ModuleIntakeGridOnlyQuery)
+module_intake_grid_schema = graphene.Schema(query=ModuleIntakeGridOnlyQuery, auto_camelcase=False)
 
 
 # MODULE INTAKE ONLY 
@@ -49,7 +49,7 @@ class ModuleIntakeOnlyQuery(graphene.ObjectType):
         return LsdbQuery.resolve_module_intake_details(
             self, info, limit=limit, offset=offset
         )
-module_intake_schema = graphene.Schema(query=ModuleIntakeOnlyQuery)
+module_intake_schema = graphene.Schema(query=ModuleIntakeOnlyQuery, auto_camelcase=False)
 
 
 # crete Intake get customers
@@ -61,7 +61,7 @@ class CustomerOnlyQuery(graphene.ObjectType):
     )
     def resolve_customers(self, info):
         return LsdbQuery.resolve_customers(self, info)
-customer_schema = graphene.Schema(query=CustomerOnlyQuery)
+customer_schema = graphene.Schema(query=CustomerOnlyQuery, auto_camelcase=False)
 
 
 # Crate Intake get
@@ -73,4 +73,4 @@ class CrateIntakeOnlyQuery(graphene.ObjectType):
     )
     def resolve_crate_intakes(self, info, limit=100, offset=0):
         return LsdbQuery.resolve_crate_intakes(self, info, limit=limit, offset=offset)
-crate_schema = graphene.Schema(query=CrateIntakeOnlyQuery)
+crate_schema = graphene.Schema(query=CrateIntakeOnlyQuery, auto_camelcase=False)
