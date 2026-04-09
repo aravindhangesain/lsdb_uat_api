@@ -49,6 +49,21 @@ class AzureFileType(DjangoObjectType):
         model = AzureFile
         fields = "__all__"
 
+class AzureFileFlagType(DjangoObjectType):
+    file = graphene.String()
+
+    class Meta:
+        model = AzureFile
+        fields = "__all__"
+
+    def resolve_file(self, info):
+        request = info.context
+        if request:
+            return request.build_absolute_uri(
+                f"/api/1.0/azure_files/{self.id}/download/"
+            )
+        return f"/api/1.0/azure_files/{self.id}/download/"
+
 class LabelType(DjangoObjectType):
     class Meta:
         model = Label
@@ -357,7 +372,7 @@ class NoteFlagType(DjangoObjectType):
     disposition_complete = graphene.Boolean()
     read = graphene.Boolean()
     last_update_datetime = graphene.DateTime()
-    attachments = graphene.List(AzureFileType)
+    attachments = graphene.List(AzureFileFlagType)
     labels = graphene.List(LabelType)
     tagged_users = graphene.List(UserType)
     parent_objects = graphene.List(ParentObjectType)
