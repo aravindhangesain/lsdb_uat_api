@@ -1182,7 +1182,7 @@ class Query(graphene.ObjectType):
         if limit > MAX_LIMIT:
             limit = MAX_LIMIT
 
-        qs = ModuleIntakeDetails.objects.all().order_by('-intake_date')
+        qs = ModuleIntakeDetails.objects.all().order_by('-intake_date','id')
 
         total_count = qs.count()
         items = qs[offset: offset + limit]
@@ -1238,7 +1238,7 @@ class Query(graphene.ObjectType):
         queryset = (
             NewCrateIntake.objects
             .select_related("customer", "project")  
-            .order_by('-crate_intake_date')
+            .order_by('-crate_intake_date','id')
         )
 
         total_count = queryset.count()
