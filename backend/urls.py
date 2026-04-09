@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
-from backend.schema import schema, flags_schema,module_intake_schema,module_intake_grid_schema,customer_schema, crate_schema
+from backend.schema import schema, flags_schema, module_intake_schema, module_intake_grid_schema, customer_schema, crate_schema, active_projects_schema, assign_units_schema,work_order_schema
 
 
 urlpatterns = [
@@ -30,6 +30,9 @@ urlpatterns = [
     path("graphql/module-intake/",csrf_exempt(GraphQLView.as_view(graphiql=True,schema=module_intake_schema)),),
     path("graphql/customers/",csrf_exempt(GraphQLView.as_view(graphiql=True, schema=customer_schema)),),
     path("graphql/crate_intakes/",csrf_exempt(GraphQLView.as_view(graphiql=True, schema=crate_schema)),),
+    path("graphql/active-projects/",csrf_exempt(GraphQLView.as_view(graphiql=True, schema=active_projects_schema)),),
+    path("graphql/assign_units",csrf_exempt(GraphQLView.as_view(graphiql=True, schema=assign_units_schema)),),
+    path("graphql/work_order/",csrf_exempt(GraphQLView.as_view(graphiql=True, schema=work_order_schema)),),
     # For later versions:
     # path('api/2.0/', include('lsdb.urls2')),
 ]

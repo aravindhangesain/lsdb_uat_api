@@ -1,7 +1,9 @@
 import graphene
 from lsdb.schema import Query as LsdbQuery
 from lsdb.schema import NotesFlagPageType
-from lsdb.schema import ModuleIntakePageType,ModuleIntakeGridPagesType,CustomerPageType, CrateIntakePaginationType
+from lsdb.schema import (ModuleIntakePageType,ModuleIntakeGridPagesType,CustomerPageType, 
+                         CrateIntakePaginationType,ActiveProjectType,AssignUnitsResponseType,
+                         WorkOrderListResponse)
 
 # Initial
 class Query(LsdbQuery, graphene.ObjectType):
@@ -74,3 +76,36 @@ class CrateIntakeOnlyQuery(graphene.ObjectType):
     def resolve_crate_intakes(self, info, limit=100, offset=0):
         return LsdbQuery.resolve_crate_intakes(self, info, limit=limit, offset=offset)
 crate_schema = graphene.Schema(query=CrateIntakeOnlyQuery, auto_camelcase=False)
+
+
+#Active Projects Only Query
+class ActiveProjectsOnlyQuery(graphene.ObjectType):
+    active_projects = graphene.List(
+        ActiveProjectType,
+        show_archived=graphene.Boolean(),
+        location=graphene.Int()
+    )
+    def resolve_active_projects(self, info, show_archived=True, location=None):
+        return LsdbQuery.resolve_active_projects(self,info,show_archived=show_archived,location=location)
+active_projects_schema = graphene.Schema(query=ActiveProjectsOnlyQuery,auto_camelcase=False)
+
+
+#Active Project Assign_units Only Query
+class AssignUnitsOnlyQuery(graphene.ObjectType):
+    assign_units = graphene.Field(
+        AssignUnitsResponseType,
+        work_order_id=graphene.Int(required=True),
+    )
+    def resolve_assign_units(self, info, work_order_id):
+        return LsdbQuery.resolve_assign_units(self,info,work_order_id=work_order_id)
+assign_units_schema = graphene.Schema(query=AssignUnitsOnlyQuery,auto_camelcase=False)
+
+# Active project work order 
+class WorkOrderOnlyQuery(graphene.ObjectType):
+    work_order = graphene.Field(
+        WorkOrderListResponse,
+        project_id=graphene.Int(required=True),
+    )
+    def resolve_work_order(self, info,project_id):
+        return LsdbQuery.resolve_work_order(self, info,project_id=project_id)
+work_order_schema = graphene.Schema(query=WorkOrderOnlyQuery, auto_camelcase=False)

@@ -3,11 +3,15 @@ import graphene
 from operator import or_
 from functools import reduce
 from django.db import connection
+from django.utils import timezone
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
 from graphene.types.generic import GenericScalar
 from django.db.models import Max, Exists, OuterRef, Q
 from django.core.serializers.json import DjangoJSONEncoder
+from lsdb.serializers import TestSequenceAssignmentSerializer
+from lsdb.utils.HasHistory import work_order_measurements_completed
+
 
 
 from lsdb.models import (
@@ -23,7 +27,8 @@ from lsdb.models import (
     Location, 
     WorkOrder, 
     NewCrateIntake,
-    ModuleIntakeDetails
+    ModuleIntakeDetails,
+    Project
 )
 
 
@@ -144,7 +149,111 @@ class ModuleIntakeDetailsType(DjangoObjectType):
 
     def resolve_newcrateintake(self, info):
         return self.newcrateintake.id if self.newcrateintake else None
-    
+
+# =====================================================
+# Active Project Grid
+# =====================================================
+
+class ActiveProjectType(graphene.ObjectType):
+    id = graphene.Int()
+    url = graphene.String()
+    sfdc_number = graphene.String()
+    number = graphene.String()
+    project_manager = graphene.String()
+    project_manager_name = graphene.String()
+    customer = graphene.String()
+    customer_name = graphene.String()
+    disposition = graphene.String()
+    disposition_name = graphene.String()
+    group = graphene.String()
+    location = graphene.Int()
+    location_name = graphene.String()  
+
+
+# =====================================================
+# Active Project Assign_units 
+# =====================================================
+
+class AvailableSequenceType(graphene.ObjectType):
+    id = graphene.Int()
+    name = graphene.String()
+    assigned = graphene.Int()
+    units_required = graphene.Int()
+    disposition = graphene.Int()
+    disposition_name = graphene.String()
+
+class AssignUnitsResponseType(graphene.ObjectType):
+    available_sequences = graphene.List(AvailableSequenceType)
+    units = GenericScalar()  
+
+
+# =====================================================
+# Active Project Workorder List
+# =====================================================
+
+# Active Projects Work Order
+class WorkOrderCustomType(graphene.ObjectType):
+    id = graphene.Int()
+    url = graphene.String()
+    name = graphene.String()
+    disposition_name = graphene.String()
+
+    percent_complete = graphene.Float()
+    unit_count = graphene.Int()
+    last_action_days = graphene.Int()
+    last_action_date = graphene.DateTime()
+
+    def resolve_url(parent, info):
+        request = info.context
+        return request.build_absolute_uri(f"/api/1.0/work_orders/{parent.id}/")
+
+    def resolve_disposition_name(parent, info):
+        return getattr(parent.disposition, "name", None)
+
+    def resolve_unit_count(parent, info):
+        return parent.units.count()
+
+    def resolve_percent_complete(parent, info):
+        return work_order_measurements_completed(parent)
+
+    def resolve_last_action_days(parent, info):
+        queryset = parent.procedureresult_set.filter(
+            stepresult__measurementresult__disposition__isnull=False
+        ).annotate(
+            last_result=Max('stepresult__measurementresult__date_time')
+        )
+
+        try:
+            results, = max(
+                queryset.filter(last_result__isnull=False)
+                .values_list('last_result')
+            )
+            return (timezone.now() - results).days
+        except:
+            return 0
+
+    def resolve_last_action_date(parent, info):
+        queryset = parent.procedureresult_set.filter(
+            stepresult__measurementresult__disposition__isnull=False
+        ).annotate(
+            last_result=Max('stepresult__measurementresult__date_time')
+        )
+
+        try:
+            results, = max(
+                queryset.filter(last_result__isnull=False)
+                .values_list('last_result')
+            )
+            return results
+        except:
+            return None
+
+
+class WorkOrderListResponse(graphene.ObjectType):
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
+    results = graphene.List(WorkOrderCustomType)
+
 #------------------------------------------
 #Pagination Type for ModuleIntakeDetails
 #------------------------------------------
@@ -646,6 +755,74 @@ class Query(graphene.ObjectType):
             total_count=total_count,
             has_next=has_next,
         )
+    
+    # ==============================================
+    # Active Projects Grid Query (NEW)
+    # ==============================================
+
+    active_projects = graphene.List(
+        ActiveProjectType,
+        show_archived=graphene.Boolean(),
+        location=graphene.Int()
+    )
+
+    def resolve_active_projects(self, info, show_archived=True, location=None):
+        request = info.context
+
+        # -------- BASE QUERY --------
+        if show_archived:
+            projects = Project.objects.all()
+        else:
+            projects = Project.objects.filter(disposition__complete=False)
+
+        # -------- LOCATION FILTER --------
+        if location:
+            project_ids = LocationLog.objects.filter(
+                location_id=location,
+                is_latest=True
+            ).values_list('project_id', flat=True)
+
+            projects = projects.filter(id__in=project_ids)
+
+        result = []
+
+        for project in projects:
+
+            # -------- LOCATION --------
+            latest_location_log = LocationLog.objects.filter(
+                project_id=project.id,
+                is_latest=True
+            ).first()
+
+            location_id = latest_location_log.location_id if latest_location_log else None
+
+            location_name = None
+            if location_id:
+                loc = Location.objects.filter(id=location_id).first()
+                location_name = loc.name if loc else None
+
+            # -------- BUILD BASE URL --------
+            base_url = request.build_absolute_uri("/api/1.0/")
+
+            result.append(
+                ActiveProjectType(
+                    id=project.id,
+                    url=f"{base_url}projects/{project.id}/",
+                    sfdc_number=project.sfdc_number,
+                    number=project.number,
+                    project_manager=f"{base_url}users/{project.project_manager.id}/" if project.project_manager else None,
+                    project_manager_name=project.project_manager.username if project.project_manager else None,
+                    customer=f"{base_url}customers/{project.customer.id}/" if project.customer else None,
+                    customer_name=project.customer.name if project.customer else None,
+                    disposition=f"{base_url}dispositions/{project.disposition.id}/" if project.disposition else None,
+                    disposition_name=project.disposition.name if project.disposition else None,
+                    group=f"{base_url}groups/{project.group.id}/" if project.group else None,
+                    location=location_id,
+                    location_name=location_name
+                )
+            )
+
+        return result
         
 
     # ============================================
@@ -1056,4 +1233,69 @@ class Query(graphene.ObjectType):
             total_count=total_count,
             has_next=offset + limit < total_count,
             results=results
+        )
+    
+
+    # =====================================================
+    # Active Project Assign_units Query
+    # =====================================================
+
+    test_sequence_assignment = graphene.Field(
+        AssignUnitsResponseType,
+        work_order_id=graphene.Int(required=True))
+
+    def resolve_assign_units(self, info, work_order_id):
+        work_order = WorkOrder.objects.get(id=work_order_id)
+
+        units = Unit.objects.filter(
+            workorder=work_order
+        ).distinct()
+
+        available_sequences = []
+
+        for sequence in work_order.testsequenceexecutiondata_set.all():
+            assigned = units.filter(
+                procedureresult__test_sequence_definition__id=sequence.test_sequence.id
+            ).distinct().count()
+
+            if assigned < sequence.units_required:
+                available_sequences.append(
+                    AvailableSequenceType(
+                        id=sequence.test_sequence.id,
+                        name=sequence.test_sequence.name,
+                        assigned=assigned,
+                        units_required=sequence.units_required,
+                        disposition=sequence.test_sequence.disposition_id,
+                        disposition_name=sequence.test_sequence.disposition.name
+                    )
+                )
+
+        serializer = TestSequenceAssignmentSerializer(
+            units,
+            many=True,
+            context={"request": info.context}
+        )
+
+        return AssignUnitsResponseType(
+            available_sequences=available_sequences,
+            units=json.loads(
+                json.dumps(serializer.data, cls=DjangoJSONEncoder)
+            )
+        )
+    
+    # =====================================================
+    # Active Project Work Order Query
+    # =====================================================
+    work_order = graphene.Field(
+    WorkOrderListResponse,
+    project_id=graphene.Int(required=True))
+
+    def resolve_work_order(self, info, project_id):
+        request = info.context
+        qs = WorkOrder.objects.filter(project_id=project_id).order_by("id")
+        total_count = qs.count()
+        return WorkOrderListResponse(
+            total_count=total_count,
+            has_next=False,
+            results=qs   
         )
