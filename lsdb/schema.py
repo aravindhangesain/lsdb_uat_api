@@ -57,9 +57,13 @@ class AzureFileFlagType(DjangoObjectType):
         fields = "__all__"
 
     def resolve_file(self, info):
-        if self.file:
-            return self.file.url
-        return None
+        request = info.context
+        if request:
+            return request.build_absolute_uri(
+                f"/api/1.0/azure_files/{self.id}/download/"
+            )
+        return f"/api/1.0/azure_files/{self.id}/download/"
+
 
 class LabelType(DjangoObjectType):
     class Meta:
