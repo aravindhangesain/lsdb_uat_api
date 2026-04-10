@@ -104,7 +104,7 @@ class ModuleIntakeGridType(graphene.ObjectType):
     customer = graphene.Field(CustomerType)
     location_data = graphene.Field(LocationType)
     bom = graphene.List(graphene.String)
-    crate_intake_ids = graphene.List(CrateType)
+    crate_intake_ids = GenericScalar()
 
 class ModuleIntakeGridPagesType(graphene.ObjectType):
     items = graphene.List(ModuleIntakeGridType)
@@ -1150,12 +1150,9 @@ class Query(graphene.ObjectType):
             crates = NewCrateIntake.objects.filter(
                 Q(project_id=project_id) |
                 (Q(project_id__isnull=True) & Q(customer_id=customer_id))
-            ).values('id', 'crate_name')
+            ).values_list('id', 'crate_name')
 
-            crate_list = [
-                CrateType(id=c['id'], crate_name=c['crate_name'])
-                for c in crates
-            ]
+            crate_list = [[c[0], c[1]] for c in crates]
 
             result.append(
                 ModuleIntakeGridType(
