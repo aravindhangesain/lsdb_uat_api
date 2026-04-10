@@ -2,7 +2,7 @@ import graphene
 from lsdb.schema import Query as LsdbQuery
 from lsdb.schema import NotesFlagPageType
 from lsdb.schema import (ModuleIntakePageType,ModuleIntakeGridPagesType,CustomerPageType, 
-                         CrateIntakePaginationType,ActiveProjectType,AssignUnitsResponseType,
+                         CrateIntakePaginationType,ActiveProjectGridPagesType,AssignUnitsResponseType,
                          WorkOrderListResponse)
 
 # Initial
@@ -80,13 +80,15 @@ crate_schema = graphene.Schema(query=CrateIntakeOnlyQuery, auto_camelcase=False)
 
 #Active Projects Only Query
 class ActiveProjectsOnlyQuery(graphene.ObjectType):
-    active_projects = graphene.List(
-        ActiveProjectType,
+    active_projects = graphene.Field(
+        ActiveProjectGridPagesType,
         show_archived=graphene.Boolean(),
-        location=graphene.Int()
+        location=graphene.Int(),
+        limit=graphene.Int(),
+        offset=graphene.Int()
     )
-    def resolve_active_projects(self, info, show_archived=True, location=None):
-        return LsdbQuery.resolve_active_projects(self,info,show_archived=show_archived,location=location)
+    def resolve_active_projects(self, info, show_archived=True, location=None, limit=100, offset=0):
+        return LsdbQuery.resolve_active_projects(self,info,show_archived=show_archived,location=location,limit=limit,offset=offset)
 active_projects_schema = graphene.Schema(query=ActiveProjectsOnlyQuery,auto_camelcase=False)
 
 

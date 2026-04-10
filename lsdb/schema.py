@@ -57,12 +57,9 @@ class AzureFileFlagType(DjangoObjectType):
         fields = "__all__"
 
     def resolve_file(self, info):
-        request = info.context
-        if request:
-            return request.build_absolute_uri(
-                f"/api/1.0/azure_files/{self.id}/download/"
-            )
-        return f"/api/1.0/azure_files/{self.id}/download/"
+        if self.file:
+            return self.file.url
+        return None
 
 class LabelType(DjangoObjectType):
     class Meta:
@@ -184,6 +181,10 @@ class ActiveProjectType(graphene.ObjectType):
     location = graphene.Int()
     location_name = graphene.String()  
 
+class ActiveProjectGridPagesType(graphene.ObjectType):
+    items = graphene.List(ActiveProjectType)
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
 
 # =====================================================
 # Active Project Assign_units 
@@ -775,13 +776,14 @@ class Query(graphene.ObjectType):
     # Active Projects Grid Query (NEW)
     # ==============================================
 
-    active_projects = graphene.List(
-        ActiveProjectType,
+    active_projects = graphene.Field(
+        ActiveProjectGridPagesType,
         show_archived=graphene.Boolean(),
-        location=graphene.Int()
+        location=graphene.Int(),
+        limit=graphene.Int(),
+        offset=graphene.Int()
     )
-
-    def resolve_active_projects(self, info, show_archived=True, location=None):
+    def resolve_active_projects(self, info, show_archived=True, location=None, limit=100, offset=0):
         request = info.context
 
         # -------- BASE QUERY --------
@@ -798,6 +800,10 @@ class Query(graphene.ObjectType):
             ).values_list('project_id', flat=True)
 
             projects = projects.filter(id__in=project_ids)
+
+        total_count = projects.count()
+        
+        projects = projects[offset: offset + limit]
 
         result = []
 
@@ -837,7 +843,11 @@ class Query(graphene.ObjectType):
                 )
             )
 
-        return result
+        return ActiveProjectGridPagesType(
+            items=result,
+            total_count=total_count,
+            has_next=offset + limit < total_count
+        )
         
 
     # ============================================
