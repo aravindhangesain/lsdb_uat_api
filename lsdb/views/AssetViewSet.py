@@ -15,7 +15,7 @@ from lsdb.models import Asset
 from lsdb.models import Disposition
 from lsdb.models import MeasurementDefinition
 from lsdb.models import ProcedureDefinition
-from lsdb.models import Unit
+from lsdb.models import Unit,AssetCalibration
 
 from lsdb.serializers import AssetSerializer
 from lsdb.serializers import NoteSerializer
@@ -60,6 +60,31 @@ class AssetViewSet(LoggingMixin, viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = AssetFilter
     permission_classes = [ConfiguredPermission]
+
+    def perform_create(self, serializer):
+        asset = serializer.save()
+        AssetCalibration.objects.create(
+            asset_number=asset.name,
+            asset_name=asset.name,
+            asset_id=asset.id,
+            description=asset.description,
+            location=asset.location,
+            disposition=asset.disposition,
+            is_calibration_required=False
+            )
+    
+    def perform_update(self, serializer):
+        asset = serializer.save()
+
+        asset_calibration = AssetCalibration.objects.filter(asset_id=asset.id).first()
+        if asset_calibration:
+            asset_calibration.asset_number = asset.name
+            asset_calibration.asset_name = asset.name
+            asset_calibration.description = asset.description
+            asset_calibration.location = asset.location
+            asset_calibration.disposition_id = asset.disposition_id
+            asset_calibration.save()
+        
 
     # @transaction.atomic
     # @action(detail=True, methods=['get','post'],

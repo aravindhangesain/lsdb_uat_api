@@ -16,6 +16,32 @@ class AssetCalibrationViewSet(viewsets.ModelViewSet):
     serializer_class = AssetCalibrationSerializer
     # pagination_class = None
 
+    def patch(self, request, *args, **kwargs):
+        asset_calibration_id = kwargs.get('pk')
+
+        asset_calibration = AssetCalibration.objects.get(id=asset_calibration_id)
+        asset = Asset.objects.get(id=asset_calibration.asset_id)
+
+        asset.name = request.data.get('asset_name', asset.name)
+        asset.description = request.data.get('description', asset.description)
+
+        location_url = request.data.get('location')
+        if location_url:
+            location_id = location_url.rstrip('/').split('/')[-1]
+            asset.location_id = location_id
+
+        asset.save()
+
+        asset_type_url = request.data.get('asset_type')
+        if asset_type_url:
+            asset_type_id = asset_type_url.rstrip('/').split('/')[-1]
+
+            asset.asset_types.set([asset_type_id])
+
+            
+        return super().patch(request, *args, **kwargs)
+
+
     def partial_update(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         instance = self.get_object()
