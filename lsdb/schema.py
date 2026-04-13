@@ -7,7 +7,7 @@ from django.utils import timezone
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
 from graphene.types.generic import GenericScalar
-from django.db.models import Max, Exists, OuterRef, Q
+from django.db.models import Max, Exists, OuterRef, Q, Count
 from django.core.serializers.json import DjangoJSONEncoder
 from lsdb.serializers import TestSequenceAssignmentSerializer
 from lsdb.utils.HasHistory import work_order_measurements_completed
@@ -183,7 +183,9 @@ class ActiveProjectType(graphene.ObjectType):
     disposition_name = graphene.String()
     group = graphene.String()
     location = graphene.Int()
-    location_name = graphene.String()  
+    location_name = graphene.String()
+    notes_count = graphene.Int()  
+    intake_count = graphene.Int()
 
 class ActiveProjectGridPagesType(graphene.ObjectType):
     items = graphene.List(ActiveProjectType)
@@ -804,6 +806,10 @@ class Query(graphene.ObjectType):
             ).values_list('project_id', flat=True)
 
             projects = projects.filter(id__in=project_ids)
+            
+        projects = projects.annotate(
+        notes_count=Count('notes', filter=Q(notes__note_type__id=1)),
+        intake_count=Count('notes', filter=Q(notes__note_type__id=2)))
 
         total_count = projects.count()
         
@@ -843,7 +849,11 @@ class Query(graphene.ObjectType):
                     disposition_name=project.disposition.name if project.disposition else None,
                     group=f"{base_url}groups/{project.group.id}/" if project.group else None,
                     location=location_id,
-                    location_name=location_name
+                    location_name=location_name,
+                    
+                    notes_count=project.notes_count,
+                    intake_count=project.intake_count,
+
                 )
             )
 
