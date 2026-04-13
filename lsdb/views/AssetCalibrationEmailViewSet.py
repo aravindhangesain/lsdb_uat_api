@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.core.mail import EmailMultiAlternatives
 from lsdb.serializers import AssetCalibrationSerializer
-
+import json
 
 
 class AssetCalibrationEmailViewSet(viewsets.ModelViewSet):
@@ -28,6 +28,10 @@ class AssetCalibrationEmailViewSet(viewsets.ModelViewSet):
             return Response(error, status=400)
         if not result:
             return Response({"message": "No data to send"}, status=200)
+        
+        raw_emails=request.query_params.get('emails',[])
+        users_to_send = json.loads(raw_emails)
+
         table_rows = ""
         for item in result:
             table_rows += f"""
@@ -53,7 +57,7 @@ class AssetCalibrationEmailViewSet(viewsets.ModelViewSet):
                             <th>Asset Name</th>
                             <th>Asset Type</th>
                             <th>Last Calibrated</th>
-                            <th>Schedule</th>
+                            <th>Days Remaining</th>
                             <th>Calibration Due Date</th>
                         </tr>
                     </thead>
@@ -69,10 +73,11 @@ class AssetCalibrationEmailViewSet(viewsets.ModelViewSet):
             subject="Calibration Due Assets",
             body="Please view in HTML format",
             from_email=settings.EMAIL_HOST_USER,
-            to=["manikandanr@gesain.com", request.user.email],
+            to=users_to_send,
         )
         email.attach_alternative(html_content, "text/html")
         email.send(fail_silently=False)
+        print(users_to_send)
         return Response({"message": "Email sent successfully"})
     
     def get_filtered_assets(self, request):
