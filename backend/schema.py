@@ -3,7 +3,7 @@ from lsdb.schema import Query as LsdbQuery
 from lsdb.schema import NotesFlagPageType
 from lsdb.schema import (ModuleIntakePageType,ModuleIntakeGridPagesType,CustomerPageType, 
                          CrateIntakePaginationType,ActiveProjectGridPagesType,AssignUnitsResponseType,
-                         WorkOrderListResponse)
+                         WorkOrderListResponse,APIRequestLogPageType)
 
 # Initial
 class Query(LsdbQuery, graphene.ObjectType):
@@ -111,3 +111,23 @@ class WorkOrderOnlyQuery(graphene.ObjectType):
     def resolve_work_order(self, info,project_id):
         return LsdbQuery.resolve_work_order(self, info,project_id=project_id)
 work_order_schema = graphene.Schema(query=WorkOrderOnlyQuery, auto_camelcase=False)
+
+# API Request Logs Only Query
+class APIRequestLogOnlyQuery(graphene.ObjectType):
+    api_request_logs = graphene.Field(
+        APIRequestLogPageType,
+        page=graphene.Int(),
+    )
+
+    def resolve_api_request_logs(self, info, page=1):
+        return LsdbQuery.resolve_api_request_logs(
+            self,
+            info,
+            page=page
+        )
+
+
+api_request_logs_schema = graphene.Schema(
+    query=APIRequestLogOnlyQuery,
+    auto_camelcase=False
+)

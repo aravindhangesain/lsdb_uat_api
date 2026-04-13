@@ -11,7 +11,8 @@ from django.db.models import Max, Exists, OuterRef, Q, Count
 from django.core.serializers.json import DjangoJSONEncoder
 from lsdb.serializers import TestSequenceAssignmentSerializer
 from lsdb.utils.HasHistory import work_order_measurements_completed
-
+from graphene_django.types import DjangoObjectType
+from rest_framework_tracking.models import APIRequestLog
 
 
 from lsdb.models import (
@@ -36,6 +37,17 @@ from lsdb.serializers.ProcedureResultSerializer import (
     FailedProjectReportSerializer,
     MssFailedProjectReportSerializer
 )
+
+
+class APIRequestLogType(DjangoObjectType):
+    class Meta:
+        model = APIRequestLog
+        fields = "__all__"
+
+class APIRequestLogPageType(graphene.ObjectType):
+    items = graphene.List(APIRequestLogType)
+    total_count = graphene.Int()
+    has_next = graphene.Boolean()
 
 User = get_user_model()
 
@@ -1334,4 +1346,32 @@ class Query(graphene.ObjectType):
             total_count=total_count,
             has_next=False,
             results=qs   
+        )
+    
+    # =====================================================
+    # Api request Log
+    # =====================================================
+
+    api_request_logs = graphene.Field(
+    APIRequestLogPageType,
+    page=graphene.Int(),)
+
+    def resolve_api_request_logs(self, info, page=1):
+        page_size = 20
+
+        qs = APIRequestLog.objects.all().order_by('-requested_at')
+
+        total_count = qs.count()
+
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        items = qs[start:end]
+
+        has_next = end < total_count
+
+        return APIRequestLogPageType(
+            items=items,
+            total_count=total_count,
+            has_next=has_next
         )
